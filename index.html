@@ -3,71 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aroma Bakery - 管理員中心</title>
+    <title>Aroma Bakery | Concierge Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        .font-admin { font-family: 'Cinzel', 'Noto Sans TC', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-100 min-h-screen font-sans">
+<body class="bg-[#121212] text-[#E0E0E0] font-admin min-h-screen antialiased">
 
-    <header class="bg-slate-800 text-white p-4 shadow-md">
+    <header class="bg-[#1C1C1C] border-b border-[#2C2C2C] px-8 py-5 shadow-xl">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-wider">🛠 Aroma Bakery 後台管理系統</h1>
-            <span class="text-xs bg-emerald-600 px-3 py-1 rounded">即時數據連線中</span>
+            <div>
+                <h1 class="text-xl font-bold tracking-[0.2em] text-[#E5D5C5]">AROMA BAKERY CONTROL</h1>
+                <p class="text-[10px] text-emerald-500 tracking-wider mt-0.5">● LIVE DATA OVER ARCHITECTURE</p>
+            </div>
         </div>
     </header>
 
-    <div class="container mx-auto p-4 grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div class="container mx-auto p-6 grid grid-cols-1 xl:grid-cols-3 gap-8">
         
-        <div class="xl:col-span-2 space-y-4">
-            <h2 class="text-lg font-bold text-slate-700 flex items-center justify-between">
-                <span>📋 今日即時訂單</span>
-            </h2>
+        <div class="xl:col-span-2 space-y-6">
+            <h2 class="text-sm font-semibold tracking-[0.15em] text-[#A89280] uppercase border-b border-[#2C2C2C] pb-2">📋 Live Orders / 即時預訂序列</h2>
             <div id="orders-container" class="space-y-4">
-                <p class="text-gray-500">正在等待新訂單...</p>
+                <p class="text-gray-500 italic text-sm">Awaiting new transmissions...</p>
             </div>
         </div>
 
-        <div class="space-y-6">
-            <div class="bg-white p-5 rounded-xl shadow">
-                <h2 class="text-md font-bold text-slate-800 mb-3 border-b pb-2">➕ 上架新麵包品項</h2>
-                <form id="add-product-form" class="space-y-3 text-sm">
+        <div class="space-y-8">
+            <div class="bg-[#1C1C1C] p-6 border border-[#2C2C2C] rounded-none shadow-lg">
+                <h2 class="text-xs font-semibold text-[#E5D5C5] tracking-[0.2em] mb-4 pb-2 border-b border-[#333]">➕ INVENTORY INGESTION / 上架珍品</h2>
+                <form id="add-product-form" class="space-y-4 text-xs">
                     <div>
-                        <label class="block text-gray-600 mb-1">麵包名稱</label>
-                        <input type="text" id="p-name" required class="w-full p-2 border rounded">
+                        <label class="block text-[#A89280] mb-1 tracking-wider">麵包品名 NAME</label>
+                        <input type="text" id="p-name" required class="w-full p-3 bg-[#262626] border border-[#3A3A3A] focus:outline-none focus:border-[#E5D5C5] text-white">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[#A89280] mb-1 tracking-wider">單價 PRICE (NT$)</label>
+                            <input type="number" id="p-price" required class="w-full p-3 bg-[#262626] border border-[#3A3A3A] focus:outline-none focus:border-[#E5D5C5] text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[#A89280] mb-1 tracking-wider">配額 STOCK</label>
+                            <input type="number" id="p-stock" required class="w-full p-3 bg-[#262626] border border-[#3A3A3A] focus:outline-none focus:border-[#E5D5C5] text-white">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-gray-600 mb-1">單價 (元)</label>
-                        <input type="number" id="p-price" required class="w-full p-2 border rounded">
+                        <label class="block text-[#A89280] mb-1 tracking-wider">頂級意象圖片網址 IMAGE URL</label>
+                        <input type="text" id="p-image" placeholder="https://..." class="w-full p-3 bg-[#262626] border border-[#3A3A3A] focus:outline-none focus:border-[#E5D5C5] text-white">
                     </div>
-                    <div>
-                        <label class="block text-gray-600 mb-1">今日準備庫存量</label>
-                        <input type="number" id="p-stock" required class="w-full p-2 border rounded">
-                    </div>
-                    <div>
-                        <label class="block text-gray-600 mb-1">商品圖片網址 (選填)</label>
-                        <input type="text" id="p-image" placeholder="https://..." class="w-full p-2 border rounded">
-                    </div>
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-bold transition">
-                        確認上架商品
+                    <button type="submit" class="w-full bg-[#E5D5C5] hover:bg-[#CFC0B0] text-black tracking-[0.2em] font-semibold py-3 transition text-xs uppercase">
+                        確認上架發佈
                     </button>
                 </form>
             </div>
 
-            <div class="bg-white p-5 rounded-xl shadow">
-                <h2 class="text-md font-bold text-slate-800 mb-3 border-b pb-2">📦 目前架上庫存狀態</h2>
-                <div id="admin-product-list" class="space-y-2 max-h-80 overflow-y-auto">
+            <div class="bg-[#1C1C1C] p-6 border border-[#2C2C2C] rounded-none shadow-lg">
+                <h2 class="text-xs font-semibold text-[#E5D5C5] tracking-[0.2em] mb-4 pb-2 border-b border-[#333]">📦 CURRENT VAULT / 首席庫存庫</h2>
+                <div id="admin-product-list" class="space-y-3 max-h-80 overflow-y-auto">
                     </div>
             </div>
         </div>
+    </div>
 
+    <div id="login-overlay" class="fixed inset-0 bg-black/95 flex items-center justify-center z-50">
+        <div class="bg-[#1C1C1C] p-8 border border-[#2C2C2C] max-w-sm w-full text-center">
+            <h3 class="text-md font-bold tracking-widest text-[#E5D5C5] mb-6">AROMA BAKERY CONCIERGE</h3>
+            <div class="space-y-4">
+                <input type="email" id="admin-email" placeholder="經理信箱" class="w-full p-3 bg-[#262626] border border-[#3A3A3A] text-xs text-white">
+                <input type="password" id="admin-password" placeholder="認證安全密鑰" class="w-full p-3 bg-[#262626] border border-[#3A3A3A] text-xs text-white">
+                <button onclick="loginAdmin()" class="w-full bg-[#E5D5C5] text-black text-xs p-3 font-bold tracking-widest hover:bg-[#CFC0B0] transition uppercase">驗證登入</button>
+            </div>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
             authDomain: "aroma-bakery-492fa.firebaseapp.com",
+            databaseURL: "https://aroma-bakery-492fa-default-rtdb.firebaseio.com",
             projectId: "aroma-bakery-492fa",
             storageBucket: "aroma-bakery-492fa.firebasestorage.app",
             messagingSenderId: "1060567946315",
@@ -75,104 +93,133 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
 
-        // 1. 即時監聽訂單 (依建立時間由新到舊排序)
-        const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-        onSnapshot(ordersQuery, (snapshot) => {
-            const container = document.getElementById("orders-container");
-            container.innerHTML = "";
-
-            if(snapshot.empty) {
-                container.innerHTML = `<p class="text-gray-400 bg-white p-6 rounded-lg text-center shadow-sm">目前尚無任何訂單。</p>`;
-                return;
-            }
-
-            snapshot.forEach((docSnap) => {
-                const order = docSnap.data();
-                const id = docSnap.id;
-                
-                // 根據狀態給予不同的外觀標籤
-                let statusColor = "bg-amber-100 text-amber-800";
-                if(order.status === "製作中") statusColor = "bg-blue-100 text-blue-800";
-                if(order.status === "待取貨") statusColor = "bg-purple-100 text-purple-800";
-                if(order.status === "已完成") statusColor = "bg-green-100 text-green-800";
-
-                const itemsText = order.items.map(item => `${item.name} x ${item.qty}`).join('、');
-
-                const card = document.createElement("div");
-                card.className = "bg-white p-5 rounded-xl shadow-sm border border-gray-200";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start border-b pb-2 mb-3">
-                        <div>
-                            <span class="text-sm font-bold text-gray-700">訂購人：${order.customerName} (${order.customerPhone})</span>
-                            <p class="text-xs text-gray-400 mt-1">預計取貨時間：<strong class="text-amber-700">${order.pickupTime}</strong></p>
-                        </div>
-                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusColor}">${order.status}</span>
-                    </div>
-                    <div class="text-gray-600 text-sm mb-4">
-                        <strong class="text-gray-800">細項：</strong> ${itemsText}
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-md font-bold text-slate-800">總金額: $${order.totalPrice}</span>
-                        <div class="flex gap-2">
-                            <button onclick="changeStatus('${id}', '製作中')" class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded border hover:bg-blue-500 hover:text-white">接單製作</button>
-                            <button onclick="changeStatus('${id}', '待取貨')" class="bg-purple-50 text-purple-700 text-xs px-2 py-1 rounded border hover:bg-purple-500 hover:text-white">已好等取</button>
-                            <button onclick="changeStatus('${id}', '已完成')" class="bg-green-50 text-green-700 text-xs px-2 py-1 rounded border hover:bg-green-500 hover:text-white">完成取貨</button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        });
-
-        // 2. 修改訂單狀態功能
-        window.changeStatus = async (id, newStatus) => {
-            const orderRef = doc(db, "orders", id);
-            await updateDoc(orderRef, { status: newStatus });
+        window.loginAdmin = () => {
+            const email = document.getElementById("admin-email").value;
+            const password = document.getElementById("admin-password").value;
+            signInWithEmailAndPassword(auth, email, password).catch(err => alert("憑證無效，拒絕存取。"));
         };
 
-        // 3. 商品管理：即時載入後台商品狀態
-        onSnapshot(collection(db, "products"), (snapshot) => {
-            const list = document.getElementById("admin-product-list");
-            list.innerHTML = "";
-            snapshot.forEach(docSnap => {
-                const p = docSnap.data();
-                const id = docSnap.id;
-                const div = document.createElement("div");
-                div.className = "flex justify-between items-center bg-gray-50 p-2 rounded text-xs text-gray-700";
-                div.innerHTML = `
-                    <span><strong>${p.name}</strong> ($${p.price}) - 剩餘庫存: ${p.stock}</span>
-                    <div class="flex gap-1">
-                        <button onclick="changeStock('${id}', ${p.stock + 5})" class="px-1.5 bg-gray-200 rounded hover:bg-gray-300">+5</button>
-                        <button onclick="deleteProduct('${id}')" class="text-red-500 hover:underline px-1">下架</button>
-                    </div>
-                `;
-                list.appendChild(div);
-            });
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById("login-overlay").classList.add("hidden");
+                initializeDashboard();
+            } else {
+                document.getElementById("login-overlay").classList.remove("hidden");
+            }
         });
 
-        // 4. 新增商品邏輯
+        function initializeDashboard() {
+            // 監聽訂單
+            onValue(ref(db, "orders"), (snapshot) => {
+                const container = document.getElementById("orders-container");
+                container.innerHTML = "";
+                const orders = snapshot.val() || {};
+
+                if(Object.keys(orders).length === 0) {
+                    container.innerHTML = `<p class="text-gray-500 italic text-xs bg-[#1C1C1C] p-6 text-center border border-[#2C2C2C]">無待處理預訂序列。</p>`;
+                    return;
+                }
+
+                // 按時間新舊排序（RTDB 是物件，轉陣列處理）
+                const sortedOrders = Object.keys(orders).map(key => ({id: key, ...orders[key]})).sort((a,b) => b.createdAt - a.createdAt);
+
+                sortedOrders.forEach(order => {
+                    let statusStyle = "border-[#A89280] text-[#A89280]";
+                    if(order.status === "製作中") statusStyle = "border-blue-500 text-blue-400";
+                    if(order.status === "待取貨") statusStyle = "border-purple-500 text-purple-400";
+                    if(order.status === "已完成") statusStyle = "border-emerald-500 text-emerald-400 opacity-40";
+
+                    const itemsText = order.items.map(item => `${item.name} (x${item.qty})`).join(', ');
+
+                    const card = document.createElement("div");
+                    card.className = "bg-[#1C1C1C] p-5 border border-[#2C2C2C] relative transition duration-300";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start border-b border-[#2C2C2C] pb-3 mb-3 text-xs">
+                            <div>
+                                <span class="font-bold text-gray-200 text-sm">貴賓：${order.customerName} / ${order.customerPhone}</span>
+                                <p class="text-[#A89280] mt-1 tracking-wider">預定取貨時段：<strong class="text-[#E5D5C5]">${order.pickupTime}</strong></p>
+                            </div>
+                            <span class="px-3 py-1 border text-[10px] uppercase tracking-widest ${statusStyle}">${order.status}</span>
+                        </div>
+                        <div class="text-gray-400 text-xs mb-4 tracking-wide">
+                            <span class="text-gray-500">序項明細：</span> ${itemsText}
+                        </div>
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="text-sm font-semibold text-[#E5D5C5]">NT$ ${order.totalPrice}</span>
+                            <div class="flex gap-2 text-[10px]">
+                                <button onclick="changeStatus('${order.id}', '製作中')" class="border border-blue-900 text-blue-400 px-2 py-1 hover:bg-blue-950 transition">烘焙製作</button>
+                                <button onclick="changeStatus('${order.id}', '待取貨')" class="border border-purple-900 text-purple-400 px-2 py-1 hover:bg-purple-950 transition">置櫃候取</button>
+                                <button onclick="changeStatus('${order.id}', '已完成')" class="border border-emerald-900 text-emerald-400 px-2 py-1 hover:bg-emerald-950 transition">出閣禮成</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            });
+
+            // 監聽後台庫存
+            onValue(ref(db, "products"), (snapshot) => {
+                const list = document.getElementById("admin-product-list");
+                list.innerHTML = "";
+                const products = snapshot.val() || {};
+                for (let id in products) {
+                    const p = products[id];
+                    const div = document.createElement("div");
+                    div.className = "flex justify-between items-center bg-[#262626] p-3 border border-[#3A3A3A] text-[11px]";
+                    div.innerHTML = `
+                        <span class="tracking-wide"><strong>${p.name}</strong> (NT$${p.price}) <span class="text-[#A89280]">儲量: ${p.stock}</span></span>
+                        <div class="flex gap-2">
+                            <button onclick="changeStock('${id}', ${p.stock + 10})" class="px-2 py-0.5 bg-[#333] hover:bg-[#444] rounded text-gray-300">+10</button>
+                            <button onclick="deleteProduct('${id}')" class="text-red-400 hover:underline">下架</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                }
+            });
+        }
+
+        // 🟢 正確的修復：使用 Realtime Database 的 push & set 語法
         document.getElementById("add-product-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const productData = {
-                name: document.getElementById("p-name").value,
-                price: Number(document.getElementById("p-price").value),
-                stock: Number(document.getElementById("p-stock").value),
-                image: document.getElementById("p-image").value || ""
-            };
-            await addDoc(collection(db, "products"), productData);
-            alert("商品上架成功！");
-            document.getElementById("add-product-form").reset();
+            
+            const name = document.getElementById("p-name").value;
+            const price = Number(document.getElementById("p-price").value);
+            const stock = Number(document.getElementById("p-stock").value);
+            const image = document.getElementById("p-image").value || "";
+
+            try {
+                const productsRef = ref(db, "products");
+                const newProductRef = push(productsRef); // 在 products 下產生隨機唯一 ID 的節點
+                
+                await set(newProductRef, {
+                    name: name,
+                    price: price,
+                    stock: stock,
+                    image: image
+                });
+
+                alert("高級烘焙品項上架成功！");
+                document.getElementById("add-product-form").reset();
+            } catch (error) {
+                console.error("上架發生錯誤: ", error);
+                alert("上架失敗：" + error.message);
+            }
         });
 
-        // 5. 修改庫存與刪除商品
-        window.changeStock = async (id, newStock) => {
-            await updateDoc(doc(db, "products", id), { stock: newStock });
+        window.changeStatus = async (id, newStatus) => {
+            await update(ref(db, `orders/${id}`), { status: newStatus });
         };
+
+        window.changeStock = async (id, newStock) => {
+            await update(ref(db, `products/${id}`), { stock: newStock });
+        };
+
         window.deleteProduct = async (id) => {
-            if(confirm("確定要下架這款麵包嗎？")) {
-                await deleteDoc(doc(db, "products", id));
+            if(confirm("確定要下架這款極致烘焙嗎？")) {
+                await remove(ref(db, `products/${id}`));
             }
         };
     </script>
