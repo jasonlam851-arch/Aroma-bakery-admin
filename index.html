@@ -19,57 +19,43 @@
             margin: 0;
             padding: 20px;
         }
-        
-        .login-overlay {
+
+        /* 管理員專用自訂內建彈窗 */
+        .admin-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--cream-bg);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 9999;
+            background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center;
+            z-index: 11000;
         }
-        .login-box {
-            background: white; border: 1px solid var(--sand-light); border-radius: 8px;
-            padding: 30px; width: 100%; max-width: 360px;
-            box-shadow: 0 4px 15px rgba(74,51,45,0.08);
-            text-align: center;
+        .admin-modal {
+            background: white; border-radius: 6px; padding: 25px; width: 90%; max-width: 360px;
+            text-align: center; box-shadow: 0 4px 25px rgba(0,0,0,0.2);
         }
+        .admin-modal h3 { margin-top: 0; color: #cc0000; }
+        .admin-modal p { font-size: 14px; color: #333; line-height: 1.6; }
+        .admin-modal-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+        .btn-adm-ok { background: var(--caramel-main); color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-adm-cancel { background: #eee; color: #333; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; }
+        
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--cream-bg); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: white; border: 1px solid var(--sand-light); border-radius: 8px; padding: 30px; width: 100%; max-width: 360px; box-shadow: 0 4px 15px rgba(74,51,45,0.08); text-align: center; }
         .login-box h2 { color: var(--caramel-main); margin-bottom: 5px; }
         .login-box p { font-size: 13px; color: var(--caramel-light); margin-bottom: 25px; letter-spacing: 1px; }
         .input-group { position: relative; margin-bottom: 18px; text-align: left; }
         .input-group label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 14px; }
-        .input-group input {
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px;
-        }
-        .password-toggle {
-            position: absolute; right: 10px; bottom: 8px; cursor: pointer;
-            user-select: none; font-size: 13px; color: #777;
-        }
-        .btn-login {
-            background-color: var(--caramel-main); color: white; border: none; padding: 12px;
-            border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 10px;
-        }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        .password-toggle { position: absolute; right: 10px; bottom: 8px; cursor: pointer; user-select: none; font-size: 13px; color: #777; }
+        .btn-login { background-color: var(--caramel-main); color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 10px; }
         .btn-login:hover { background-color: var(--caramel-dark); }
 
         .main-content { display: none; }
-        .system-header {
-            text-align: center; border-bottom: 2px solid var(--caramel-main);
-            padding-bottom: 10px; margin-bottom: 25px; position: relative;
-        }
+        .system-header { text-align: center; border-bottom: 2px solid var(--caramel-main); padding-bottom: 10px; margin-bottom: 25px; position: relative; }
         .system-header h1 { margin: 0; color: var(--caramel-main); font-size: 28px; }
         .system-header span { font-size: 14px; color: var(--caramel-light); letter-spacing: 1px; }
         .user-badge { position: absolute; right: 10px; bottom: 10px; font-size: 14px; font-weight: bold; color: var(--caramel-dark); }
         
-        .admin-container {
-            max-width: 1300px; margin: 0 auto;
-            display: grid; grid-template-columns: 1fr 1.8fr; gap: 20px;
-        }
-        .panel {
-            background: white; border: 1px solid var(--sand-light); border-radius: 6px;
-            padding: 20px; box-shadow: 0 2px 5px rgba(74,51,45,0.05); height: fit-content; margin-bottom: 20px;
-        }
-        .panel-title {
-            font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 20px;
-            color: var(--caramel-dark); border-left: 4px solid var(--caramel-main); padding-left: 8px;
-        }
+        .admin-container { max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        .panel { background: white; border: 1px solid var(--sand-light); border-radius: 6px; padding: 20px; box-shadow: 0 2px 5px rgba(74,51,45,0.05); height: fit-content; margin-bottom: 20px; }
+        .panel-title { font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 20px; color: var(--caramel-dark); border-left: 4px solid var(--caramel-main); padding-left: 8px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
         .form-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
@@ -78,23 +64,32 @@
         .preview-img { max-width: 100%; max-height: 120px; margin-top: 10px; display: none; border-radius: 4px; }
         .btn-submit { background-color: var(--caramel-main); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 15px; }
         
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
         .product-card { background: white; border: 1px solid #eee; border-radius: 6px; padding: 10px; text-align: center; position: relative; }
-        .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 4px; }
+        .product-card img { width: 100%; height: 80px; object-fit: cover; border-radius: 4px; }
         .prod-name { font-weight: bold; margin: 8px 0 4px; font-size: 13px; }
         .prod-price { color: var(--caramel-light); font-weight: bold; font-size: 13px; }
         .btn-delete { position: absolute; top: 5px; right: 5px; background: rgba(255, 71, 87, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 11px; line-height: 22px; padding: 0; }
         
         .crm-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
         .crm-table th { background-color: var(--sand-light); padding: 8px; color: var(--caramel-dark); }
-        .crm-table td { padding: 8px; border-bottom: 1px solid #eee; }
+        .crm-table td { padding: 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
         
-        /* 後台可編輯輸入框樣式 */
         .inline-edit-input { width: 80px; padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; }
         .btn-save-inline { background: var(--caramel-light); color: white; border: none; padding: 3px 6px; border-radius: 3px; cursor: pointer; margin-left: 4px; font-size: 11px; }
+        .btn-kick { background-color: #cc0000; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold; }
     </style>
 </head>
 <body>
+
+    <!-- 管理端專用自訂內建彈窗 UI -->
+    <div class="admin-modal-overlay" id="adm-modal-screen">
+        <div class="admin-modal">
+            <h3 id="adm-modal-title">管理處通知</h3>
+            <p id="adm-modal-msg"></p>
+            <div class="admin-modal-btns" id="adm-modal-btn-container"></div>
+        </div>
+    </div>
 
     <!-- 管理員登入介面 -->
     <div class="login-overlay" id="login-screen">
@@ -125,9 +120,7 @@
         </div>
 
         <div class="admin-container">
-            <!-- 左側控制欄 -->
             <div>
-                <!-- 商品上架 -->
                 <div class="panel">
                     <div class="panel-title">上架新商品 (HKD 定價)</div>
                     <form id="add-product-form" onsubmit="handleFormSubmit(event)">
@@ -151,17 +144,15 @@
                     </form>
                 </div>
                 
-                <!-- 商品庫存 -->
                 <div class="panel">
                     <div class="panel-title">目前上架商品庫存 (<span id="prod-count">0</span>)</div>
                     <div class="product-grid" id="products-list-view"></div>
                 </div>
             </div>
 
-            <!-- 右側欄：CRM 使用者全資料總覽 -->
             <div>
                 <div class="panel">
-                    <div class="panel-title">全體註冊使用者資料名冊 (管理員具備生日修改權限)</div>
+                    <div class="panel-title">全體註冊使用者資料名冊 (管理員具備註銷與修改權限)</div>
                     <table class="crm-table">
                         <thead>
                             <tr>
@@ -169,11 +160,12 @@
                                 <th>姓名</th>
                                 <th>電話號碼</th>
                                 <th>註冊日期</th>
-                                <th>出生日期 (可修改)</th>
+                                <th>出生日期 (修改)</th>
+                                <th>管理操作</th>
                             </tr>
                         </thead>
                         <tbody id="crm-users-view">
-                            <tr><td colspan="5" style="color: #999; text-align: center; padding: 20px;">載入會員資料中...</td></tr>
+                            <tr><td colspan="6" style="color: #999; text-align: center; padding: 20px;">載入會員資料中...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -202,6 +194,32 @@
         let globalAdminToken = "AromaAdmin2026";
         const allowedUsers = { "Aroma01": "Admin01", "Aroma02": "Admin02" };
 
+        // 封裝管理端專用自訂模態窗
+        function showAdminModal(title, msg, onConfirm = null, isConfirmType = false) {
+            document.getElementById('adm-modal-title').innerText = title;
+            document.getElementById('adm-modal-msg').innerText = msg;
+            const container = document.getElementById('adm-modal-btn-container');
+            container.innerHTML = '';
+
+            const okBtn = document.createElement('button');
+            okBtn.className = 'btn-adm-ok';
+            okBtn.innerText = '確 定';
+            okBtn.onclick = () => {
+                document.getElementById('adm-modal-screen').style.display = 'none';
+                if(onConfirm) onConfirm();
+            };
+
+            if (isConfirmType) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'btn-adm-cancel';
+                cancelBtn.innerText = '取 消';
+                cancelBtn.onclick = () => { document.getElementById('adm-modal-screen').style.display = 'none'; };
+                container.appendChild(cancelBtn);
+            }
+            container.appendChild(okBtn);
+            document.getElementById('adm-modal-screen').style.display = 'flex';
+        }
+
         window.togglePasswordVisibility = function() {
             const passInput = document.getElementById('loginPass');
             if (passInput.type === "password") { passInput.type = "text"; } else { passInput.type = "password"; }
@@ -217,12 +235,11 @@
                 document.getElementById('current-user-display').innerText = user;
                 startDatabaseListening();
             } else {
-                alert('帳號或密碼錯誤。');
+                showAdminModal('認證失敗', '帳號或密碼錯誤。');
             }
         }
 
         function startDatabaseListening() {
-            // 監聽並加載菜單
             onValue(ref(db, 'products'), (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('products-list-view');
@@ -240,16 +257,13 @@
                 `).join('');
             });
 
-            // 監聽會員資料庫 (含動態修改出生日期功能)
             onValue(ref(db, 'users'), (snapshot) => {
                 const data = snapshot.val();
                 const crmView = document.getElementById('crm-users-view');
                 if (!data) {
-                    crmView.innerHTML = '<tr><td colspan="5" style="color:#999; text-align:center;">目前無任何註冊會員</td></tr>';
+                    crmView.innerHTML = '<tr><td colspan="6" style="color:#999; text-align:center;">目前無任何註冊會員</td></tr>';
                     return;
                 }
-                
-                // 將電話字串中的括號等雜質還原回原始的寫入節點 Key
                 crmView.innerHTML = Object.keys(data).map(key => {
                     const u = data[key];
                     return `
@@ -262,23 +276,31 @@
                                 <input type="text" class="inline-edit-input" id="birth-${key}" value="${u.birthday}">
                                 <button class="btn-save-inline" onclick="adminModifyBirthday('${key}')">修改</button>
                             </td>
+                            <td>
+                                <button class="btn-kick" onclick="adminDeleteUser('${key}', '${u.lastName}${u.firstName}')">註銷帳號</button>
+                            </td>
                         </tr>
                     `;
                 }).join('');
             });
         }
 
-        // 管理員專屬：強制複寫會員的生日
         window.adminModifyBirthday = function(phoneKey) {
             const newBirth = document.getElementById(`birth-${phoneKey}`).value.trim();
-            if(!newBirth) { alert('生日不可為空！'); return; }
-            
+            if(!newBirth) { showAdminModal('警告', '生日不可為空！'); return; }
             const updates = {};
             updates[`/users/${phoneKey}/birthday`] = newBirth;
-            
             update(ref(db), updates).then(() => {
-                alert('會員生日已成功強制修改完成！');
-            }).catch(err => alert('修改失敗，請確認資料庫權限。'));
+                showAdminModal('變更完成', '會員出生日期已成功強制修改！');
+            }).catch(err => showAdminModal('失敗', '修改失敗。'));
+        }
+
+        window.adminDeleteUser = function(phoneKey, userName) {
+            showAdminModal('強制註銷確認', `確定要「強制註銷並刪除」會員【${userName}】的帳號嗎？此動作無法還原。`, () => {
+                remove(ref(db, `users/${phoneKey}`)).then(() => {
+                    showAdminModal('註銷成功', `會員【${userName}】已被移出系統。`);
+                }).catch(err => showAdminModal('失敗', '註銷失敗。'));
+            }, true);
         }
 
         window.previewImage = function(input) {
@@ -304,20 +326,21 @@
                     image: currentImageBase64
                 });
             }).then(() => {
-                alert('商品安全上架成功！');
-                document.getElementById('add-product-form').reset();
-                document.getElementById('img-preview').style.display = 'none';
-                document.getElementById('upload-hint').style.display = 'block';
-                currentImageBase64 = "";
+                showAdminModal('上架成功', '商品安全上架成功！', () => {
+                    document.getElementById('add-product-form').reset();
+                    document.getElementById('img-preview').style.display = 'none';
+                    document.getElementById('upload-hint').style.display = 'block';
+                    currentImageBase64 = "";
+                });
             });
         }
 
         window.deleteProduct = function(key) {
-            if (confirm("確定要下架此商品嗎？")) {
+            showAdminModal('商品下架', '確定要下架此商品嗎？', () => {
                 set(ref(db, 'admin_auth'), globalAdminToken).then(() => {
                     return remove(ref(db, `products/${key}`));
                 });
-            }
+            }, true);
         }
     </script>
 </body>
