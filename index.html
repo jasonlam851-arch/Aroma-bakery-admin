@@ -3,229 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aroma_bakery | 官方後台管理系統</title>
+    <title>Aroma_bakery 管理系統後台</title>
     <style>
         :root {
-            --caramel-dark: #4A332D;
-            --caramel-main: #8B4513;
-            --caramel-light: #D2691E;
-            --cream-bg: #FDFBF7;
-            --sand-light: #F4EBE1;
+            --admin-primary: #1E293B;
+            --admin-secondary: #0F172A;
+            --admin-accent: #38BDF8;
+            --admin-border: #E2E8F0;
+            --text-dark: #334155;
+            --text-light: #64748B;
+            --danger-color: #EF4444;
+            --success-color: #10B981;
         }
         body {
-            font-family: "Microsoft JhengHei", sans-serif;
-            background-color: var(--cream-bg);
-            color: var(--caramel-dark);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #F8FAFC;
+            color: var(--text-dark);
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
         }
 
-        /* 管理員專用自訂內建彈窗 */
+        /* 自訂內建提示框 */
         .admin-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center;
+            background: rgba(15, 23, 42, 0.6); display: none; justify-content: center; align-items: center;
             z-index: 11000;
         }
         .admin-modal {
-            background: white; border-radius: 6px; padding: 25px; width: 90%; max-width: 360px;
-            text-align: center; box-shadow: 0 4px 25px rgba(0,0,0,0.2);
+            background: #FFFFFF; border-radius: 4px; padding: 30px; width: 90%; max-width: 400px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border-top: 4px solid var(--admin-primary);
         }
-        .admin-modal h3 { margin-top: 0; color: #cc0000; }
-        .admin-modal p { font-size: 14px; color: #333; line-height: 1.6; }
-        .admin-modal-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
-        .btn-adm-ok { background: var(--caramel-main); color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-adm-cancel { background: #eee; color: #333; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; }
+        .admin-modal h3 { margin-top: 0; color: var(--admin-primary); font-size: 18px; margin-bottom: 12px; }
+        .admin-modal p { font-size: 14px; color: var(--text-dark); line-height: 1.6; text-align: left; }
+        .admin-modal-btns { display: flex; gap: 10px; margin-top: 25px; justify-content: flex-end; }
+        .btn-adm-ok { background: var(--admin-primary); color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-adm-cancel { background: #E2E8F0; color: var(--text-dark); border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 13px; }
         
-        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--cream-bg); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .login-box { background: white; border: 1px solid var(--sand-light); border-radius: 8px; padding: 30px; width: 100%; max-width: 360px; box-shadow: 0 4px 15px rgba(74,51,45,0.08); text-align: center; }
-        .login-box h2 { color: var(--caramel-main); margin-bottom: 5px; }
-        .login-box p { font-size: 13px; color: var(--caramel-light); margin-bottom: 25px; letter-spacing: 1px; }
-        .input-group { position: relative; margin-bottom: 18px; text-align: left; }
-        .input-group label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 14px; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        /* 尊榮商務登入介面 */
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0F172A; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: #FFFFFF; border-radius: 8px; padding: 40px; width: 100%; max-width: 380px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
+        .login-box h2 { color: var(--admin-secondary); margin: 0 0 8px 0; font-size: 24px; text-align: center; font-weight: 800; letter-spacing: 1px; }
+        .login-box p { font-size: 13px; color: var(--text-light); margin-bottom: 30px; text-align: center; text-transform: uppercase; letter-spacing: 1.5px; }
         
-        /* 系統維護狀態開關面板 */
-        .maintenance-panel { background: #fff5f5; border: 1px solid #ffcccc; border-radius: 6px; padding: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
-        .maint-title { font-weight: bold; color: #cc0000; font-size: 15px; }
-        .switch-btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; }
-        .switch-off { background-color: #2ed573; }
-        .switch-on { background-color: #ff4757; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 13px; color: var(--admin-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 4px; box-sizing: border-box; font-size: 14px; color: var(--admin-secondary); background-color: #F8FAFC; transition: border-color 0.2s; }
+        .input-group input:focus { border-color: var(--admin-primary); outline: none; }
+        
+        .btn-login { background-color: var(--admin-secondary); color: #FFFFFF; border: 1px solid var(--admin-secondary); padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; transition: background 0.2s; }
+        .btn-login:hover { background-color: #1E293B; }
 
-        .main-content { display: none; }
-        .system-header { text-align: center; border-bottom: 2px solid var(--caramel-main); padding-bottom: 10px; margin-bottom: 25px; position: relative; }
-        .admin-menu-toggle { position: absolute; left: 10px; bottom: 10px; font-size: 24px; cursor: pointer; color: var(--caramel-main); user-select: none; }
-        .system-header h1 { margin: 0; color: var(--caramel-main); font-size: 28px; }
-        .system-header span { font-size: 14px; color: var(--caramel-light); letter-spacing: 1px; }
-        .user-badge { position: absolute; right: 10px; bottom: 10px; font-size: 14px; font-weight: bold; color: var(--caramel-dark); }
-        
-        /* 新增：後台管理側欄 */
-        .admin-drawer { position: fixed; top: 0; left: -340px; width: 320px; height: 100%; background: white; box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; z-index: 10000; padding: 20px; box-sizing: border-box; }
-        .admin-drawer.open { left: 0; }
-        .adm-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 9999; }
-        .adm-drawer-overlay.show { display: block; }
-        .adm-drawer-item { padding: 12px; margin-bottom: 10px; background: #fafafa; border-radius: 4px; font-weight: bold; cursor: pointer; border-left: 4px solid #ccc; }
-        .adm-drawer-item.active { border-left-color: var(--caramel-main); background: var(--sand-light); }
+        /* 專業深色側邊主目錄面板 */
+        .admin-sidebar { width: 260px; background-color: var(--admin-secondary); color: #FFFFFF; display: none; flex-direction: column; box-sizing: border-box; z-index: 500; }
+        .sidebar-brand { padding: 30px 20px; font-size: 18px; font-weight: 800; letter-spacing: 1px; border-bottom: 1px solid #1E293B; }
+        .sidebar-menu { padding: 20px 0; flex: 1; }
+        .sidebar-item { padding: 14px 24px; font-size: 14px; font-weight: 500; color: #94A3B8; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s; }
+        .sidebar-item:hover { color: #FFFFFF; background-color: #1E293B; }
+        .sidebar-item.active { color: #FFFFFF; background-color: var(--admin-primary); border-left: 4px solid var(--admin-accent); padding-left: 20px; }
+        .sidebar-badge { background-color: var(--danger-color); color: white; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: bold; }
+        .btn-logout { background: none; border: none; color: #64748B; padding: 20px; text-align: left; cursor: pointer; font-size: 13px; border-top: 1px solid #1E293B; font-weight: 600; }
+        .btn-logout:hover { color: #FFFFFF; background-color: var(--danger-color); }
 
-        .admin-container { max-width: 1350px; margin: 0 auto; }
-        .admin-page-section { display: none; }
-        .admin-page-section.active { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
-        @media (max-width: 900px) { .admin-page-section.active { grid-template-columns: 1fr; } }
+        /* 右側核心主體區域 */
+        .main-workspace { flex: 1; display: none; flex-direction: column; box-sizing: border-box; overflow-y: auto; }
+        .workspace-header { background: #FFFFFF; border-bottom: 1px solid var(--admin-border); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .workspace-header h1 { margin: 0; font-size: 22px; font-weight: 700; color: var(--admin-secondary); }
+        .workspace-header span { font-size: 13px; color: var(--text-light); }
 
-        .panel { background: white; border: 1px solid var(--sand-light); border-radius: 6px; padding: 20px; box-shadow: 0 2px 5px rgba(74,51,45,0.05); height: fit-content; margin-bottom: 20px; }
-        .panel-title { font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 20px; color: var(--caramel-dark); border-left: 4px solid var(--caramel-main); padding-left: 8px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        .form-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .workspace-container { padding: 40px; max-width: 1400px; }
         
-        .file-input-wrapper { border: 2px dashed #ccc; padding: 15px; text-align: center; background-color: #fafafa; cursor: pointer; border-radius: 4px; }
-        .preview-img { max-width: 100%; max-height: 120px; margin-top: 10px; display: none; border-radius: 4px; }
-        .btn-submit { background-color: var(--caramel-main); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 15px; }
+        /* 運作狀態面板 */
+        .maintenance-panel { background: #FFFFFF; border: 1px solid var(--admin-border); border-radius: 4px; padding: 20px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; }
+        .maint-title { font-weight: 700; color: var(--admin-secondary); font-size: 15px; }
+        .maint-desc { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+        .switch-btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .switch-off { background-color: var(--success-color); }
+        .switch-on { background-color: var(--danger-color); }
+
+        .admin-page-section { display: none; grid-template-columns: 1fr 2.2fr; gap: 30px; }
+        .admin-page-section.active { display: grid; }
+        @media (max-width: 1024px) { .admin-page-section.active { grid-template-columns: 1fr; } }
+
+        .panel { background: #FFFFFF; border: 1px solid var(--admin-border); border-radius: 4px; padding: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); height: fit-content; }
+        .panel-title { font-size: 15px; font-weight: 700; margin-top: 0; margin-bottom: 20px; color: var(--admin-secondary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--admin-border); padding-bottom: 12px; }
         
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-        .product-card { background: white; border: 1px solid #eee; border-radius: 6px; padding: 10px; text-align: center; position: relative; }
-        .product-card img { width: 100%; height: 80px; object-fit: cover; border-radius: 4px; }
-        .prod-name { font-weight: bold; margin: 8px 0 4px; font-size: 13px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: var(--text-dark); }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        
+        .file-input-wrapper { border: 2px dashed #CBD5E1; padding: 20px; text-align: center; background-color: #F8FAFC; cursor: pointer; border-radius: 4px; }
+        .preview-img { max-width: 100%; max-height: 120px; margin-top: 12px; display: none; border-radius: 2px; }
+        .btn-submit { background-color: var(--admin-primary); color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
+        .product-card { background: #FFFFFF; border: 1px solid var(--admin-border); border-radius: 4px; padding: 12px; text-align: center; position: relative; }
+        .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 2px; }
+        .prod-name { font-weight: 600; margin: 8px 0 4px; font-size: 13px; color: var(--admin-secondary); }
         .prod-price { color: var(--caramel-light); font-weight: bold; font-size: 13px; }
-        .btn-delete { position: absolute; top: 5px; right: 5px; background: rgba(255, 71, 87, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 11px; line-height: 22px; padding: 0; }
+        .btn-delete { position: absolute; top: 6px; right: 6px; background: var(--danger-color); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px; line-height: 20px; padding: 0; }
         
         .crm-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-        .crm-table th { background-color: var(--sand-light); padding: 8px; color: var(--caramel-dark); }
-        .crm-table td { padding: 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .crm-table th { background-color: #F1F5F9; padding: 12px 10px; color: var(--admin-secondary); font-weight: 700; border-bottom: 1px solid var(--admin-border); }
+        .crm-table td { padding: 12px 10px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; color: var(--text-dark); }
         
-        .inline-edit-input { width: 80px; padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; }
-        .btn-save-inline { background: var(--caramel-light); color: white; border: none; padding: 3px 6px; border-radius: 3px; cursor: pointer; margin-left: 4px; font-size: 11px; }
-        .btn-kick { background-color: #cc0000; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .inline-edit-input { width: 85px; padding: 6px; border: 1px solid #CBD5E1; border-radius: 4px; font-size: 12px; }
+        .btn-save-inline { background: var(--admin-primary); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-left: 4px; font-size: 12px; }
+        .btn-kick { background-color: var(--danger-color); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <!-- 管理端專用自訂內建彈窗 UI -->
     <div class="admin-modal-overlay" id="adm-modal-screen">
         <div class="admin-modal">
-            <h3 id="adm-modal-title">管理處通知</h3>
+            <h3 id="adm-modal-title">管理端提示</h3>
             <p id="adm-modal-msg"></p>
             <div class="admin-modal-btns" id="adm-modal-btn-container"></div>
         </div>
     </div>
 
-    <!-- 管理員登入介面 -->
     <div class="login-overlay" id="login-screen">
         <div class="login-box">
-            <h2>Aroma_bakery</h2>
-            <p>官方管理系統</p>
+            <h2>AROMA BAKERY</h2>
+            <p>MANAGEMENT CONTROL CENTER</p>
             <form onsubmit="handleLogin(event)">
                 <div class="input-group">
-                    <label for="loginUser">管理員帳號</label>
-                    <input type="text" id="loginUser" required placeholder="請輸入帳號">
+                    <label for="loginUser">帳號</label>
+                    <input type="text" id="loginUser" required placeholder="請輸入管理員帳號">
                 </div>
                 <div class="input-group">
-                    <label for="loginPass">管理密碼</label>
-                    <input type="password" id="loginPass" required placeholder="請輸入密碼">
+                    <label for="loginPass">密碼</label>
+                    <input type="password" id="loginPass" required placeholder="請輸入安全密碼">
                 </div>
-                <button type="submit" class="btn-login">登入系統</button>
+                <button type="submit" class="btn-login">安全登入</button>
             </form>
         </div>
     </div>
 
-    <!-- 新增：管理端抽屜式側邊欄 -->
-    <div class="adm-drawer-overlay" id="adm-drawer-shadow" onclick="toggleAdminDrawer(false)"></div>
-    <div class="admin-drawer" id="admin-menu-drawer">
-        <div style="font-size:18px; font-weight:bold; color:var(--caramel-main); margin-bottom:25px; border-bottom:1px solid #eee; padding-bottom:10px;">後台控制台目錄</div>
-        <div class="adm-drawer-item active" id="menu-tab-main" onclick="switchAdminPage('main')">📋 菜單與全體會員名冊</div>
-        <div class="adm-drawer-item" id="menu-tab-forgot" onclick="switchAdminPage('forgot')">🔑 忘記密碼申請通知 (<span id="forgot-badge-count">0</span>)</div>
-        <button class="btn-submit" style="background:#555; margin-top:30px;" onclick="window.location.reload()">安全登出後台</button>
+    <div class="admin-sidebar" id="admin-sidebar-panel">
+        <div class="sidebar-brand">AROMA CONTROL</div>
+        <div class="sidebar-menu">
+            <div class="sidebar-item active" id="side-tab-main" onclick="switchAdminPage('main')">
+                <span>數據總覽與菜單</span>
+            </div>
+            <div class="sidebar-item" id="side-tab-forgot" onclick="switchAdminPage('forgot')">
+                <span>忘記密碼申請</span>
+                <span class="sidebar-badge" id="forgot-badge-count" style="display:none;">0</span>
+            </div>
+        </div>
+        <button class="btn-logout" onclick="handleAdminLogout()">中斷連線並登出</button>
     </div>
 
-    <!-- 主管理後台 -->
-    <div class="main-content" id="main-admin-content">
-        <div class="system-header">
-            <div class="admin-menu-toggle" onclick="toggleAdminDrawer(true)">☰</div>
-            <h1>Aroma_bakery 官方管理後台</h1>
-            <span>企業會員與雲端菜單管理控制台</span>
-            <div class="user-badge">當前登入：<span id="current-user-display">-</span></div>
+    <div class="main-workspace" id="main-workspace-panel">
+        <div class="workspace-header">
+            <h1>控制台主面板</h1>
+            <span>工作人員：<span id="current-user-display" style="font-weight:700;">-</span></span>
         </div>
 
-        <div class="admin-container">
-            <!-- 核心：即時系統維護開關 -->
+        <div class="workspace-container">
             <div class="maintenance-panel">
                 <div>
-                    <div class="maint-title" id="maint-status-text">當前狀態：顧客點餐系統正常運作中</div>
-                    <div style="font-size:12px; color:#666; margin-top:4px;">啟用維護後，全體線上點餐顧客會被即時強制彈出並鎖定。</div>
+                    <div class="maint-title" id="maint-status-text">系統運作狀態：正常</div>
+                    <div class="maint-desc">啟用維護模式將強制阻斷所有前端點餐客戶端。</div>
                 </div>
-                <button id="btn-maint-toggle" class="switch-btn switch-off" onclick="toggleMaintenanceMode()">切換維護模式</button>
+                <button id="btn-maint-toggle" class="switch-btn switch-off" onclick="toggleMaintenanceMode()">變更狀態</button>
             </div>
 
-            <!-- 分頁一：主要數據管理 (商品 + 會員) -->
             <div id="section-main-data" class="admin-page-section active">
                 <div>
                     <div class="panel">
-                        <div class="panel-title">上架新商品 (HKD 定價)</div>
+                        <div class="panel-title">上架新商品</div>
                         <form id="add-product-form" onsubmit="handleFormSubmit(event)">
                             <div class="form-group">
-                                <label for="prodName">商品名字：</label>
-                                <input type="text" id="prodName" required placeholder="例如：法式可麗露">
+                                <label for="prodName">商品名稱</label>
+                                <input type="text" id="prodName" required placeholder="請輸入商品品名">
                             </div>
                             <div class="form-group">
-                                <label for="prodPrice">商品價格 (HKD)：</label>
-                                <input type="number" id="prodPrice" min="0" required placeholder="例如：45">
+                                <label for="prodPrice">定價 (HKD)</label>
+                                <input type="number" id="prodPrice" min="0" required placeholder="0">
                             </div>
                             <div class="form-group">
-                                <label>商品相片：</label>
+                                <label>商品圖片</label>
                                 <div class="file-input-wrapper" onclick="document.getElementById('prodImage').click()">
-                                    <span id="upload-hint">點擊選取相片</span>
+                                    <span id="upload-hint">選取本機相片</span>
                                     <input type="file" id="prodImage" accept="image/*" style="display:none;" onchange="previewImage(this)">
-                                    <img id="img-preview" class="preview-img" alt="預覽圖">
+                                    <img id="img-preview" class="preview-img">
                                 </div>
                             </div>
-                            <button type="submit" class="btn-submit">確認安全上架</button>
+                            <button type="submit" class="btn-submit">確認發布商品</button>
                         </form>
                     </div>
                     
-                    <div class="panel">
-                        <div class="panel-title">目前上架商品庫存 (<span id="prod-count">0</span>)</div>
+                    <div class="panel" style="margin-top:30px;">
+                        <div class="panel-title">線上餐點庫存 (<span id="prod-count">0</span>)</div>
                         <div class="product-grid" id="products-list-view"></div>
                     </div>
                 </div>
 
                 <div>
                     <div class="panel">
-                        <div class="panel-title">全體註冊使用者資料名冊 (【即時查看密碼】/強制註銷)</div>
+                        <div class="panel-title">全體註冊會員名冊 (支援實時資料核對與強制銷戶)</div>
                         <table class="crm-table">
                             <thead>
                                 <tr>
-                                    <th>編號</th>
+                                    <th>會員編號</th>
                                     <th>姓名</th>
-                                    <th>電話號碼</th>
-                                    <th>當前密碼 (可查看)</th>
-                                    <th>出生日期 (修改)</th>
-                                    <th>管理操作</th>
+                                    <th>聯絡電話</th>
+                                    <th>當前密碼</th>
+                                    <th>出生日期</th>
+                                    <th>管理權限</th>
                                 </tr>
                             </thead>
                             <tbody id="crm-users-view">
-                                <tr><td colspan="6" style="color: #999; text-align: center; padding: 20px;">載入會員資料中...</td></tr>
+                                <tr><td colspan="6" style="color: #64748B; text-align: center; padding: 20px;">正在讀取雲端會員數據...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- 分頁二：新增忘記密碼申請通知分頁 -->
             <div id="section-forgot-data" class="admin-page-section">
                 <div class="panel" style="grid-column: 1 / -1;">
-                    <div class="panel-title">🔑 忘記密碼名冊（核對身分、查看密碼、可刪除資料）</div>
+                    <div class="panel-title">安全通知：忘記密碼人工審核名冊</div>
                     <table class="crm-table">
                         <thead>
                             <tr>
                                 <th>申請電話</th>
                                 <th>宣稱生日</th>
-                                <th>指定接收 Email</th>
-                                <th>系統查出真密碼</th>
+                                <th>接收目標 Email</th>
+                                <th>系統查出密碼</th>
                                 <th>申請時間</th>
                                 <th>操作選項</th>
                             </tr>
                         </thead>
                         <tbody id="forgot-requests-view">
-                            <tr><td colspan="6" style="color:#999; text-align:center; padding:20px;">目前沒有收到任何忘記密碼申請</td></tr>
+                            <tr><td colspan="6" style="color:#64748B; text-align:center; padding:20px;">無任何未處理的申請</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -236,7 +249,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, remove, update, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
@@ -255,6 +268,14 @@
         let isSystemMaintenanceState = false;
         const allowedUsers = { "Aroma01": "Admin01", "Aroma02": "Admin02" };
 
+        // 核心修正：自動續航檢查
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('aroma_admin_session');
+            if (token && allowedUsers[token]) {
+                executeSystemActivation(token);
+            }
+        });
+
         function showAdminModal(title, msg, onConfirm = null, isConfirmType = false) {
             document.getElementById('adm-modal-title').innerText = title;
             document.getElementById('adm-modal-msg').innerText = msg;
@@ -263,7 +284,7 @@
 
             const okBtn = document.createElement('button');
             okBtn.className = 'btn-adm-ok';
-            okBtn.innerText = '確 定';
+            okBtn.innerText = '確定';
             okBtn.onclick = () => {
                 document.getElementById('adm-modal-screen').style.display = 'none';
                 if(onConfirm) onConfirm();
@@ -272,7 +293,7 @@
             if (isConfirmType) {
                 const cancelBtn = document.createElement('button');
                 cancelBtn.className = 'btn-adm-cancel';
-                cancelBtn.innerText = '取 消';
+                cancelBtn.innerText = '取消';
                 cancelBtn.onclick = () => { document.getElementById('adm-modal-screen').style.display = 'none'; };
                 container.appendChild(cancelBtn);
             }
@@ -280,23 +301,15 @@
             document.getElementById('adm-modal-screen').style.display = 'flex';
         }
 
-        window.toggleAdminDrawer = function(open) {
-            const drawer = document.getElementById('admin-menu-drawer');
-            const shadow = document.getElementById('adm-drawer-shadow');
-            if(open) { drawer.classList.add('open'); shadow.classList.add('show'); } 
-            else { drawer.classList.remove('open'); shadow.classList.remove('show'); }
-        }
-
         window.switchAdminPage = function(target) {
-            document.querySelectorAll('.admin-page-section, .adm-drawer-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.admin-page-section, .sidebar-item').forEach(el => el.classList.remove('active'));
             if(target === 'main') {
                 document.getElementById('section-main-data').classList.add('active');
-                document.getElementById('menu-tab-main').classList.add('active');
+                document.getElementById('side-tab-main').classList.add('active');
             } else {
                 document.getElementById('section-forgot-data').classList.add('active');
-                document.getElementById('menu-tab-forgot').classList.add('active');
+                document.getElementById('side-tab-forgot').classList.add('active');
             }
-            toggleAdminDrawer(false);
         }
 
         window.handleLogin = function(event) {
@@ -304,44 +317,53 @@
             const user = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value;
             if (allowedUsers[user] && allowedUsers[user] === pass) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-admin-content').style.display = 'block';
-                document.getElementById('current-user-display').innerText = user;
-                startDatabaseListening();
+                localStorage.setItem('aroma_admin_session', user); // 持久化儲存
+                executeSystemActivation(user);
             } else {
-                showAdminModal('認證失敗', '帳號或密碼錯誤。');
+                showAdminModal('認證失敗', '管理帳利權限錯誤。');
             }
         }
 
-        // 切換維護模式：即時更新到 Firebase 資料庫中
+        function executeSystemActivation(username) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-sidebar-panel').style.display = 'flex';
+            document.getElementById('main-workspace-panel').style.display = 'flex';
+            document.getElementById('current-user-display').innerText = username;
+            startDatabaseListening();
+        }
+
+        window.handleAdminLogout = function() {
+            localStorage.removeItem('aroma_admin_session');
+            window.location.reload();
+        }
+
         window.toggleMaintenanceMode = function() {
             const newState = !isSystemMaintenanceState;
             set(ref(db, 'system_maintenance'), newState).then(() => {
-                showAdminModal('同步完成', newState ? '⚠️ 已成功開啟維護模式！所有顧客將被即時登出彈出。' : '✅ 維護模式已解除，系統開放正常下單。');
+                showAdminModal('狀態變更', newState ? '維護模式已開啟，客戶端同步關閉。' : '系統維護模式已解除。');
             });
         }
 
         function startDatabaseListening() {
-            // 1. 即時監聽維護模式狀態
+            // 實時更新：維護狀態
             onValue(ref(db, 'system_maintenance'), (snapshot) => {
                 isSystemMaintenanceState = snapshot.val() || false;
                 const btn = document.getElementById('btn-maint-toggle');
                 const txt = document.getElementById('maint-status-text');
                 if(isSystemMaintenanceState) {
-                    btn.innerText = "關閉維護模式"; btn.className = "switch-btn switch-on";
-                    txt.innerText = "當前狀態：⚠️ 系統強制維護中 (所有顧客端已鎖定)";
+                    btn.innerText = "解除維護"; btn.className = "switch-btn switch-on";
+                    txt.innerText = "系統運作狀態：全線維護中";
                 } else {
-                    btn.innerText = "開啟維護模式"; btn.className = "switch-btn switch-off";
-                    txt.innerText = "當前狀態：顧客點餐系統正常運作中";
+                    btn.innerText = "啟動維護"; btn.className = "switch-btn switch-off";
+                    txt.innerText = "系統運作狀態：正常";
                 }
             });
 
-            // 2. 即時同步商品數據
+            // 實時更新：產品庫存
             onValue(ref(db, 'products'), (snapshot) => {
-                const data = snapshot.val();
+                const data = snapshot.val() || {};
                 const container = document.getElementById('products-list-view');
                 const countSpan = document.getElementById('prod-count');
-                if (!data) { container.innerHTML = ''; countSpan.innerText = "0"; return; }
                 const keys = Object.keys(data);
                 countSpan.innerText = keys.length;
                 container.innerHTML = keys.map(key => `
@@ -354,69 +376,69 @@
                 `).join('');
             });
 
-            // 3. 即時同步會員名冊（管理員可以直接查看真密碼）
+            // 實時更新：註冊名冊與真密碼
             onValue(ref(db, 'users'), (snapshot) => {
-                const data = snapshot.val();
+                const data = snapshot.val() || {};
                 const crmView = document.getElementById('crm-users-view');
-                if (!data) {
-                    crmView.innerHTML = '<tr><td colspan="6" style="color:#999; text-align:center;">目前無任何註冊會員</td></tr>';
+                const keys = Object.keys(data);
+                if (keys.length === 0) {
+                    crmView.innerHTML = '<tr><td colspan="6" style="text-align:center;">目前無註冊會員</td></tr>';
                     return;
                 }
-                crmView.innerHTML = Object.keys(data).map(key => {
+                crmView.innerHTML = keys.map(key => {
                     const u = data[key];
                     return `
                         <tr>
-                            <td style="font-weight:bold; color:var(--caramel-light);">${u.memberNumb}</td>
+                            <td style="font-weight:600;">${u.memberNumb}</td>
                             <td>${u.lastName}${u.firstName}</td>
                             <td>${u.phone}</td>
-                            <td style="color:#2ed573; font-weight:bold; font-family:consolas;">${u.password}</td>
+                            <td style="color:var(--success-color); font-weight:700;">${u.password}</td>
                             <td>
                                 <input type="text" class="inline-edit-input" id="birth-${key}" value="${u.birthday}">
-                                <button class="btn-save-inline" onclick="adminModifyBirthday('${key}')">修改</button>
+                                <button class="btn-save-inline" onclick="adminModifyBirthday('${key}')">更新</button>
                             </td>
                             <td>
-                                <button class="btn-kick" onclick="adminDeleteUser('${key}', '${u.lastName}${u.firstName}')">註銷帳號</button>
+                                <button class="btn-kick" onclick="adminDeleteUser('${key}', '${u.lastName}${u.firstName}')">註銷帳戶</button>
                             </td>
                         </tr>
                     `;
                 }).join('');
             });
 
-            // 4. 新增：即時同步監聽「忘記密碼申請名冊」
+            // 實時更新：忘記密碼審核單
             onValue(ref(db, 'forgot_password_requests'), async (snapshot) => {
-                const requests = snapshot.val();
+                const requests = snapshot.val() || {};
                 const forgotView = document.getElementById('forgot-requests-view');
                 const badge = document.getElementById('forgot-badge-count');
+                const keys = Object.keys(requests);
                 
-                if (!requests) {
-                    forgotView.innerHTML = '<tr><td colspan="6" style="color:#999; text-align:center; padding:20px;">目前沒有收到任何忘記密碼申請</td></tr>';
-                    badge.innerText = "0";
+                if (keys.length === 0) {
+                    forgotView.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">無任何未處理申請</td></tr>';
+                    badge.style.display = 'none';
                     return;
                 }
 
-                const keys = Object.keys(requests);
                 badge.innerText = keys.length;
+                badge.style.display = 'inline-block';
 
-                // 抓取全體會員數據，以便即時比對查閱密碼
                 const usersSnapshot = await get(ref(db, 'users'));
                 const usersData = usersSnapshot.val() || {};
 
                 forgotView.innerHTML = keys.map(key => {
                     const req = requests[key];
                     const matchedUser = usersData[key];
-                    // 如果存在該會員，直接抓出對應的真密碼顯示在後台，方便管理員發信
-                    const dbPassword = matchedUser ? matchedUser.password : "<span style='color:red;'>無此會員</span>";
+                    const dbPassword = matchedUser ? matchedUser.password : "查無此電話";
                     const reqTime = new Date(req.timestamp).toLocaleTimeString();
 
                     return `
                         <tr>
-                            <td style="font-weight:bold;">+852 ${req.phone}</td>
+                            <td style="font-weight:600;">+852 ${req.phone}</td>
                             <td>${req.birthday}</td>
-                            <td style="color:var(--caramel-light); font-weight:bold;">${req.email}</td>
-                            <td style="color:#ff4757; font-weight:bold; background:#fff1f2;">${dbPassword}</td>
+                            <td style="color:var(--admin-primary); font-weight:600;">${req.email}</td>
+                            <td style="color:var(--danger-color); font-weight:700; background:#FFF1F2;">${dbPassword}</td>
                             <td>${reqTime}</td>
                             <td>
-                                <button class="btn-kick" style="background-color:#555;" onclick="adminDeleteForgotRequest('${key}')">刪除此通知</button>
+                                <button class="btn-kick" style="background-color:#475569;" onclick="adminDeleteForgotRequest('${key}')">刪除紀錄</button>
                             </td>
                         </tr>
                     `;
@@ -426,23 +448,20 @@
 
         window.adminModifyBirthday = function(phoneKey) {
             const newBirth = document.getElementById(`birth-${phoneKey}`).value.trim();
-            if(!newBirth) { showAdminModal('警告', '生日不可為空！'); return; }
-            const updates = {};
-            updates[`/users/${phoneKey}/birthday`] = newBirth;
-            update(ref(db), updates).then(() => { showAdminModal('變更完成', '會員出生日期已成功強制修改！'); });
+            if(!newBirth) return;
+            update(ref(db), { [`/users/${phoneKey}/birthday`]: newBirth }).then(() => {
+                showAdminModal('系統通知', '會員出生日期更新成功。');
+            });
         }
 
         window.adminDeleteUser = function(phoneKey, userName) {
-            showAdminModal('強制註銷確認', `確定要「強制註銷並刪除」會員【${userName}】的帳號嗎？此動作將即時切斷該用戶連線且無法還原。`, () => {
-                remove(ref(db, `users/${phoneKey}`)).then(() => { showAdminModal('註銷成功', `會員【${userName}】已被即時移出系統。`); });
+            showAdminModal('安全性操作', `確認移出會員【${userName}】？`, () => {
+                remove(ref(db, `users/${phoneKey}`));
             }, true);
         }
 
-        // 新增：刪除忘記密碼通知資料
         window.adminDeleteForgotRequest = function(phoneKey) {
-            remove(ref(db, `forgot_password_requests/${phoneKey}`)).then(() => {
-                showAdminModal('操作成功', '該筆忘記密碼申請通知已從後台刪除移除。');
-            });
+            remove(ref(db, `forgot_password_requests/${phoneKey}`));
         }
 
         window.previewImage = function(input) {
@@ -466,19 +485,16 @@
                 price: parseInt(document.getElementById('prodPrice').value),
                 image: currentImageBase64
             }).then(() => {
-                showAdminModal('上架成功', '商品安全上架成功！', () => {
-                    document.getElementById('add-product-form').reset();
-                    document.getElementById('img-preview').style.display = 'none';
-                    document.getElementById('upload-hint').style.display = 'block';
-                    currentImageBase64 = "";
-                });
+                document.getElementById('add-product-form').reset();
+                document.getElementById('img-preview').style.display = 'none';
+                document.getElementById('upload-hint').style.display = 'block';
+                currentImageBase64 = "";
+                showAdminModal('操作成功', '商品已成功架設。');
             });
         }
 
         window.deleteProduct = function(key) {
-            showAdminModal('商品下架', '確定要下架此商品嗎？所有線上顧客將立刻同步看見。', () => {
-                remove(ref(db, `products/${key}`));
-            }, true);
+            remove(ref(db, `products/${key}`));
         }
     </script>
 </body>
