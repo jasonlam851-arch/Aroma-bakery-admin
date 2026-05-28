@@ -33,7 +33,8 @@
             box-shadow: 0 4px 15px rgba(74,51,45,0.08);
             text-align: center;
         }
-        .login-box h2 { color: var(--caramel-main); margin-bottom: 25px; }
+        .login-box h2 { color: var(--caramel-main); margin-bottom: 5px; }
+        .login-box p { font-size: 13px; color: var(--caramel-light); margin-bottom: 25px; letter-spacing: 1px; }
         .input-group { position: relative; margin-bottom: 18px; text-align: left; }
         .input-group label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 14px; }
         .input-group input {
@@ -41,7 +42,7 @@
         }
         .password-toggle {
             position: absolute; right: 10px; bottom: 8px; cursor: pointer;
-            user-select: none; font-size: 14px; color: #777;
+            user-select: none; font-size: 13px; color: #777;
         }
         .btn-login {
             background-color: var(--caramel-main); color: white; border: none; padding: 12px;
@@ -49,9 +50,8 @@
         }
         .btn-login:hover { background-color: var(--caramel-dark); }
 
-        /* 後台主畫面樣式 (預設隱藏) */
+        /* 後台主畫面樣式 */
         .main-content { display: none; }
-        
         .system-header {
             text-align: center; border-bottom: 2px solid var(--caramel-main);
             padding-bottom: 10px; margin-bottom: 25px; position: relative;
@@ -61,13 +61,12 @@
         .user-badge { position: absolute; right: 10px; bottom: 10px; font-size: 14px; font-weight: bold; color: var(--caramel-dark); }
         
         .admin-container {
-            max-width: 1000px; margin: 0 auto;
-            display: grid; grid-template-columns: 1fr 2fr; gap: 20px;
+            max-width: 1200px; margin: 0 auto;
+            display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px;
         }
-        @media (max-width: 768px) { .admin-container { grid-template-columns: 1fr; } }
         .panel {
             background: white; border: 1px solid var(--sand-light); border-radius: 6px;
-            padding: 20px; box-shadow: 0 2px 5px rgba(74,51,45,0.05); height: fit-content;
+            padding: 20px; box-shadow: 0 2px 5px rgba(74,51,45,0.05); height: fit-content; margin-bottom: 20px;
         }
         .panel-title {
             font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 20px;
@@ -75,32 +74,31 @@
         }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        .form-group input {
-            width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
-        }
-        .file-input-wrapper {
-            border: 2px dashed #ccc; padding: 15px; text-align: center; background-color: #fafafa; cursor: pointer; border-radius: 4px;
-        }
+        .form-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        
+        .file-input-wrapper { border: 2px dashed #ccc; padding: 15px; text-align: center; background-color: #fafafa; cursor: pointer; border-radius: 4px; }
         .preview-img { max-width: 100%; max-height: 120px; margin-top: 10px; display: none; border-radius: 4px; }
-        .btn-submit {
-            background-color: var(--caramel-main); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 15px;
-        }
-        .btn-submit:hover { background-color: var(--caramel-dark); }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .btn-submit { background-color: var(--caramel-main); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 15px; }
+        
+        /* 庫存與會員表格 */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
         .product-card { background: white; border: 1px solid #eee; border-radius: 6px; padding: 10px; text-align: center; position: relative; }
-        .product-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; }
-        .prod-name { font-weight: bold; margin: 8px 0 4px; font-size: 15px; }
-        .prod-price { color: var(--caramel-light); font-weight: bold; font-size: 14px; }
-        .btn-delete {
-            position: absolute; top: 5px; right: 5px; background: rgba(255, 71, 87, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 11px; line-height: 22px; padding: 0;
-        }
+        .product-card img { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; }
+        .prod-name { font-weight: bold; margin: 8px 0 4px; font-size: 14px; }
+        .prod-price { color: var(--caramel-light); font-weight: bold; font-size: 13px; }
+        .btn-delete { position: absolute; top: 5px; right: 5px; background: rgba(255, 71, 87, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 11px; line-height: 22px; padding: 0; }
+        
+        .crm-table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+        .crm-table th { background-color: var(--sand-light); padding: 10px; color: var(--caramel-dark); }
+        .crm-table td { padding: 10px; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
 
     <div class="login-overlay" id="login-screen">
         <div class="login-box">
-            <h2>管理員登入</h2>
+            <h2>Aroma_bakery</h2>
+            <p>官方管理系統</p>
             <form onsubmit="handleLogin(event)">
                 <div class="input-group">
                     <label for="loginUser">管理員帳號</label>
@@ -109,7 +107,7 @@
                 <div class="input-group">
                     <label for="loginPass">管理密碼</label>
                     <input type="password" id="loginPass" required placeholder="請輸入密碼">
-                    <span class="password-toggle" id="pass-toggle" onclick="togglePasswordVisibility()">👁️ 顯示</span>
+                    <span class="password-toggle" id="pass-toggle" onclick="togglePasswordVisibility()">顯示密碼</span>
                 </div>
                 <button type="submit" class="btn-login">登入系統</button>
             </form>
@@ -119,37 +117,58 @@
     <div class="main-content" id="main-admin-content">
         <div class="system-header">
             <h1>Aroma_bakery 官方管理後台</h1>
-            <span>Ready to Serve (正式安全版)</span>
+            <span>企業會員與雲端菜單管理控制台</span>
             <div class="user-badge">當前登入：<span id="current-user-display">-</span></div>
         </div>
 
         <div class="admin-container">
-            <div class="panel">
-                <div class="panel-title">上架新商品</div>
-                <form id="add-product-form" onsubmit="handleFormSubmit(event)">
-                    <div class="form-group">
-                        <label for="prodName">商品名字：</label>
-                        <input type="text" id="prodName" required placeholder="例如：法式可麗露">
-                    </div>
-                    <div class="form-group">
-                        <label for="prodPrice">商品價格 (TWD)：</label>
-                        <input type="number" id="prodPrice" min="0" required placeholder="例如：80">
-                    </div>
-                    <div class="form-group">
-                        <label>商品相片：</label>
-                        <div class="file-input-wrapper" onclick="document.getElementById('prodImage').click()">
-                            <span id="upload-hint">點擊選取相片</span>
-                            <input type="file" id="prodImage" accept="image/*" style="display:none;" onchange="previewImage(this)">
-                            <img id="img-preview" class="preview-img" alt="預覽圖">
+            <div>
+                <div class="panel">
+                    <div class="panel-title">上架新商品</div>
+                    <form id="add-product-form" onsubmit="handleFormSubmit(event)">
+                        <div class="form-group">
+                            <label for="prodName">商品名字：</label>
+                            <input type="text" id="prodName" required placeholder="例如：法式可麗露">
                         </div>
-                    </div>
-                    <button type="submit" class="btn-submit">確認安全上架</button>
-                </form>
+                        <div class="form-group">
+                            <label for="prodPrice">商品價格 (TWD)：</label>
+                            <input type="number" id="prodPrice" min="0" required placeholder="例如：80">
+                        </div>
+                        <div class="form-group">
+                            <label>商品相片：</label>
+                            <div class="file-input-wrapper" onclick="document.getElementById('prodImage').click()">
+                                <span id="upload-hint">點擊選取相片</span>
+                                <input type="file" id="prodImage" accept="image/*" style="display:none;" onchange="previewImage(this)">
+                                <img id="img-preview" class="preview-img" alt="預覽圖">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit">確認安全上架</button>
+                    </form>
+                </div>
+                
+                <div class="panel">
+                    <div class="panel-title">目前上架商品庫存 (<span id="prod-count">0</span>)</div>
+                    <div class="product-grid" id="products-list-view"></div>
+                </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-title">目前上架商品庫存 (<span id="prod-count">0</span>)</div>
-                <div class="product-grid" id="products-list-view"></div>
+            <div>
+                <div class="panel">
+                    <div class="panel-title">全體註冊使用者資料名冊</div>
+                    <table class="crm-table">
+                        <thead>
+                            <tr>
+                                <th>編號 (Numb)</th>
+                                <th>姓名</th>
+                                <th>電話號碼</th>
+                                <th>生日 (月日)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="crm-users-view">
+                            <tr><td colspan="4" style="color: #999; text-align: center; padding: 20px;">載入會員資料中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -158,7 +177,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // 你的 Firebase 配置
         const firebaseConfig = {
             apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
             authDomain: "aroma-bakery-492fa.firebaseapp.com",
@@ -171,138 +189,106 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const dbProductsRef = ref(db, 'products');
 
         let currentImageBase64 = "";
-        let globalAdminToken = "AromaAdmin2026"; // 與 Firebase Rules 對接的通訊權限暗號
+        let globalAdminToken = "AromaAdmin2026";
+        const allowedUsers = { "Aroma01": "Admin01", "Aroma02": "Admin02" };
 
-        // 帳號密碼名冊清單
-        const allowedUsers = {
-            "Aroma01": "Admin01",
-            "Aroma02": "Admin02"
-        };
-
-        // 密碼可見性切換功能
         window.togglePasswordVisibility = function() {
             const passInput = document.getElementById('loginPass');
-            const toggleText = document.getElementById('pass-toggle');
-            if (passInput.type === "password") {
-                passInput.type = "text";
-                toggleText.innerText = "🔒 隱藏";
-            } else {
-                passInput.type = "password";
-                toggleText.innerText = "👁️ 顯示";
-            }
+            if (passInput.type === "password") { passInput.type = "text"; } else { passInput.type = "password"; }
         }
 
-        // 處理登入驗證
         window.handleLogin = function(event) {
             event.preventDefault();
-            const userEl = document.getElementById('loginUser').value.trim();
-            const passEl = document.getElementById('loginPass').value;
-
-            if (allowedUsers[userEl] && allowedUsers[userEl] === passEl) {
-                // 驗證成功
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            if (allowedUsers[user] && allowedUsers[user] === pass) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('main-admin-content').style.display = 'block';
-                document.getElementById('current-user-display').innerText = userEl;
-                
-                // 登入成功後再開始監聽資料庫
+                document.getElementById('current-user-display').innerText = user;
                 startDatabaseListening();
             } else {
-                alert('帳號或密碼錯誤，請重新輸入！');
+                alert('帳號或密碼錯誤。');
             }
         }
 
-        // 圖片預覽功能
-        window.previewImage = function(input) {
-            const file = input.files[0];
-            const hint = document.getElementById('upload-hint');
-            const preview = document.getElementById('img-preview');
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentImageBase64 = e.target.result;
-                    preview.src = currentImageBase64;
-                    preview.style.display = 'block';
-                    hint.style.display = 'none';
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // 啟動資料庫監聽器
         function startDatabaseListening() {
-            onValue(dbProductsRef, (snapshot) => {
+            // 監聽讀取雲端商品
+            onValue(ref(db, 'products'), (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('products-list-view');
                 const countSpan = document.getElementById('prod-count');
-                
-                if (!data) {
-                    container.innerHTML = `<div style="color: #999; grid-column: 1/-1; text-align: center; padding: 40px 0;">目前無任何上架商品</div>`;
-                    countSpan.innerText = "0";
-                    return;
-                }
-
+                if (!data) { container.innerHTML = ''; countSpan.innerText = "0"; return; }
                 const keys = Object.keys(data);
                 countSpan.innerText = keys.length;
+                container.innerHTML = keys.map(key => `
+                    <div class="product-card">
+                        <button class="btn-delete" onclick="deleteProduct('${key}')">✕</button>
+                        <img src="${data[key].image || ''}">
+                        <div class="prod-name">${data[key].name}</div>
+                        <div class="prod-price">$${data[key].price}</div>
+                    </div>
+                `).join('');
+            });
 
-                container.innerHTML = keys.map(key => {
-                    const p = data[key];
+            // 【新功能】即時查閱任何使用者資料
+            onValue(ref(db, 'users'), (snapshot) => {
+                const data = snapshot.val();
+                const crmView = document.getElementById('crm-users-view');
+                if (!data) {
+                    crmView.innerHTML = '<tr><td colspan="4" style="color:#999; text-align:center;">目前無任何註冊會員</td></tr>';
+                    return;
+                }
+                crmView.innerHTML = Object.keys(data).map(key => {
+                    const u = data[key];
                     return `
-                        <div class="product-card">
-                            <button class="btn-delete" onclick="deleteProduct('${key}')">✕</button>
-                            <img src="${p.image || 'https://via.placeholder.com/150?text=No+Image'}" alt="${p.name}">
-                            <div class="prod-name">${p.name}</div>
-                            <div class="prod-price">$${p.price}</div>
-                        </div>
+                        <tr>
+                            <td style="font-weight:bold; color:var(--caramel-light);">${u.memberNumb}</td>
+                            <td>${u.lastName}${u.firstName}</td>
+                            <td>${u.phone}</td>
+                            <td>${u.birthday}</td>
+                        </tr>
                     `;
                 }).join('');
             });
         }
 
-        // 【調整順序版】新增商品
+        window.previewImage = function(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImageBase64 = e.target.result;
+                    document.getElementById('img-preview').src = currentImageBase64;
+                    document.getElementById('img-preview').style.display = 'block';
+                    document.getElementById('upload-hint').style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
         window.handleFormSubmit = function(event) {
             event.preventDefault();
-            const name = document.getElementById('prodName').value;
-            const price = parseInt(document.getElementById('prodPrice').value);
-
-            // 1. 先去雲端把驗證暗號寫進 'admin_auth'（先打卡認證）
             set(ref(db, 'admin_auth'), globalAdminToken).then(() => {
-                
-                // 2. 認證成功過關後，才正式把商品推進去 'products' 節點中
-                const targetRef = ref(db, `products/${Date.now()}`);
-                return set(targetRef, {
-                    name: name,
-                    price: price,
+                return set(ref(db, `products/${Date.now()}`), {
+                    name: document.getElementById('prodName').value,
+                    price: parseInt(document.getElementById('prodPrice').value),
                     image: currentImageBase64
                 });
-
             }).then(() => {
-                // 3. 所有步驟皆順利完成後，清理欄位
                 alert('商品安全上架成功！');
                 document.getElementById('add-product-form').reset();
                 document.getElementById('img-preview').style.display = 'none';
                 document.getElementById('upload-hint').style.display = 'block';
                 currentImageBase64 = "";
-            }).catch((error) => {
-                alert('系統寫入失敗，請確認 Firebase Rules 規則是否已變更並點擊 Publish (發佈)。');
-                console.error(error);
             });
         }
 
-        // 【調整順序版】下架商品
         window.deleteProduct = function(key) {
             if (confirm("確定要下架此商品嗎？")) {
-                // 1. 先寫入認證暗號取得權限
                 set(ref(db, 'admin_auth'), globalAdminToken).then(() => {
-                    // 2. 移除特定商品
                     return remove(ref(db, `products/${key}`));
-                }).then(() => {
-                    alert('商品已成功下架！');
-                }).catch((error) => {
-                    alert('下架操作被拒絕，請確認權限設定。');
-                    console.error(error);
                 });
             }
         }
