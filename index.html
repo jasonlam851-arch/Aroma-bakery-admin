@@ -43,17 +43,34 @@
         .input-group { position: relative; margin-bottom: 18px; text-align: left; }
         .input-group label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 14px; }
         .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
-        .password-toggle { position: absolute; right: 10px; bottom: 8px; cursor: pointer; user-select: none; font-size: 13px; color: #777; }
-        .btn-login { background-color: var(--caramel-main); color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 10px; }
-        .btn-login:hover { background-color: var(--caramel-dark); }
+        
+        /* 系統維護狀態開關面板 */
+        .maintenance-panel { background: #fff5f5; border: 1px solid #ffcccc; border-radius: 6px; padding: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .maint-title { font-weight: bold; color: #cc0000; font-size: 15px; }
+        .switch-btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; }
+        .switch-off { background-color: #2ed573; }
+        .switch-on { background-color: #ff4757; }
 
         .main-content { display: none; }
         .system-header { text-align: center; border-bottom: 2px solid var(--caramel-main); padding-bottom: 10px; margin-bottom: 25px; position: relative; }
+        .admin-menu-toggle { position: absolute; left: 10px; bottom: 10px; font-size: 24px; cursor: pointer; color: var(--caramel-main); user-select: none; }
         .system-header h1 { margin: 0; color: var(--caramel-main); font-size: 28px; }
         .system-header span { font-size: 14px; color: var(--caramel-light); letter-spacing: 1px; }
         .user-badge { position: absolute; right: 10px; bottom: 10px; font-size: 14px; font-weight: bold; color: var(--caramel-dark); }
         
-        .admin-container { max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        /* 新增：後台管理側欄 */
+        .admin-drawer { position: fixed; top: 0; left: -340px; width: 320px; height: 100%; background: white; box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; z-index: 10000; padding: 20px; box-sizing: border-box; }
+        .admin-drawer.open { left: 0; }
+        .adm-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 9999; }
+        .adm-drawer-overlay.show { display: block; }
+        .adm-drawer-item { padding: 12px; margin-bottom: 10px; background: #fafafa; border-radius: 4px; font-weight: bold; cursor: pointer; border-left: 4px solid #ccc; }
+        .adm-drawer-item.active { border-left-color: var(--caramel-main); background: var(--sand-light); }
+
+        .admin-container { max-width: 1350px; margin: 0 auto; }
+        .admin-page-section { display: none; }
+        .admin-page-section.active { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        @media (max-width: 900px) { .admin-page-section.active { grid-template-columns: 1fr; } }
+
         .panel { background: white; border: 1px solid var(--sand-light); border-radius: 6px; padding: 20px; box-shadow: 0 2px 5px rgba(74,51,45,0.05); height: fit-content; margin-bottom: 20px; }
         .panel-title { font-size: 18px; font-weight: bold; margin-top: 0; margin-bottom: 20px; color: var(--caramel-dark); border-left: 4px solid var(--caramel-main); padding-left: 8px; }
         .form-group { margin-bottom: 15px; }
@@ -104,78 +121,122 @@
                 <div class="input-group">
                     <label for="loginPass">管理密碼</label>
                     <input type="password" id="loginPass" required placeholder="請輸入密碼">
-                    <span class="password-toggle" id="pass-toggle" onclick="togglePasswordVisibility()">顯示密碼</span>
                 </div>
                 <button type="submit" class="btn-login">登入系統</button>
             </form>
         </div>
     </div>
 
+    <!-- 新增：管理端抽屜式側邊欄 -->
+    <div class="adm-drawer-overlay" id="adm-drawer-shadow" onclick="toggleAdminDrawer(false)"></div>
+    <div class="admin-drawer" id="admin-menu-drawer">
+        <div style="font-size:18px; font-weight:bold; color:var(--caramel-main); margin-bottom:25px; border-bottom:1px solid #eee; padding-bottom:10px;">後台控制台目錄</div>
+        <div class="adm-drawer-item active" id="menu-tab-main" onclick="switchAdminPage('main')">📋 菜單與全體會員名冊</div>
+        <div class="adm-drawer-item" id="menu-tab-forgot" onclick="switchAdminPage('forgot')">🔑 忘記密碼申請通知 (<span id="forgot-badge-count">0</span>)</div>
+        <button class="btn-submit" style="background:#555; margin-top:30px;" onclick="window.location.reload()">安全登出後台</button>
+    </div>
+
     <!-- 主管理後台 -->
     <div class="main-content" id="main-admin-content">
         <div class="system-header">
+            <div class="admin-menu-toggle" onclick="toggleAdminDrawer(true)">☰</div>
             <h1>Aroma_bakery 官方管理後台</h1>
             <span>企業會員與雲端菜單管理控制台</span>
             <div class="user-badge">當前登入：<span id="current-user-display">-</span></div>
         </div>
 
         <div class="admin-container">
-            <div>
-                <div class="panel">
-                    <div class="panel-title">上架新商品 (HKD 定價)</div>
-                    <form id="add-product-form" onsubmit="handleFormSubmit(event)">
-                        <div class="form-group">
-                            <label for="prodName">商品名字：</label>
-                            <input type="text" id="prodName" required placeholder="例如：法式可麗露">
-                        </div>
-                        <div class="form-group">
-                            <label for="prodPrice">商品價格 (HKD)：</label>
-                            <input type="number" id="prodPrice" min="0" required placeholder="例如：45">
-                        </div>
-                        <div class="form-group">
-                            <label>商品相片：</label>
-                            <div class="file-input-wrapper" onclick="document.getElementById('prodImage').click()">
-                                <span id="upload-hint">點擊選取相片</span>
-                                <input type="file" id="prodImage" accept="image/*" style="display:none;" onchange="previewImage(this)">
-                                <img id="img-preview" class="preview-img" alt="預覽圖">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-submit">確認安全上架</button>
-                    </form>
+            <!-- 核心：即時系統維護開關 -->
+            <div class="maintenance-panel">
+                <div>
+                    <div class="maint-title" id="maint-status-text">當前狀態：顧客點餐系統正常運作中</div>
+                    <div style="font-size:12px; color:#666; margin-top:4px;">啟用維護後，全體線上點餐顧客會被即時強制彈出並鎖定。</div>
                 </div>
-                
-                <div class="panel">
-                    <div class="panel-title">目前上架商品庫存 (<span id="prod-count">0</span>)</div>
-                    <div class="product-grid" id="products-list-view"></div>
+                <button id="btn-maint-toggle" class="switch-btn switch-off" onclick="toggleMaintenanceMode()">切換維護模式</button>
+            </div>
+
+            <!-- 分頁一：主要數據管理 (商品 + 會員) -->
+            <div id="section-main-data" class="admin-page-section active">
+                <div>
+                    <div class="panel">
+                        <div class="panel-title">上架新商品 (HKD 定價)</div>
+                        <form id="add-product-form" onsubmit="handleFormSubmit(event)">
+                            <div class="form-group">
+                                <label for="prodName">商品名字：</label>
+                                <input type="text" id="prodName" required placeholder="例如：法式可麗露">
+                            </div>
+                            <div class="form-group">
+                                <label for="prodPrice">商品價格 (HKD)：</label>
+                                <input type="number" id="prodPrice" min="0" required placeholder="例如：45">
+                            </div>
+                            <div class="form-group">
+                                <label>商品相片：</label>
+                                <div class="file-input-wrapper" onclick="document.getElementById('prodImage').click()">
+                                    <span id="upload-hint">點擊選取相片</span>
+                                    <input type="file" id="prodImage" accept="image/*" style="display:none;" onchange="previewImage(this)">
+                                    <img id="img-preview" class="preview-img" alt="預覽圖">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-submit">確認安全上架</button>
+                        </form>
+                    </div>
+                    
+                    <div class="panel">
+                        <div class="panel-title">目前上架商品庫存 (<span id="prod-count">0</span>)</div>
+                        <div class="product-grid" id="products-list-view"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="panel">
+                        <div class="panel-title">全體註冊使用者資料名冊 (【即時查看密碼】/強制註銷)</div>
+                        <table class="crm-table">
+                            <thead>
+                                <tr>
+                                    <th>編號</th>
+                                    <th>姓名</th>
+                                    <th>電話號碼</th>
+                                    <th>當前密碼 (可查看)</th>
+                                    <th>出生日期 (修改)</th>
+                                    <th>管理操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="crm-users-view">
+                                <tr><td colspan="6" style="color: #999; text-align: center; padding: 20px;">載入會員資料中...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <div class="panel">
-                    <div class="panel-title">全體註冊使用者資料名冊 (管理員具備註銷與修改權限)</div>
+            <!-- 分頁二：新增忘記密碼申請通知分頁 -->
+            <div id="section-forgot-data" class="admin-page-section">
+                <div class="panel" style="grid-column: 1 / -1;">
+                    <div class="panel-title">🔑 忘記密碼名冊（核對身分、查看密碼、可刪除資料）</div>
                     <table class="crm-table">
                         <thead>
                             <tr>
-                                <th>編號 (Numb)</th>
-                                <th>姓名</th>
-                                <th>電話號碼</th>
-                                <th>註冊日期</th>
-                                <th>出生日期 (修改)</th>
-                                <th>管理操作</th>
+                                <th>申請電話</th>
+                                <th>宣稱生日</th>
+                                <th>指定接收 Email</th>
+                                <th>系統查出真密碼</th>
+                                <th>申請時間</th>
+                                <th>操作選項</th>
                             </tr>
                         </thead>
-                        <tbody id="crm-users-view">
-                            <tr><td colspan="6" style="color: #999; text-align: center; padding: 20px;">載入會員資料中...</td></tr>
+                        <tbody id="forgot-requests-view">
+                            <tr><td colspan="6" style="color:#999; text-align:center; padding:20px;">目前沒有收到任何忘記密碼申請</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, remove, update, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
@@ -191,10 +252,9 @@
         const db = getDatabase(app);
 
         let currentImageBase64 = "";
-        let globalAdminToken = "AromaAdmin2026";
+        let isSystemMaintenanceState = false;
         const allowedUsers = { "Aroma01": "Admin01", "Aroma02": "Admin02" };
 
-        // 封裝管理端專用自訂模態窗
         function showAdminModal(title, msg, onConfirm = null, isConfirmType = false) {
             document.getElementById('adm-modal-title').innerText = title;
             document.getElementById('adm-modal-msg').innerText = msg;
@@ -220,9 +280,23 @@
             document.getElementById('adm-modal-screen').style.display = 'flex';
         }
 
-        window.togglePasswordVisibility = function() {
-            const passInput = document.getElementById('loginPass');
-            if (passInput.type === "password") { passInput.type = "text"; } else { passInput.type = "password"; }
+        window.toggleAdminDrawer = function(open) {
+            const drawer = document.getElementById('admin-menu-drawer');
+            const shadow = document.getElementById('adm-drawer-shadow');
+            if(open) { drawer.classList.add('open'); shadow.classList.add('show'); } 
+            else { drawer.classList.remove('open'); shadow.classList.remove('show'); }
+        }
+
+        window.switchAdminPage = function(target) {
+            document.querySelectorAll('.admin-page-section, .adm-drawer-item').forEach(el => el.classList.remove('active'));
+            if(target === 'main') {
+                document.getElementById('section-main-data').classList.add('active');
+                document.getElementById('menu-tab-main').classList.add('active');
+            } else {
+                document.getElementById('section-forgot-data').classList.add('active');
+                document.getElementById('menu-tab-forgot').classList.add('active');
+            }
+            toggleAdminDrawer(false);
         }
 
         window.handleLogin = function(event) {
@@ -239,7 +313,30 @@
             }
         }
 
+        // 切換維護模式：即時更新到 Firebase 資料庫中
+        window.toggleMaintenanceMode = function() {
+            const newState = !isSystemMaintenanceState;
+            set(ref(db, 'system_maintenance'), newState).then(() => {
+                showAdminModal('同步完成', newState ? '⚠️ 已成功開啟維護模式！所有顧客將被即時登出彈出。' : '✅ 維護模式已解除，系統開放正常下單。');
+            });
+        }
+
         function startDatabaseListening() {
+            // 1. 即時監聽維護模式狀態
+            onValue(ref(db, 'system_maintenance'), (snapshot) => {
+                isSystemMaintenanceState = snapshot.val() || false;
+                const btn = document.getElementById('btn-maint-toggle');
+                const txt = document.getElementById('maint-status-text');
+                if(isSystemMaintenanceState) {
+                    btn.innerText = "關閉維護模式"; btn.className = "switch-btn switch-on";
+                    txt.innerText = "當前狀態：⚠️ 系統強制維護中 (所有顧客端已鎖定)";
+                } else {
+                    btn.innerText = "開啟維護模式"; btn.className = "switch-btn switch-off";
+                    txt.innerText = "當前狀態：顧客點餐系統正常運作中";
+                }
+            });
+
+            // 2. 即時同步商品數據
             onValue(ref(db, 'products'), (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('products-list-view');
@@ -257,6 +354,7 @@
                 `).join('');
             });
 
+            // 3. 即時同步會員名冊（管理員可以直接查看真密碼）
             onValue(ref(db, 'users'), (snapshot) => {
                 const data = snapshot.val();
                 const crmView = document.getElementById('crm-users-view');
@@ -271,13 +369,54 @@
                             <td style="font-weight:bold; color:var(--caramel-light);">${u.memberNumb}</td>
                             <td>${u.lastName}${u.firstName}</td>
                             <td>${u.phone}</td>
-                            <td>${u.registerDate || '未記載'}</td>
+                            <td style="color:#2ed573; font-weight:bold; font-family:consolas;">${u.password}</td>
                             <td>
                                 <input type="text" class="inline-edit-input" id="birth-${key}" value="${u.birthday}">
                                 <button class="btn-save-inline" onclick="adminModifyBirthday('${key}')">修改</button>
                             </td>
                             <td>
                                 <button class="btn-kick" onclick="adminDeleteUser('${key}', '${u.lastName}${u.firstName}')">註銷帳號</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            });
+
+            // 4. 新增：即時同步監聽「忘記密碼申請名冊」
+            onValue(ref(db, 'forgot_password_requests'), async (snapshot) => {
+                const requests = snapshot.val();
+                const forgotView = document.getElementById('forgot-requests-view');
+                const badge = document.getElementById('forgot-badge-count');
+                
+                if (!requests) {
+                    forgotView.innerHTML = '<tr><td colspan="6" style="color:#999; text-align:center; padding:20px;">目前沒有收到任何忘記密碼申請</td></tr>';
+                    badge.innerText = "0";
+                    return;
+                }
+
+                const keys = Object.keys(requests);
+                badge.innerText = keys.length;
+
+                // 抓取全體會員數據，以便即時比對查閱密碼
+                const usersSnapshot = await get(ref(db, 'users'));
+                const usersData = usersSnapshot.val() || {};
+
+                forgotView.innerHTML = keys.map(key => {
+                    const req = requests[key];
+                    const matchedUser = usersData[key];
+                    // 如果存在該會員，直接抓出對應的真密碼顯示在後台，方便管理員發信
+                    const dbPassword = matchedUser ? matchedUser.password : "<span style='color:red;'>無此會員</span>";
+                    const reqTime = new Date(req.timestamp).toLocaleTimeString();
+
+                    return `
+                        <tr>
+                            <td style="font-weight:bold;">+852 ${req.phone}</td>
+                            <td>${req.birthday}</td>
+                            <td style="color:var(--caramel-light); font-weight:bold;">${req.email}</td>
+                            <td style="color:#ff4757; font-weight:bold; background:#fff1f2;">${dbPassword}</td>
+                            <td>${reqTime}</td>
+                            <td>
+                                <button class="btn-kick" style="background-color:#555;" onclick="adminDeleteForgotRequest('${key}')">刪除此通知</button>
                             </td>
                         </tr>
                     `;
@@ -290,17 +429,20 @@
             if(!newBirth) { showAdminModal('警告', '生日不可為空！'); return; }
             const updates = {};
             updates[`/users/${phoneKey}/birthday`] = newBirth;
-            update(ref(db), updates).then(() => {
-                showAdminModal('變更完成', '會員出生日期已成功強制修改！');
-            }).catch(err => showAdminModal('失敗', '修改失敗。'));
+            update(ref(db), updates).then(() => { showAdminModal('變更完成', '會員出生日期已成功強制修改！'); });
         }
 
         window.adminDeleteUser = function(phoneKey, userName) {
-            showAdminModal('強制註銷確認', `確定要「強制註銷並刪除」會員【${userName}】的帳號嗎？此動作無法還原。`, () => {
-                remove(ref(db, `users/${phoneKey}`)).then(() => {
-                    showAdminModal('註銷成功', `會員【${userName}】已被移出系統。`);
-                }).catch(err => showAdminModal('失敗', '註銷失敗。'));
+            showAdminModal('強制註銷確認', `確定要「強制註銷並刪除」會員【${userName}】的帳號嗎？此動作將即時切斷該用戶連線且無法還原。`, () => {
+                remove(ref(db, `users/${phoneKey}`)).then(() => { showAdminModal('註銷成功', `會員【${userName}】已被即時移出系統。`); });
             }, true);
+        }
+
+        // 新增：刪除忘記密碼通知資料
+        window.adminDeleteForgotRequest = function(phoneKey) {
+            remove(ref(db, `forgot_password_requests/${phoneKey}`)).then(() => {
+                showAdminModal('操作成功', '該筆忘記密碼申請通知已從後台刪除移除。');
+            });
         }
 
         window.previewImage = function(input) {
@@ -319,12 +461,10 @@
 
         window.handleFormSubmit = function(event) {
             event.preventDefault();
-            set(ref(db, 'admin_auth'), globalAdminToken).then(() => {
-                return set(ref(db, `products/${Date.now()}`), {
-                    name: document.getElementById('prodName').value,
-                    price: parseInt(document.getElementById('prodPrice').value),
-                    image: currentImageBase64
-                });
+            set(ref(db, `products/${Date.now()}`), {
+                name: document.getElementById('prodName').value,
+                price: parseInt(document.getElementById('prodPrice').value),
+                image: currentImageBase64
             }).then(() => {
                 showAdminModal('上架成功', '商品安全上架成功！', () => {
                     document.getElementById('add-product-form').reset();
@@ -336,10 +476,8 @@
         }
 
         window.deleteProduct = function(key) {
-            showAdminModal('商品下架', '確定要下架此商品嗎？', () => {
-                set(ref(db, 'admin_auth'), globalAdminToken).then(() => {
-                    return remove(ref(db, `products/${key}`));
-                });
+            showAdminModal('商品下架', '確定要下架此商品嗎？所有線上顧客將立刻同步看見。', () => {
+                remove(ref(db, `products/${key}`));
             }, true);
         }
     </script>
