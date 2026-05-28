@@ -20,7 +20,6 @@
             padding: 20px;
         }
         
-        /* 登入畫面樣式 */
         .login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--cream-bg);
@@ -50,7 +49,6 @@
         }
         .btn-login:hover { background-color: var(--caramel-dark); }
 
-        /* 後台主畫面樣式 */
         .main-content { display: none; }
         .system-header {
             text-align: center; border-bottom: 2px solid var(--caramel-main);
@@ -61,8 +59,8 @@
         .user-badge { position: absolute; right: 10px; bottom: 10px; font-size: 14px; font-weight: bold; color: var(--caramel-dark); }
         
         .admin-container {
-            max-width: 1200px; margin: 0 auto;
-            display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px;
+            max-width: 1300px; margin: 0 auto;
+            display: grid; grid-template-columns: 1fr 1.8fr; gap: 20px;
         }
         .panel {
             background: white; border: 1px solid var(--sand-light); border-radius: 6px;
@@ -80,21 +78,25 @@
         .preview-img { max-width: 100%; max-height: 120px; margin-top: 10px; display: none; border-radius: 4px; }
         .btn-submit { background-color: var(--caramel-main); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 15px; }
         
-        /* 庫存與會員表格 */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
         .product-card { background: white; border: 1px solid #eee; border-radius: 6px; padding: 10px; text-align: center; position: relative; }
-        .product-card img { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; }
-        .prod-name { font-weight: bold; margin: 8px 0 4px; font-size: 14px; }
+        .product-card img { width: 100%; height: 90px; object-fit: cover; border-radius: 4px; }
+        .prod-name { font-weight: bold; margin: 8px 0 4px; font-size: 13px; }
         .prod-price { color: var(--caramel-light); font-weight: bold; font-size: 13px; }
         .btn-delete { position: absolute; top: 5px; right: 5px; background: rgba(255, 71, 87, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 11px; line-height: 22px; padding: 0; }
         
-        .crm-table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
-        .crm-table th { background-color: var(--sand-light); padding: 10px; color: var(--caramel-dark); }
-        .crm-table td { padding: 10px; border-bottom: 1px solid #eee; }
+        .crm-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        .crm-table th { background-color: var(--sand-light); padding: 8px; color: var(--caramel-dark); }
+        .crm-table td { padding: 8px; border-bottom: 1px solid #eee; }
+        
+        /* 後台可編輯輸入框樣式 */
+        .inline-edit-input { width: 80px; padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; }
+        .btn-save-inline { background: var(--caramel-light); color: white; border: none; padding: 3px 6px; border-radius: 3px; cursor: pointer; margin-left: 4px; font-size: 11px; }
     </style>
 </head>
 <body>
 
+    <!-- 管理員登入介面 -->
     <div class="login-overlay" id="login-screen">
         <div class="login-box">
             <h2>Aroma_bakery</h2>
@@ -114,6 +116,7 @@
         </div>
     </div>
 
+    <!-- 主管理後台 -->
     <div class="main-content" id="main-admin-content">
         <div class="system-header">
             <h1>Aroma_bakery 官方管理後台</h1>
@@ -122,17 +125,19 @@
         </div>
 
         <div class="admin-container">
+            <!-- 左側控制欄 -->
             <div>
+                <!-- 商品上架 -->
                 <div class="panel">
-                    <div class="panel-title">上架新商品</div>
+                    <div class="panel-title">上架新商品 (HKD 定價)</div>
                     <form id="add-product-form" onsubmit="handleFormSubmit(event)">
                         <div class="form-group">
                             <label for="prodName">商品名字：</label>
                             <input type="text" id="prodName" required placeholder="例如：法式可麗露">
                         </div>
                         <div class="form-group">
-                            <label for="prodPrice">商品價格 (TWD)：</label>
-                            <input type="number" id="prodPrice" min="0" required placeholder="例如：80">
+                            <label for="prodPrice">商品價格 (HKD)：</label>
+                            <input type="number" id="prodPrice" min="0" required placeholder="例如：45">
                         </div>
                         <div class="form-group">
                             <label>商品相片：</label>
@@ -146,26 +151,29 @@
                     </form>
                 </div>
                 
+                <!-- 商品庫存 -->
                 <div class="panel">
                     <div class="panel-title">目前上架商品庫存 (<span id="prod-count">0</span>)</div>
                     <div class="product-grid" id="products-list-view"></div>
                 </div>
             </div>
 
+            <!-- 右側欄：CRM 使用者全資料總覽 -->
             <div>
                 <div class="panel">
-                    <div class="panel-title">全體註冊使用者資料名冊</div>
+                    <div class="panel-title">全體註冊使用者資料名冊 (管理員具備生日修改權限)</div>
                     <table class="crm-table">
                         <thead>
                             <tr>
                                 <th>編號 (Numb)</th>
                                 <th>姓名</th>
                                 <th>電話號碼</th>
-                                <th>生日 (月日)</th>
+                                <th>註冊日期</th>
+                                <th>出生日期 (可修改)</th>
                             </tr>
                         </thead>
                         <tbody id="crm-users-view">
-                            <tr><td colspan="4" style="color: #999; text-align: center; padding: 20px;">載入會員資料中...</td></tr>
+                            <tr><td colspan="5" style="color: #999; text-align: center; padding: 20px;">載入會員資料中...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -175,7 +183,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
@@ -214,7 +222,7 @@
         }
 
         function startDatabaseListening() {
-            // 監聽讀取雲端商品
+            // 監聽並加載菜單
             onValue(ref(db, 'products'), (snapshot) => {
                 const data = snapshot.val();
                 const container = document.getElementById('products-list-view');
@@ -227,19 +235,21 @@
                         <button class="btn-delete" onclick="deleteProduct('${key}')">✕</button>
                         <img src="${data[key].image || ''}">
                         <div class="prod-name">${data[key].name}</div>
-                        <div class="prod-price">$${data[key].price}</div>
+                        <div class="prod-price">HKD $${data[key].price}</div>
                     </div>
                 `).join('');
             });
 
-            // 【新功能】即時查閱任何使用者資料
+            // 監聽會員資料庫 (含動態修改出生日期功能)
             onValue(ref(db, 'users'), (snapshot) => {
                 const data = snapshot.val();
                 const crmView = document.getElementById('crm-users-view');
                 if (!data) {
-                    crmView.innerHTML = '<tr><td colspan="4" style="color:#999; text-align:center;">目前無任何註冊會員</td></tr>';
+                    crmView.innerHTML = '<tr><td colspan="5" style="color:#999; text-align:center;">目前無任何註冊會員</td></tr>';
                     return;
                 }
+                
+                // 將電話字串中的括號等雜質還原回原始的寫入節點 Key
                 crmView.innerHTML = Object.keys(data).map(key => {
                     const u = data[key];
                     return `
@@ -247,11 +257,28 @@
                             <td style="font-weight:bold; color:var(--caramel-light);">${u.memberNumb}</td>
                             <td>${u.lastName}${u.firstName}</td>
                             <td>${u.phone}</td>
-                            <td>${u.birthday}</td>
+                            <td>${u.registerDate || '未記載'}</td>
+                            <td>
+                                <input type="text" class="inline-edit-input" id="birth-${key}" value="${u.birthday}">
+                                <button class="btn-save-inline" onclick="adminModifyBirthday('${key}')">修改</button>
+                            </td>
                         </tr>
                     `;
                 }).join('');
             });
+        }
+
+        // 管理員專屬：強制複寫會員的生日
+        window.adminModifyBirthday = function(phoneKey) {
+            const newBirth = document.getElementById(`birth-${phoneKey}`).value.trim();
+            if(!newBirth) { alert('生日不可為空！'); return; }
+            
+            const updates = {};
+            updates[`/users/${phoneKey}/birthday`] = newBirth;
+            
+            update(ref(db), updates).then(() => {
+                alert('會員生日已成功強制修改完成！');
+            }).catch(err => alert('修改失敗，請確認資料庫權限。'));
         }
 
         window.previewImage = function(input) {
