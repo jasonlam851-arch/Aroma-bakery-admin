@@ -14,6 +14,7 @@
             --text-color: #212529;
             --bg-cream: #f4f2ed;
             --dark-overlay: rgba(15, 23, 20, 0.78);
+            --danger-color: #b02a37;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,6 +26,7 @@
             background: linear-gradient(var(--dark-overlay), var(--dark-overlay)), 
                         url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
             background-size: cover; z-index: 1000; display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.4s ease;
         }
         .admin-login-box {
             background: rgba(255, 255, 255, 0.95); padding: 50px 40px; border-radius: 8px;
@@ -55,6 +57,10 @@
         .sidebar-menu li { padding: 15px 10px; color: #f4f2ed; font-size: 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sidebar-menu li:hover { color: var(--accent-color); }
 
+        /* 側邊欄專用登出選項 */
+        .sidebar-menu li.menu-logout { color: #f28b82; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); font-weight: 600; }
+        .sidebar-menu li.menu-logout:hover { color: #ff4d4d; }
+
         .main-content { padding: 30px 20px; max-width: 1100px; margin: 0 auto; }
         .page-section { display: none; }
         .page-section.active { display: block; }
@@ -70,6 +76,10 @@
         .btn-primary { background-color: var(--primary-color); color: white; }
         .btn-danger { background-color: #b02a37; color: white; }
         .btn-block { width: 100%; margin-top: 10px; }
+        
+        /* 導航列頂部高級登出按鈕 */
+        .btn-nav-logout { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 6px 14px; border-radius: 20px; transition: 0.2s; font-size: 12px; }
+        .btn-nav-logout:hover { background: var(--accent-color); color: var(--primary-color); }
 
         .data-list { list-style: none; max-height: 400px; overflow-y: auto; border: 1px solid #e1ded7; border-radius: 4px; }
         .data-item { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
@@ -80,6 +90,7 @@
         .custom-modal.active { opacity: 1; pointer-events: auto; }
         .modal-content { background: white; padding: 25px; border-radius: 6px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
         
+        /* 專利客製化雙按鈕確認彈窗 */
         .confirm-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
     </style>
 </head>
@@ -94,7 +105,7 @@
             <form id="admin-login-form" onsubmit="handleAdminLogin(event); return false;">
                 <div class="form-group">
                     <label>管理員登入電郵</label>
-                    <input type="email" id="admin-username" required placeholder="例如：admin02@aroma.com">
+                    <input type="email" id="admin-username" required placeholder="例如：admin01@aroma.com">
                 </div>
                 <div class="form-group">
                     <label>安全性密碼</label>
@@ -110,14 +121,14 @@
         <nav>
             <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
             <div class="brand-name">Aroma_bakery 核心主控台</div>
-            <div style="width:24px;"></div>
+            <button class="btn-nav-logout" onclick="handleAdminLogout()">登出系統</button>
         </nav>
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header"><div class="close-btn" onclick="toggleSidebar()">✕</div></div>
             <ul class="sidebar-menu">
                 <li onclick="switchAdminPage('page-products')">添加與管理商品</li>
                 <li onclick="switchAdminPage('page-members')">會員名單管理</li>
-                <li onclick="handleAdminLogout()" style="color: #ff6b6b; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1);">安全登出系統</li>
+                <li class="menu-logout" onclick="handleAdminLogout()">✕ 安全登出後台</li>
             </ul>
         </div>
         <div class="main-content">
@@ -183,7 +194,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -203,6 +214,36 @@
         let allProducts = {}; 
         let allMembers = {};
 
+        // 監聽全局登入驗證狀態
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // 【核心安全防禦】防呆：只允許特定管理員信箱存取此頁面
+                if (user.email !== 'admin01@aroma.com') {
+                    window.showCustomAlert('權限拒絕：此帳戶無權限存取核心主控台。');
+                    signOut(auth);
+                    return;
+                }
+
+                // 驗證通過，切換顯示介面
+                document.getElementById('admin-auth-overlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('admin-auth-overlay').style.display = 'none';
+                    document.getElementById('admin-system').style.display = 'block';
+                }, 400);
+
+                // 載入資料庫節點
+                loadData();
+            } else {
+                // 未登入或已登出狀態下，強制鎖定在登入封面
+                document.getElementById('admin-system').style.display = 'none';
+                document.getElementById('admin-auth-overlay').style.display = 'flex';
+                setTimeout(() => {
+                    document.getElementById('admin-auth-overlay').style.opacity = '1';
+                }, 50);
+            }
+        });
+
+        // === UI 提示框與導航函數庫 ===
         window.toggleSidebar = function() { 
             document.getElementById('sidebar').classList.toggle('active'); 
         };
@@ -233,39 +274,46 @@
             document.getElementById('confirm-modal').classList.remove('active'); 
         };
 
-        // 管理員權限審查登入
+        // === 業務核心邏輯 ===
+
+        // 管理員登入
         window.handleAdminLogin = function(e) {
             if(e && e.preventDefault) e.preventDefault();
             const email = document.getElementById('admin-username').value.trim();
             const p = document.getElementById('admin-password').value.trim();
-            const errorMsg = document.getElementById('error-msg');
-            errorMsg.style.display = 'none';
             
+            // 登入前置防呆，避免顧客不小心在後台嘗試一般信箱
+            if (email !== 'admin01@aroma.com') {
+                document.getElementById('error-msg').style.display = 'block';
+                return;
+            }
+
             signInWithEmailAndPassword(auth, email, p)
-                .then((userCredential) => {
-                    const uid = userCredential.user.uid;
-                    // 核心驗證：向資料庫調取該帳號的特權角色
-                    onValue(ref(database, 'users/' + uid), (snap) => {
-                        const userData = snap.val();
-                        if(userData && userData.role === 'admin') {
-                            window.showCustomAlert('管理授權成功，歡迎進入核心主控台。');
-                            document.getElementById('admin-auth-overlay').style.display = 'none';
-                            document.getElementById('admin-system').style.display = 'block';
-                            loadData();
-                        } else {
-                            // 角色不符，撤銷認證並強制剔除
-                            signOut(auth);
-                            window.showCustomAlert('存取拒絕：您不具備管理員權限！');
-                            errorMsg.innerText = '權限不足，拒絕存取。';
-                            errorMsg.style.display = 'block';
-                        }
-                    }, { onlyOnce: true });
+                .then(() => {
+                    document.getElementById('error-msg').style.display = 'none';
                 })
                 .catch((err) => {
                     console.error(err);
-                    errorMsg.innerText = '帳號或安全性密碼有誤，拒絕存取。';
-                    errorMsg.style.display = 'block';
+                    document.getElementById('error-msg').style.display = 'block';
                 });
+        };
+
+        // 【全新加入】安全登出執行控制函式
+        window.handleAdminLogout = function() {
+            if (confirm("確定要登出 Aroma_bakery 核心主控台並中斷安全連線嗎？")) {
+                signOut(auth)
+                    .then(() => {
+                        // 清空輸入欄位防止暫存保留
+                        document.getElementById('admin-username').value = '';
+                        document.getElementById('admin-password').value = '';
+                        // 關閉可能開啟的側邊欄
+                        document.getElementById('sidebar').classList.remove('active');
+                    })
+                    .catch((err) => {
+                        console.error("安全登出失敗:", err);
+                        window.showCustomAlert("系統錯誤：無法完成登出流程。");
+                    });
+            }
         };
 
         function loadData() {
@@ -273,6 +321,7 @@
             onValue(ref(database, 'users'), (snap) => { allMembers = snap.val() || {}; renderMembers(allMembers); });
         }
 
+        // 商品儲存上架
         window.saveProduct = function(e) {
             if(e && e.preventDefault) e.preventDefault();
             const id = document.getElementById('p-id').value.trim();
@@ -289,10 +338,11 @@
                 window.showCustomAlert('商品成功架設完成。'); 
                 document.getElementById('product-form').reset(); 
             }).catch((err) => {
-                window.showCustomAlert('無法寫入：' + err.message);
+                window.showCustomAlert('無法寫入資料庫，請確認管理員身份權限。錯誤訊息：' + err.message);
             });
         };
 
+        // 執行下架商品
         window.deleteProduct = function(id) {
             window.showCustomConfirm('確定要將此商品從全線下架徹底清除嗎？', function() {
                 remove(ref(database, 'products/' + id))
@@ -302,11 +352,12 @@
                     })
                     .catch((err) => {
                         window.closeConfirm();
-                        window.showCustomAlert('下架失敗：' + err.message);
+                        window.showCustomAlert('下架失敗，權限被拒。錯誤訊息：' + err.message);
                     });
             });
         };
 
+        // 觸發會員行內編輯
         window.toggleInlineEdit = function(uid, currentName) {
             const container = document.getElementById(`member-action-${uid}`);
             if(!container) return;
@@ -318,16 +369,19 @@
                 </div>`;
         };
 
+        // 取消行內編輯
         window.cancelInlineEdit = function(uid, currentName) {
             const container = document.getElementById(`member-action-${uid}`);
             if(!container) return;
             container.innerHTML = `<button class="btn btn-primary" onclick="toggleInlineEdit('${uid}', '${currentName}')">更改名稱</button>`;
         };
 
+        // 儲存修改後的會員名稱
         window.saveInlineName = function(uid) {
             const newName = document.getElementById(`inline-input-${uid}`).value.trim();
             if(!newName) return;
             
+            // 優雅拆分姓氏與名字（防呆：若只有一個字則全部放入 firstName）
             const lastName = newName.length > 1 ? newName.charAt(0) : "";
             const firstName = newName.length > 1 ? newName.substring(1) : newName;
 
@@ -337,7 +391,7 @@
             }).then(() => {
                 window.showCustomAlert('會員姓名已成功修改。');
             }).catch((err) => {
-                window.showCustomAlert('無法修改：' + err.message);
+                window.showCustomAlert('無法修改，錯誤訊息：' + err.message);
             });
         };
 
@@ -359,6 +413,9 @@
             if(!list) return;
             list.innerHTML = '';
             for(let uid in mems) {
+                // 過濾掉管理員本身的帳戶，不顯示在普通會員名單中
+                if (mems[uid].email === 'admin01@aroma.com') continue;
+
                 const name = `${mems[uid].lastName||''}${mems[uid].firstName||''}`;
                 list.insertAdjacentHTML('beforeend', `
                     <li class="data-item">
@@ -381,18 +438,13 @@
             const k = document.getElementById('search-member-input').value.toLowerCase();
             const f = {}; 
             for(let uid in allMembers) {
+                if (allMembers[uid].email === 'admin01@aroma.com') continue;
                 const name = `${allMembers[uid].lastName||''}${allMembers[uid].firstName||''}`;
                 if(name.toLowerCase().includes(k) || (allMembers[uid].phone && allMembers[uid].phone.includes(k))) {
                     f[uid] = allMembers[uid];
                 }
             }
             renderMembers(f);
-        };
-
-        window.handleAdminLogout = function() {
-            signOut(auth).then(() => {
-                location.reload();
-            });
         };
     </script>
 </body>
