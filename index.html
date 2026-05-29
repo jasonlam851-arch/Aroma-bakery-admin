@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aroma_bakery | 管理後台</title>
+    <title>Aroma_bakery | 完整進階管理後台</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,6 +17,8 @@
             --bg-cream: #f4f2ed;
             --dark-overlay: rgba(15, 23, 20, 0.78);
             --danger-color: #b02a37;
+            --success-color: #198754;
+            --warning-color: #ffc107;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -113,14 +115,24 @@
         
         .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
         
-        .btn { padding: 10px 15px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .btn { padding: 8px 12px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 13px; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
         .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-danger { background-color: #b02a37; color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-warning { background-color: var(--warning-color); color: #212529; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
         .btn-block { width: 100%; margin-top: 10px; }
         
-        .data-list { list-style: none; max-height: 400px; overflow-y: auto; border: 1px solid #e1ded7; border-radius: 4px; padding: 10px; }
-        .data-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+        .data-list { list-style: none; max-height: 500px; overflow-y: auto; border: 1px solid #e1ded7; border-radius: 4px; padding: 10px; background: #faf9f6; }
+        .data-item { border-bottom: 1px solid #e1ded7; padding: 15px 10px; font-size: 14px; }
         .data-item:last-child { border-bottom: none; }
+        .data-row-main { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .data-actions { display: flex; gap: 8px; }
+        
+        /* 展開的修改區域 */
+        .edit-zone { display: none; background: #fdfcf7; border: 1px dashed var(--accent-color); padding: 15px; margin-top: 10px; border-radius: 4px; }
+        .edit-zone.active { display: block; }
+        .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         
         /* 自訂彈窗樣式 */
         .custom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(5px); }
@@ -170,7 +182,7 @@
         <div class="main-content">
             <div id="page-products" class="page-section active">
                 <h2>添加與管理商品</h2>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px;">
                     <div class="panel">
                         <div class="panel-title">上架全新商品</div>
                         <form id="product-form">
@@ -202,7 +214,7 @@
                     </div>
 
                     <div class="panel">
-                        <div class="panel-title">商品實時檢索</div>
+                        <div class="panel-title">商品實時檢索與配置修改</div>
                         <div class="search-box">
                             <input type="text" id="search-product-input" placeholder="輸入產品名稱關鍵字">
                             <button class="btn btn-primary" onclick="searchProduct()">搜尋</button>
@@ -214,8 +226,8 @@
 
             <div id="page-members" class="page-section">
                 <h2>會員名單管理</h2>
-                <div class="panel" style="max-width: 750px; margin: 0 auto;">
-                    <div class="panel-title">全體會員檢索</div>
+                <div class="panel" style="max-width: 900px; margin: 0 auto;">
+                    <div class="panel-title">全體會員檢索與權限控管</div>
                     <div class="search-box">
                         <input type="text" id="search-member-input" placeholder="輸入姓名或電話搜尋...">
                         <button class="btn btn-primary" onclick="searchMember()">搜尋</button>
@@ -270,13 +282,11 @@
         // 監聽登入狀態改變
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // 阻斷非管理員進入
                 if (user.email !== 'admin01@aroma.com') {
                     window.showCustomAlert('權限不足：此平台僅供系統管理員登入。');
                     signOut(auth);
                     return;
                 }
-                // 顯示管理系統主界面
                 document.getElementById('admin-auth-overlay').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('admin-auth-overlay').style.display = 'none';
@@ -296,7 +306,6 @@
                 });
 
             } else {
-                // 強制鎖定在登入界面
                 document.getElementById('admin-system').style.display = 'none';
                 document.getElementById('admin-auth-overlay').style.display = 'flex';
                 setTimeout(() => {
@@ -305,7 +314,7 @@
             }
         });
 
-        // 處理管理員表單認證登入
+        // 處理管理員驗證登入
         document.getElementById('admin-login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('admin-username').value.trim();
@@ -328,19 +337,16 @@
 
         // 安全登出執行函式
         window.handleAdminLogout = function() {
-            if (confirm("確定要登出 Aroma_bakery 核心主控台並中斷安全連線嗎？")) {
-                signOut(auth)
-                    .then(() => {
-                        document.getElementById('admin-username').value = '';
-                        document.getElementById('admin-password').value = '';
-                    })
-                    .catch((err) => {
-                        console.error("登出錯誤:", err);
-                    });
-            }
+            window.showCustomConfirm("確定要登出 Aroma_bakery 核心主控台並中斷安全連線嗎？", function() {
+                window.closeConfirm();
+                signOut(auth).then(() => {
+                    document.getElementById('admin-username').value = '';
+                    document.getElementById('admin-password').value = '';
+                });
+            });
         };
 
-        // 處理新商品架設儲存
+        // 處理全新商品架設儲存
         document.getElementById('product-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const id = 'PROD_' + Date.now();
@@ -356,37 +362,100 @@
                 window.showCustomAlert('商品成功架設完成。');
                 document.getElementById('product-form').reset();
             }).catch((err) => {
-                window.showCustomAlert('無法寫入資料庫。錯誤訊息：' + err.message);
+                window.showCustomAlert('儲存失敗：' + err.message);
             });
         });
 
-        // 執行下架商品
-        window.deleteProduct = function(id) {
-            window.showCustomConfirm('確定要將此商品從全線下架徹底清除嗎？', function() {
-                remove(ref(database, 'products/' + id))
-                    .then(() => {
-                        window.closeConfirm();
-                        window.showCustomAlert('商品已成功下架。');
-                    });
-            });
-        };
-
-        // 渲染商品列表
+        /* ==================== 商品資料控制區 ==================== */
+        
+        // 渲染商品列表（帶有控制項與修改面板）
         function renderProducts(productsObj) {
             const list = document.getElementById('admin-product-list');
             list.innerHTML = '';
             for (let id in productsObj) {
                 const p = productsObj[id];
                 list.insertAdjacentHTML('beforeend', `
-                    <li class="data-item">
-                        <div>[${p.category}] <strong>${p.name}</strong> - HK$${p.price}</div>
-                        <button class="btn btn-danger" onclick="deleteProduct('${id}')">下架清除</button>
+                    <li class="data-item" id="item-prod-${id}">
+                        <div class="data-row-main">
+                            <div>[${p.category}] <strong>${p.name}</strong> - HK$${p.price}</div>
+                            <div class="data-actions">
+                                <button class="btn btn-warning" onclick="toggleProductEditZone('${id}')">修改資料</button>
+                                <button class="btn btn-danger" onclick="deleteProduct('${id}')">下架清除</button>
+                            </div>
+                        </div>
+                        
+                        <div class="edit-zone" id="edit-zone-${id}">
+                            <div class="edit-grid">
+                                <div>
+                                    <label style="font-size:11px;">修改名稱</label>
+                                    <input type="text" id="edit-p-name-${id}" value="${p.name}">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px;">修改價格 (HKD)</label>
+                                    <input type="number" id="edit-p-price-${id}" value="${p.price}">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <label style="font-size:11px;">修改分類</label>
+                                <select id="edit-p-category-${id}">
+                                    <option value="飲品" ${p.category==='飲品'?'selected':''}>飲品類 / Drinks</option>
+                                    <option value="甜點" ${p.category==='甜點'?'selected':''}>甜點類 / Desserts</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <label style="font-size:11px;">修改圖片網址</label>
+                                <input type="url" id="edit-p-photo-${id}" value="${p.photoUrl || ''}">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <label style="font-size:11px;">修改商品詳情說明</label>
+                                <textarea id="edit-p-detail-${id}" rows="2">${p.detail || ''}</textarea>
+                            </div>
+                            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
+                                <button class="btn btn-success" onclick="saveProductUpdate('${id}')">確認儲存</button>
+                                <button class="btn btn-secondary" onclick="toggleProductEditZone('${id}')">取消</button>
+                            </div>
+                        </div>
                     </li>
                 `);
             }
         }
 
-        // 搜尋商品過濾
+        // 商品修改控制區摺疊
+        window.toggleProductEditZone = function(id) {
+            document.getElementById(`edit-zone-${id}`).classList.toggle('active');
+        };
+
+        // 提交商品修改變更
+        window.saveProductUpdate = function(id) {
+            const name = document.getElementById(`edit-p-name-${id}`).value.trim();
+            const price = parseInt(document.getElementById(`edit-p-price-${id}`).value);
+            const category = document.getElementById(`edit-p-category-${id}`).value;
+            const photoUrl = document.getElementById(`edit-p-photo-${id}`).value.trim();
+            const detail = document.getElementById(`edit-p-detail-${id}`).value.trim();
+
+            if(!name || isNaN(price)) {
+                window.showCustomAlert('名稱或價格不能為空。');
+                return;
+            }
+
+            update(ref(database, 'products/' + id), {
+                name, price, category, photoUrl, detail
+            }).then(() => {
+                window.showCustomAlert('商品資料已更新。');
+            }).catch(err => window.showCustomAlert('更新失敗: ' + err.message));
+        };
+
+        // 下架商品
+        window.deleteProduct = function(id) {
+            window.showCustomConfirm('確定要將此商品從全線下架徹底清除嗎？', function() {
+                remove(ref(database, 'products/' + id)).then(() => {
+                    window.closeConfirm();
+                    window.showCustomAlert('商品已成功下架。');
+                });
+            });
+        };
+
+        // 搜尋商品
         window.searchProduct = function() {
             const k = document.getElementById('search-product-input').value.toLowerCase();
             const f = {};
@@ -396,27 +465,94 @@
             renderProducts(f);
         };
 
-        // 渲染會員列表
+
+        /* ==================== 會員資料控制區 ==================== */
+
+        // 渲染全體會員列表（帶有修改名字、修改生日、刪除功能）
         function renderMembers(mems) {
             const list = document.getElementById('admin-member-list');
             list.innerHTML = '';
             for (let uid in mems) {
-                // 過濾掉管理員本身的 user node
-                if(mems[uid].email === 'admin01@aroma.com') continue;
+                if(mems[uid].email === 'admin01@aroma.com') continue; // 屏蔽過濾管理員
 
                 const name = `${mems[uid].lastName||''}${mems[uid].firstName||''}`;
+                const phone = mems[uid].phone || '無電話紀錄';
+                const birthday = mems[uid].birthday || '未填寫生日';
+
                 list.insertAdjacentHTML('beforeend', `
                     <li class="data-item">
-                        <div><strong>${name || '未命名會員'}</strong> (${mems[uid].phone||'無電話'}) - ${mems[uid].birthday||'未填生日'}</div>
-                        <div id="member-action-${uid}">
-                            <button class="btn btn-primary" onclick="toggleInlineEdit('${uid}', '${name}')">更改名稱</button>
+                        <div class="data-row-main">
+                            <div>
+                                <strong>${name || '新進會員(未命名)'}</strong> 
+                                <span style="color:#6c757d; margin-left:8px; font-size:12px;">📞 ${phone} | 🎂 生日: ${birthday}</span>
+                            </div>
+                            <div class="data-actions">
+                                <button class="btn btn-warning" onclick="toggleMemberEditZone('${uid}')">變更資料</button>
+                                <button class="btn btn-danger" onclick="deleteMember('${uid}', '${name}')">除名註銷</button>
+                            </div>
+                        </div>
+                        
+                        <div class="edit-zone" id="edit-member-zone-${uid}">
+                            <div class="edit-grid">
+                                <div>
+                                    <label style="font-size:11px;">修改完整姓名</label>
+                                    <input type="text" id="edit-m-name-${uid}" value="${name}">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px;">修改出生日期 (Birthday)</label>
+                                    <input type="date" id="edit-m-birthday-${uid}" value="${mems[uid].birthday || ''}">
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
+                                <button class="btn btn-success" onclick="saveMemberUpdate('${uid}')">儲存變更</button>
+                                <button class="btn btn-secondary" onclick="toggleMemberEditZone('${uid}')">取消</button>
+                            </div>
                         </div>
                     </li>
                 `);
             }
         }
 
-        // 搜尋會員過濾
+        // 會員修改區域摺疊
+        window.toggleMemberEditZone = function(uid) {
+            document.getElementById(`edit-member-zone-${uid}`).classList.toggle('active');
+        };
+
+        // 提交會員資料修改（包含姓名重拆分與出生日期變更）
+        window.saveMemberUpdate = function(uid) {
+            const fullName = document.getElementById(`edit-m-name-${uid}`).value.trim();
+            const newBirthday = document.getElementById(`edit-m-birthday-${uid}`).value;
+
+            if(!fullName) {
+                window.showCustomAlert('姓名欄位不得留空！');
+                return;
+            }
+
+            // 拆分姓氏與名字邏輯防呆
+            const lastName = fullName.length > 1 ? fullName.charAt(0) : "";
+            const firstName = fullName.length > 1 ? fullName.substring(1) : fullName;
+
+            update(ref(database, 'users/' + uid), {
+                lastName: lastName,
+                firstName: firstName,
+                birthday: newBirthday || "未填生日"
+            }).then(() => {
+                window.showCustomAlert('會員設定更新完成。');
+            }).catch(err => window.showCustomAlert('變更失敗: ' + err.message));
+        };
+
+        // 刪除會員（除名註銷功能）
+        window.deleteMember = function(uid, name) {
+            const displayName = name ? `「${name}」` : "此匿名會員";
+            window.showCustomConfirm(`警告！您確定要徹底刪除並註銷 ${displayName} 的會員帳籍資料嗎？此操作不可逆。`, function() {
+                remove(ref(database, 'users/' + uid)).then(() => {
+                    window.closeConfirm();
+                    window.showCustomAlert('該會員帳籍已被完全抹除。');
+                }).catch(err => window.showCustomAlert('刪除失敗: ' + err.message));
+            });
+        };
+
+        // 會員條件檢索過濾
         window.searchMember = function() {
             const k = document.getElementById('search-member-input').value.toLowerCase();
             const f = {};
@@ -430,44 +566,9 @@
             renderMembers(f);
         };
 
-        // 開啟行內修改名字輸入框
-        window.toggleInlineEdit = function(uid, currentName) {
-            const container = document.getElementById(`member-action-${uid}`);
-            if(!container) return;
-            container.innerHTML = `
-                <input type="text" id="inline-input-${uid}" value="${currentName}" style="width:120px; padding:4px; font-size:12px; display:inline-block; margin-right:5px;">
-                <button class="btn btn-primary" style="padding:4px 8px; font-size:12px;" onclick="saveInlineName('${uid}')">儲存</button>
-                <button class="btn" style="padding:4px 8px; font-size:12px; background:#aaa; color:white;" onclick="cancelInlineEdit('${uid}', '${currentName}')">取消</button>
-            `;
-        };
 
-        // 取消行內修改
-        window.cancelInlineEdit = function(uid, currentName) {
-            const container = document.getElementById(`member-action-${uid}`);
-            if(!container) return;
-            container.innerHTML = `<button class="btn btn-primary" onclick="toggleInlineEdit('${uid}', '${currentName}')">更改名稱</button>`;
-        };
-
-        // 儲存修改後的會員名稱
-        window.saveInlineName = function(uid) {
-            const newName = document.getElementById(`inline-input-${uid}`).value.trim();
-            if(!newName) return;
-
-            // 拆分姓氏與名字（防呆：若只有一個字則全部放入 firstName）
-            const lastName = newName.length > 1 ? newName.charAt(0) : "";
-            const firstName = newName.length > 1 ? newName.substring(1) : newName;
-
-            update(ref(database, 'users/' + uid), {
-                lastName: lastName,
-                firstName: firstName
-            }).then(() => {
-                window.showCustomAlert('會員姓名已成功修改。');
-            }).catch((err) => {
-                window.showCustomAlert('修改失敗：' + err.message);
-            });
-        };
-
-        // 全域 UI 控制工具
+        /* ==================== 頁面全局交互配置 ==================== */
+        
         window.toggleSidebar = function() {
             document.getElementById('sidebar').classList.toggle('active');
         };
