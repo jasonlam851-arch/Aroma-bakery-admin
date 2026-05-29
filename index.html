@@ -3,238 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aroma_bakery | 顧客中心</title>
+    <title>Aroma_bakery | 管理後台</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
     <style>
         :root {
             --primary-color: #1e3932;
-            --secondary-color: #d4e9e2;
             --accent-color: #cba258;
             --text-color: #212529;
             --bg-cream: #f4f2ed;
-            --bg-overlay: rgba(30, 57, 50, 0.65);
-            --danger-color: #b02a37;
+            --dark-overlay: rgba(15, 23, 20, 0.78);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Montserrat', 'Noto Serif TC', serif; background-color: var(--bg-cream); color: var(--text-color); min-height: 100vh; }
 
-        /* 高級封面與登入區 */
-        #auth-overlay {
+        /* 管理員登入封面 */
+        #admin-auth-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), 
-                        url('https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background: linear-gradient(var(--dark-overlay), var(--dark-overlay)), 
+                        url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
             background-size: cover; z-index: 1000; display: flex; justify-content: center; align-items: center;
-            transition: opacity 0.5s ease;
         }
-        .auth-container {
-            background: rgba(255, 255, 255, 0.96); padding: 40px; border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4); width: 90%; max-width: 450px; backdrop-filter: blur(10px);
+        .admin-login-box {
+            background: rgba(255, 255, 255, 0.95); padding: 50px 40px; border-radius: 8px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); width: 90%; max-width: 400px; border-top: 4px solid var(--accent-color);
         }
-        .brand-header { text-align: center; margin-bottom: 25px; }
-        .brand-logo { font-family: 'Noto Serif TC', serif; font-size: 28px; font-weight: 700; color: var(--primary-color); letter-spacing: 2px; text-transform: uppercase; }
-        .brand-subtitle { font-size: 11px; color: var(--accent-color); letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; }
-        
-        .form-toggle { display: flex; justify-content: center; margin-bottom: 25px; border-bottom: 2px solid #f0f0f0; }
-        .toggle-btn { background: none; border: none; padding: 10px 20px; font-size: 15px; cursor: pointer; color: #6c757d; font-weight: 600; position: relative; }
-        .toggle-btn.active { color: var(--primary-color); }
-        .toggle-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background-color: var(--primary-color); }
+        .admin-header { text-align: center; margin-bottom: 35px; }
+        .admin-title { font-family: 'Noto Serif TC', serif; font-size: 24px; font-weight: 700; color: var(--primary-color); letter-spacing: 1px; }
+        .admin-subtitle { font-size: 11px; color: #6c757d; letter-spacing: 3px; text-transform: uppercase; margin-top: 8px; }
 
-        .form-group { margin-bottom: 18px; }
-        .form-row { display: flex; gap: 15px; }
-        .form-row .form-group { flex: 1; }
-        label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: var(--primary-color); }
-        input, select { width: 100%; padding: 11px 15px; border: 1px solid #cccccc; border-radius: 6px; font-size: 14px; background-color: #fbfbfb; }
-        input:focus { outline: none; border-color: var(--primary-color); background-color: #ffffff; }
-        .phone-input-container { display: flex; }
-        .phone-prefix { background: #e9ecef; border: 1px solid #cccccc; border-right: none; padding: 11px; font-size: 14px; border-radius: 6px 0 0 6px; color: #495057; font-weight: 600; }
-        .phone-input-container input { border-radius: 0 6px 6px 0; }
-        .btn-submit { width: 100%; padding: 13px; background-color: var(--primary-color); color: white; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 5px; }
-        .btn-submit:hover { background-color: #132521; }
-        .input-hint { font-size: 11px; color: #6c757d; margin-top: 4px; line-height: 1.3; }
-        .hidden { display: none; }
-
-        /* 系統內部建設 */
-        #main-system { display: none; }
-        nav { background-color: var(--primary-color); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; color: white; position: sticky; top: 0; z-index: 100; }
-        .menu-toggle { font-size: 24px; cursor: pointer; color: var(--secondary-color); }
+        .form-group { margin-bottom: 22px; }
+        label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: #495057; letter-spacing: 1px; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cccccc; border-radius: 4px; font-size: 14px; }
+        input:focus { outline: none; border-color: var(--primary-color); }
         
-        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: rgba(30, 57, 50, 0.98); padding-top: 10px; transition: 0.3s; z-index: 200; box-shadow: 5px 0 15px rgba(0,0,0,0.3); }
+        .btn-admin-login { width: 100%; padding: 14px; background-color: var(--primary-color); color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; letter-spacing: 2px; }
+        .error-message { color: #b02a37; font-size: 13px; text-align: center; margin-top: 15px; display: none; }
+
+        /* 內部管理系統 */
+        #admin-system { display: none; }
+        nav { background-color: var(--primary-color); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; color: white; }
+        .menu-toggle { font-size: 24px; cursor: pointer; color: var(--accent-color); }
+        
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: #11221e; padding-top: 10px; z-index: 200; transition: 0.3s; }
         .sidebar.active { left: 0; }
         .sidebar-header { display: flex; justify-content: flex-end; padding: 15px 20px; }
         .close-btn { font-size: 24px; color: white; cursor: pointer; }
         .sidebar-menu { list-style: none; padding: 20px; }
-        .sidebar-menu li { padding: 15px 10px; color: #f4f2ed; font-size: 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
-        .sidebar-menu li:hover { color: var(--accent-color); padding-left: 15px; }
+        .sidebar-menu li { padding: 15px 10px; color: #f4f2ed; font-size: 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .sidebar-menu li:hover { color: var(--accent-color); }
 
-        .main-content { padding: 30px 20px; max-width: 1200px; margin: 0 auto; }
+        .main-content { padding: 30px 20px; max-width: 1100px; margin: 0 auto; }
         .page-section { display: none; }
-        .page-section.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
+        .page-section.active { display: block; }
         h2 { font-family: 'Noto Serif TC', serif; color: var(--primary-color); margin-bottom: 25px; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; }
-        .category-title { font-size: 18px; font-weight: 600; margin: 25px 0 15px; color: var(--accent-color); letter-spacing: 1px; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; margin-bottom: 40px; }
-        .product-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; border: 1px solid #e1ded7; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
-        .product-img { width: 100%; height: 200px; object-fit: cover; background-color: #e9ecef; }
-        .product-info { padding: 15px; text-align: center; }
-        .product-name { font-size: 15px; font-weight: 600; color: var(--primary-color); }
 
-        .card-panel { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 500px; margin: 0 auto; border: 1px solid #e1ded7; }
-        input[readonly] { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; }
-        .btn-action { width: 100%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-action:hover { background-color: #132521; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
+        .panel { background: white; padding: 25px; border-radius: 6px; border: 1px solid #e1ded7; }
+        .panel-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: var(--primary-color); border-left: 4px solid var(--primary-color); padding-left: 10px; }
         
-        /* 登出按鈕高級質感樣式 */
-        .btn-logout { width: 100%; padding: 12px; background-color: transparent; color: var(--danger-color); border: 2px solid var(--danger-color); border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 15px; }
-        .btn-logout:hover { background-color: var(--danger-color); color: white; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-danger { background-color: #b02a37; color: white; }
+        .btn-block { width: 100%; margin-top: 10px; }
 
-        .qr-container { text-align: center; padding: 20px 0; }
-        .member-id-display { font-size: 18px; font-weight: bold; color: var(--primary-color); letter-spacing: 1px; margin-bottom: 20px; }
-        
-        /* 手機端高相容性自訂容器 */
-        #qr-code-output { 
-            width: 200px; 
-            height: 200px; 
-            margin: 15px auto 0; 
-            border: 4px solid var(--primary-color); 
-            padding: 5px; 
-            background: white; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #qr-code-output img { display: block; max-width: 100%; height: auto; }
+        .data-list { list-style: none; max-height: 400px; overflow-y: auto; border: 1px solid #e1ded7; border-radius: 4px; }
+        .data-item { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .inline-edit-box { display: flex; gap: 5px; width: 100%; }
 
-        /* 自訂模態彈窗 */
-        .custom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(5px); }
+        /* 通用遮罩自訂彈窗 */
+        .custom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
         .custom-modal.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: white; padding: 30px; border-radius: 8px; max-width: 400px; width: 90%; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; }
-        .modal-close { position: absolute; top: 12px; right: 18px; font-size: 20px; cursor: pointer; color: #aaa; }
-        .modal-body { margin-top: 10px; font-size: 15px; line-height: 1.6; }
-        .modal-img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 6px; margin-bottom: 15px; }
-        .modal-price { font-size: 18px; color: var(--accent-color); font-weight: bold; margin: 10px 0; }
+        .modal-content { background: white; padding: 25px; border-radius: 6px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        
+        .confirm-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-overlay">
-        <div class="auth-container">
-            <div class="brand-header">
-                <div class="brand-logo">Aroma_bakery</div>
-                <div class="brand-subtitle">Coffee & Premium Snacks</div>
+    <div id="admin-auth-overlay">
+        <div class="admin-login-box">
+            <div class="admin-header">
+                <div class="admin-title">Aroma_bakery</div>
+                <div class="admin-subtitle">Management System</div>
             </div>
-            <div class="form-toggle">
-                <button class="toggle-btn active" id="btn-toggle-login" onclick="switchAuthForm('login')">會員登入</button>
-                <button class="toggle-btn" id="btn-toggle-reg" onclick="switchAuthForm('register')">註冊新帳戶</button>
-            </div>
-            
-            <form id="login-form" onsubmit="handleCustomerLogin(event); return false;">
+            <form id="admin-login-form" onsubmit="handleAdminLogin(event); return false;">
                 <div class="form-group">
-                    <label>Google 電子郵件</label>
-                    <input type="email" id="login-email" required placeholder="請輸入註冊的 Gmail 地址">
+                    <label>管理員登入電郵</label>
+                    <input type="email" id="admin-username" required placeholder="例如：admin02@aroma.com">
                 </div>
                 <div class="form-group">
-                    <label>密碼</label>
-                    <input type="password" id="login-password" required placeholder="請輸入密碼">
+                    <label>安全性密碼</label>
+                    <input type="password" id="admin-password" required placeholder="請輸入管理員密碼">
                 </div>
-                <button type="submit" class="btn-submit">驗證登入</button>
-            </form>
-            
-            <form id="register-form" class="hidden" onsubmit="handleCustomerRegister(event); return false;">
-                <div class="form-row">
-                    <div class="form-group"><label>中文姓氏</label><input type="text" id="reg-last-name" required placeholder="例：陳"></div>
-                    <div class="form-group"><label>名字</label><input type="text" id="reg-first-name" required placeholder="例：大文"></div>
-                </div>
-                <div class="form-group">
-                    <label>852 電話號碼</label>
-                    <div class="phone-input-container">
-                        <span class="phone-prefix">+852</span>
-                        <input type="tel" id="reg-phone" required placeholder="請輸入8位數字電話" pattern="[0-9]{8}">
-                    </div>
-                </div>
-                <div class="form-group"><label>出生月日</label><input type="text" id="reg-birthday" required placeholder="MMDD (例：0529)" pattern="(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])" maxlength="4"></div>
-                
-                <div class="form-group">
-                    <label>Google 電子郵件 (必填)</label>
-                    <input type="email" id="reg-email" required placeholder="您的帳號@gmail.com">
-                </div>
-                
-                <div class="form-group">
-                    <label>密碼</label>
-                    <input type="password" id="reg-password" required placeholder="請設定密碼" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$">
-                    <div class="input-hint">必須至少八位，且包含大小寫字母及數字</div>
-                </div>
-                <div class="form-group"><label>推薦號碼 (選填)</label><input type="text" id="reg-referral" placeholder="請輸入推薦人號碼"></div>
-                <button type="submit" class="btn-submit">確認註冊</button>
+                <button type="submit" class="btn-admin-login">安全認證登入</button>
+                <div id="error-msg" class="error-message">帳號或安全性密碼有誤，拒絕存取。</div>
             </form>
         </div>
     </div>
 
-    <div id="main-system">
+    <div id="admin-system">
         <nav>
             <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
-            <div class="brand-logo" style="font-size:20px; color:white;">Aroma_bakery</div>
+            <div class="brand-name">Aroma_bakery 核心主控台</div>
             <div style="width:24px;"></div>
         </nav>
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header"><div class="close-btn" onclick="toggleSidebar()">✕</div></div>
             <ul class="sidebar-menu">
-                <li onclick="switchPage('section-products')">精選商品</li>
-                <li onclick="switchPage('section-profile')">個人資料</li>
-                <li onclick="switchPage('section-qrcode')">會員二維號碼</li>
+                <li onclick="switchAdminPage('page-products')">添加與管理商品</li>
+                <li onclick="switchAdminPage('page-members')">會員名單管理</li>
+                <li onclick="handleAdminLogout()" style="color: #ff6b6b; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1);">安全登出系統</li>
             </ul>
         </div>
         <div class="main-content">
-            <div id="section-products" class="page-section active">
-                <h2>精選商品</h2>
-                <div class="category-title">飲品類 / Drinks</div>
-                <div class="product-grid" id="drinks-grid"></div>
-                <div class="category-title">甜點類 / Desserts</div>
-                <div class="product-grid" id="desserts-grid"></div>
-            </div>
-            
-            <div id="section-profile" class="page-section">
-                <h2>個人資料</h2>
-                <div class="card-panel">
-                    <div class="form-group"><label>名稱 (可修改)</label><input type="text" id="profile-name"></div>
-                    <div class="form-group"><label>852 電話號碼 (不可修改)</label><input type="text" id="profile-phone" readonly></div>
-                    <div class="form-group"><label>出生月日 (不可修改)</label><input type="text" id="profile-birthday" readonly></div>
-                    <div class="form-group"><label>Google 電子郵件 (不可修改)</label><input type="text" id="profile-email" readonly></div>
-                    <button class="btn-action" onclick="updateProfileName()">儲存修改</button>
-                    
-                    <button class="btn-logout" onclick="handleCustomerLogout()">登出會員帳戶</button>
+            <div id="page-products" class="page-section active">
+                <h2>商品管理分頁</h2>
+                <div class="admin-grid">
+                    <div class="panel">
+                        <div class="panel-title">上架/修改商品</div>
+                        <form id="product-form" onsubmit="saveProduct(event); return false;">
+                            <div class="form-group"><label>產品號碼 (ID)</label><input type="text" id="p-id" required placeholder="例：P001"></div>
+                            <div class="form-group"><label>產品名稱</label><input type="text" id="p-name" required></div>
+                            <div class="form-group"><label>價格 (HKD)</label><input type="number" id="p-price" required></div>
+                            <div class="form-group"><label>管理分頁 (分類)</label>
+                                <select id="p-category"><option value="飲品">飲品</option><option value="甜點">甜點</option></select>
+                            </div>
+                            <div class="form-group"><label>照片網址 (URL)</label><input type="url" id="p-photo" placeholder="https://..."></div>
+                            <div class="form-group"><label>產品詳情描述</label><textarea id="p-detail" rows="3"></textarea></div>
+                            <button type="submit" class="btn btn-primary btn-block">儲存上架</button>
+                        </form>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-title">商品實時檢索</div>
+                        <div class="search-box">
+                            <input type="text" id="search-product-input" placeholder="輸入產品名稱關鍵字">
+                            <button class="btn btn-primary" onclick="searchProduct()">搜尋</button>
+                        </div>
+                        <ul class="data-list" id="admin-product-list"></ul>
+                    </div>
                 </div>
             </div>
-            
-            <div id="section-qrcode" class="page-section">
-                <h2>會員專屬憑證</h2>
-                <div class="card-panel qr-container">
-                    <div class="member-id-display">會員碼：<span id="member-code-text">-</span></div>
-                    <p style="font-size:13px; color:#6c757d;">結帳時請出示此二維碼以累積積分</p>
-                    <div id="qr-code-output"></div>
+            <div id="page-members" class="page-section">
+                <h2>會員名單管理</h2>
+                <div class="panel" style="max-width: 750px; margin: 0 auto;">
+                    <div class="panel-title">全體會員檢索</div>
+                    <div class="search-box">
+                        <input type="text" id="search-member-input" placeholder="輸入電話號碼或姓名搜尋">
+                        <button class="btn btn-primary" onclick="searchMember()">搜尋會員</button>
+                    </div>
+                    <ul class="data-list" id="admin-member-list"></ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="custom-modal" id="custom-modal">
+    <div class="custom-modal" id="alert-modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">✕</span>
-            <div id="modal-dynamic-content" class="modal-body"></div>
+            <p id="alert-text" style="font-weight:600; color:#1e3932; line-height: 1.6;"></p>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="closeAlert()">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="custom-modal" id="confirm-modal">
+        <div class="modal-content">
+            <p id="confirm-text" style="font-weight:600; color:#b02a37; line-height: 1.6;"></p>
+            <div class="confirm-buttons">
+                <button class="btn btn-danger" id="confirm-yes-btn">確定下架</button>
+                <button class="btn" style="background:#6c757d; color:white;" onclick="closeConfirm()">取消</button>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
@@ -249,197 +199,201 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
-        let currentUserUid = null;
-        let mobileQRCodeEngine = null;
 
-        // 監聽登入狀態改變
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // 防呆：防止管理員誤登入前台
-                if(user.email === 'admin01@aroma.com') {
-                    showNotice('此帳戶為管理員專用，請移步至管理後台平台。');
-                    auth.signOut();
-                    return;
-                }
+        let allProducts = {}; 
+        let allMembers = {};
 
-                currentUserUid = user.uid;
-                // 顯示系統主介面，隱藏登入封面
-                document.getElementById('auth-overlay').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('auth-overlay').style.display = 'none';
-                    document.getElementById('main-system').style.display = 'block';
-                }, 400);
-
-                // 讀取當前登入顧客的專屬個人資料
-                onValue(ref(database, 'users/' + user.uid), (snapshot) => {
-                    const data = snapshot.val();
-                    if(data) {
-                        document.getElementById('profile-name').value = `${data.lastName || ''}${data.firstName || ''}`;
-                        document.getElementById('profile-phone').value = data.phone || '';
-                        document.getElementById('profile-birthday').value = data.birthday || '';
-                        document.getElementById('profile-email').value = data.email || '';
-                        
-                        const memberCode = `AROMA_${data.phone}`;
-                        document.getElementById('member-code-text').innerText = memberCode;
-                        
-                        renderMobileQRCode(memberCode);
-                    }
-                });
-
-                // 監聽並加載商品列表
-                onValue(ref(database, 'products'), (snapshot) => {
-                    const products = snapshot.val() || {};
-                    const drinksGrid = document.getElementById('drinks-grid');
-                    const dessertsGrid = document.getElementById('desserts-grid');
-                    if(drinksGrid && dessertsGrid) {
-                        drinksGrid.innerHTML = ''; dessertsGrid.innerHTML = '';
-                        for (let id in products) {
-                            const p = products[id];
-                            const cardHtml = `
-                                <div class="product-card" onclick="viewProductDetail('${p.name}', 'HK$${p.price}', '${p.detail || '暫無詳情'}', '${p.photoUrl}')">
-                                    <img class="product-img" src="${p.photoUrl || 'https://via.placeholder.com/300'}">
-                                    <div class="product-info"><div class="product-name">${p.name}</div></div>
-                                </div>`;
-                            if(p.category === '飲品') drinksGrid.insertAdjacentHTML('beforeend', cardHtml);
-                            else if(p.category === '甜點') dessertsGrid.insertAdjacentHTML('beforeend', cardHtml);
-                        }
-                    }
-                });
-            } else {
-                // 【關鍵安全邏輯】當 user 為 null（未登入或已登出狀態），立刻強制將畫面鎖回登入封面
-                currentUserUid = null;
-                document.getElementById('main-system').style.display = 'none';
-                document.getElementById('auth-overlay').style.display = 'flex';
-                setTimeout(() => {
-                    document.getElementById('auth-overlay').style.opacity = '1';
-                }, 50);
-            }
-        });
-
-        // 手機端高相容性二維碼渲染引擎
-        function renderMobileQRCode(textData) {
-            const container = document.getElementById('qr-code-output');
-            if (!container) return;
-            container.innerHTML = '';
-            
-            try {
-                mobileQRCodeEngine = new QRCode(container, {
-                    text: textData,
-                    width: 190,
-                    height: 190,
-                    colorDark: "#1e3932",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            } catch (err) {
-                console.error("二維碼本地渲染失敗:", err);
-            }
-        }
-
-        // 處理顧客登入（真實 Google Email 認證）
-        window.handleCustomerLogin = function(e) {
-            if(e && e.preventDefault) e.preventDefault();
-            const email = document.getElementById('login-email').value.trim();
-            const pass = document.getElementById('login-password').value;
-            
-            signInWithEmailAndPassword(auth, email, pass)
-                .catch((err) => {
-                    console.error(err);
-                    showNotice('登入失敗：電子郵件或密碼錯誤。');
-                });
+        window.toggleSidebar = function() { 
+            document.getElementById('sidebar').classList.toggle('active'); 
+        };
+        
+        window.switchAdminPage = function(id) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active'); 
+            window.toggleSidebar();
+        };
+        
+        window.showCustomAlert = function(text) { 
+            document.getElementById('alert-text').innerText = text; 
+            document.getElementById('alert-modal').classList.add('active'); 
+        };
+        
+        window.closeAlert = function() { 
+            document.getElementById('alert-modal').classList.remove('active'); 
         };
 
-        // 處理顧客註冊（真實 Google Email 認證）
-        window.handleCustomerRegister = function(e) {
+        window.showCustomConfirm = function(text, callback) {
+            document.getElementById('confirm-text').innerText = text;
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            yesBtn.onclick = callback;
+            document.getElementById('confirm-modal').classList.add('active');
+        };
+        
+        window.closeConfirm = function() { 
+            document.getElementById('confirm-modal').classList.remove('active'); 
+        };
+
+        // 管理員權限審查登入
+        window.handleAdminLogin = function(e) {
             if(e && e.preventDefault) e.preventDefault();
-            const lastName = document.getElementById('reg-last-name').value;
-            const firstName = document.getElementById('reg-first-name').value;
-            const phone = document.getElementById('reg-phone').value;
-            const birthday = document.getElementById('reg-birthday').value;
-            const email = document.getElementById('reg-email').value.trim();
-            const pass = document.getElementById('reg-password').value;
-            const referral = document.getElementById('reg-referral').value || "無";
-
-            if (!email.toLowerCase().endsWith('@gmail.com')) {
-                showNotice('註冊失敗：必須使用真實的 Google 電子郵件 (@gmail.com)！');
-                return;
-            }
-
-            createUserWithEmailAndPassword(auth, email, pass)
-                .then((cred) => {
-                    set(ref(database, 'users/' + cred.user.uid), {
-                        lastName, firstName, phone: "852" + phone, birthday, email, referral, role: "customer"
-                    }).then(() => showNotice('帳戶註冊成功！系統已為您自動登入。'));
+            const email = document.getElementById('admin-username').value.trim();
+            const p = document.getElementById('admin-password').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            errorMsg.style.display = 'none';
+            
+            signInWithEmailAndPassword(auth, email, p)
+                .then((userCredential) => {
+                    const uid = userCredential.user.uid;
+                    // 核心驗證：向資料庫調取該帳號的特權角色
+                    onValue(ref(database, 'users/' + uid), (snap) => {
+                        const userData = snap.val();
+                        if(userData && userData.role === 'admin') {
+                            window.showCustomAlert('管理授權成功，歡迎進入核心主控台。');
+                            document.getElementById('admin-auth-overlay').style.display = 'none';
+                            document.getElementById('admin-system').style.display = 'block';
+                            loadData();
+                        } else {
+                            // 角色不符，撤銷認證並強制剔除
+                            signOut(auth);
+                            window.showCustomAlert('存取拒絕：您不具備管理員權限！');
+                            errorMsg.innerText = '權限不足，拒絕存取。';
+                            errorMsg.style.display = 'block';
+                        }
+                    }, { onlyOnce: true });
                 })
                 .catch((err) => {
-                    if(err.code === "auth/email-already-in-use") {
-                        showNotice('該電子郵件在系統中已被註冊。');
-                    } else {
-                        showNotice('註冊阻斷：請確認密碼強度符合規格要求。');
-                    }
+                    console.error(err);
+                    errorMsg.innerText = '帳號或安全性密碼有誤，拒絕存取。';
+                    errorMsg.style.display = 'block';
                 });
         };
 
-        // 顧客修改自己的顯示名稱 (完全保留您原本的拆分規則)
-        window.updateProfileName = function() {
-            const fullName = document.getElementById('profile-name').value;
-            if(!fullName) { showNotice('名稱欄位不可為空'); return; }
-            
-            update(ref(database, 'users/' + currentUserUid), {
-                lastName: fullName.charAt(0), 
-                firstName: fullName.substring(1)
-            }).then(() => showNotice('個人名稱資料更新成功！'));
+        function loadData() {
+            onValue(ref(database, 'products'), (snap) => { allProducts = snap.val() || {}; renderProducts(allProducts); });
+            onValue(ref(database, 'users'), (snap) => { allMembers = snap.val() || {}; renderMembers(allMembers); });
+        }
+
+        window.saveProduct = function(e) {
+            if(e && e.preventDefault) e.preventDefault();
+            const id = document.getElementById('p-id').value.trim();
+            if(!id) return;
+
+            set(ref(database, 'products/' + id), {
+                id, 
+                name: document.getElementById('p-name').value.trim(), 
+                price: parseInt(document.getElementById('p-price').value),
+                category: document.getElementById('p-category').value, 
+                photoUrl: document.getElementById('p-photo').value.trim() || 'https://via.placeholder.com/300',
+                detail: document.getElementById('p-detail').value.trim()
+            }).then(() => { 
+                window.showCustomAlert('商品成功架設完成。'); 
+                document.getElementById('product-form').reset(); 
+            }).catch((err) => {
+                window.showCustomAlert('無法寫入：' + err.message);
+            });
         };
 
-        // 【全新加入】安全登出執行函式
-        window.handleCustomerLogout = function() {
-            if (confirm("確定要登出當前 Aroma_bakery 會員帳戶嗎？")) {
-                signOut(auth)
+        window.deleteProduct = function(id) {
+            window.showCustomConfirm('確定要將此商品從全線下架徹底清除嗎？', function() {
+                remove(ref(database, 'products/' + id))
                     .then(() => {
-                        // 登出成功後重置表單，避免殘留隱私資料
-                        document.getElementById('login-email').value = '';
-                        document.getElementById('login-password').value = '';
+                        window.closeConfirm();
+                        window.showCustomAlert('商品已被成功清除下架。');
                     })
                     .catch((err) => {
-                        console.error("登出發生錯誤:", err);
-                        showNotice("系統錯誤：登出失敗，請重試。");
+                        window.closeConfirm();
+                        window.showCustomAlert('下架失敗：' + err.message);
                     });
-            }
+            });
         };
-    </script>
-    
-    <script>
-        function switchAuthForm(t) {
-            if(t==='login'){
-                document.getElementById('login-form').classList.remove('hidden');
-                document.getElementById('register-form').classList.add('hidden');
-                document.getElementById('btn-toggle-login').classList.add('active');
-                document.getElementById('btn-toggle-reg').classList.remove('active');
-            } else {
-                document.getElementById('login-form').classList.add('hidden');
-                document.getElementById('register-form').classList.remove('hidden');
-                document.getElementById('btn-toggle-login').classList.remove('active');
-                document.getElementById('btn-toggle-reg').classList.add('active');
+
+        window.toggleInlineEdit = function(uid, currentName) {
+            const container = document.getElementById(`member-action-${uid}`);
+            if(!container) return;
+            container.innerHTML = `
+                <div class="inline-edit-box">
+                    <input type="text" id="inline-input-${uid}" value="${currentName}" style="padding:4px; font-size:12px;">
+                    <button class="btn btn-primary" style="padding:4px 8px; font-size:11px;" onclick="saveInlineName('${uid}')">儲存</button>
+                    <button class="btn" style="padding:4px 8px; font-size:11px; background:#6c757d; color:white;" onclick="cancelInlineEdit('${uid}', '${currentName}')">取消</button>
+                </div>`;
+        };
+
+        window.cancelInlineEdit = function(uid, currentName) {
+            const container = document.getElementById(`member-action-${uid}`);
+            if(!container) return;
+            container.innerHTML = `<button class="btn btn-primary" onclick="toggleInlineEdit('${uid}', '${currentName}')">更改名稱</button>`;
+        };
+
+        window.saveInlineName = function(uid) {
+            const newName = document.getElementById(`inline-input-${uid}`).value.trim();
+            if(!newName) return;
+            
+            const lastName = newName.length > 1 ? newName.charAt(0) : "";
+            const firstName = newName.length > 1 ? newName.substring(1) : newName;
+
+            update(ref(database, 'users/' + uid), {
+                lastName: lastName, 
+                firstName: firstName
+            }).then(() => {
+                window.showCustomAlert('會員姓名已成功修改。');
+            }).catch((err) => {
+                window.showCustomAlert('無法修改：' + err.message);
+            });
+        };
+
+        function renderProducts(prods) {
+            const list = document.getElementById('admin-product-list'); 
+            if(!list) return;
+            list.innerHTML = '';
+            for(let id in prods) {
+                list.insertAdjacentHTML('beforeend', `
+                    <li class="data-item">
+                        <div><strong>[${prods[id].category}]</strong> ${prods[id].name} - HK$${prods[id].price}</div>
+                        <button class="btn btn-danger" onclick="deleteProduct('${id}')">清除</button>
+                    </li>`);
             }
         }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-        function switchPage(id) {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active'); toggleSidebar();
+
+        function renderMembers(mems) {
+            const list = document.getElementById('admin-member-list'); 
+            if(!list) return;
+            list.innerHTML = '';
+            for(let uid in mems) {
+                const name = `${mems[uid].lastName||''}${mems[uid].firstName||''}`;
+                list.insertAdjacentHTML('beforeend', `
+                    <li class="data-item">
+                        <div><strong>${name || '未命名會員'}</strong> (${mems[uid].phone||'無電話'}) - ${mems[uid].birthday||'未填生日'}</div>
+                        <div id="member-action-${uid}"><button class="btn btn-primary" onclick="toggleInlineEdit('${uid}', '${name}')">更改名稱</button></div>
+                    </li>`);
+            }
         }
-        function showNotice(t) {
-            document.getElementById('modal-dynamic-content').innerHTML = `<p style="padding:20px 0; font-weight:600; color:#1e3932; font-size:14px; line-height:1.6;">${t}</p>`;
-            document.getElementById('custom-modal').classList.add('active');
-        }
-        function viewProductDetail(n, p, d, i) {
-            document.getElementById('modal-dynamic-content').innerHTML = `
-                <h3 style="font-family:'Noto Serif TC',serif; margin-bottom:15px; color:#1e3932;">${n}</h3>
-                <img class="modal-img" src="${i}">
-                <div class="modal-price">${p}</div>
-                <p style="text-align:left; color:#495057; font-size:14px; line-height:1.6;">${d}</p>`;
-            document.getElementById('custom-modal').classList.add('active');
-        }
-        function closeModal() { document.getElementById('custom-modal').classList.remove('active'); }
+
+        window.searchProduct = function() {
+            const k = document.getElementById('search-product-input').value.toLowerCase();
+            const f = {}; 
+            for(let id in allProducts) { 
+                if(allProducts[id].name.toLowerCase().includes(k)) f[id] = allProducts[id]; 
+            }
+            renderProducts(f);
+        };
+
+        window.searchMember = function() {
+            const k = document.getElementById('search-member-input').value.toLowerCase();
+            const f = {}; 
+            for(let uid in allMembers) {
+                const name = `${allMembers[uid].lastName||''}${allMembers[uid].firstName||''}`;
+                if(name.toLowerCase().includes(k) || (allMembers[uid].phone && allMembers[uid].phone.includes(k))) {
+                    f[uid] = allMembers[uid];
+                }
+            }
+            renderMembers(f);
+        };
+
+        window.handleAdminLogout = function() {
+            signOut(auth).then(() => {
+                location.reload();
+            });
+        };
     </script>
 </body>
 </html>
