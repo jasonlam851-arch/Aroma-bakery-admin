@@ -94,8 +94,8 @@
             </div>
             <form id="admin-login-form" onsubmit="handleAdminLogin(event); return false;">
                 <div class="form-group">
-                    <label>管理員管理號碼 (帳號)</label>
-                    <input type="text" id="admin-username" required placeholder="請輸入管理員帳號">
+                    <label>管理員登入電郵</label>
+                    <input type="email" id="admin-username" required placeholder="例如：admin01@aroma.com">
                 </div>
                 <div class="form-group">
                     <label>安全性密碼</label>
@@ -203,27 +203,56 @@
         let allProducts = {}; 
         let allMembers = {};
 
-        // 管理員登入
+        // === UI 提示框與導航函數庫 (歸入 Module 內綁定至 window 以策安全) ===
+        window.toggleSidebar = function() { 
+            document.getElementById('sidebar').classList.toggle('active'); 
+        };
+        
+        window.switchAdminPage = function(id) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active'); 
+            window.toggleSidebar();
+        };
+        
+        window.showCustomAlert = function(text) { 
+            document.getElementById('alert-text').innerText = text; 
+            document.getElementById('alert-modal').classList.add('active'); 
+        };
+        
+        window.closeAlert = function() { 
+            document.getElementById('alert-modal').classList.remove('active'); 
+        };
+
+        window.showCustomConfirm = function(text, callback) {
+            document.getElementById('confirm-text').innerText = text;
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            yesBtn.onclick = callback;
+            document.getElementById('confirm-modal').classList.add('active');
+        };
+        
+        window.closeConfirm = function() { 
+            document.getElementById('confirm-modal').classList.remove('active'); 
+        };
+
+        // === 業務核心邏輯 ===
+
+        // 管理員登入 (移除了前端硬編碼 admin01 驗證，直接透過 Firebase Auth 驗證，更安全)
         window.handleAdminLogin = function(e) {
             if(e && e.preventDefault) e.preventDefault();
-            const u = document.getElementById('admin-username').value.trim();
+            const email = document.getElementById('admin-username').value.trim();
             const p = document.getElementById('admin-password').value.trim();
             
-            if (u === 'admin01' && p === 'admin01') {
-                signInWithEmailAndPassword(auth, "admin01@aroma.com", "admin01SuperPassword")
-                    .then(() => {
-                        showCustomAlert('管理授權成功，系統即將載入資料節點。');
-                        document.getElementById('admin-auth-overlay').style.display = 'none';
-                        document.getElementById('admin-system').style.display = 'block';
-                        loadData();
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                        showCustomAlert('系統驗證失敗：請檢查 Firebase 中是否已建立管理員帳戶。');
-                    });
-            } else {
-                document.getElementById('error-msg').style.display = 'block';
-            }
+            signInWithEmailAndPassword(auth, email, p)
+                .then(() => {
+                    window.showCustomAlert('管理授權成功，系統即將載入資料節點。');
+                    document.getElementById('admin-auth-overlay').style.display = 'none';
+                    document.getElementById('admin-system').style.display = 'block';
+                    loadData();
+                })
+                .catch((err) => {
+                    console.error(err);
+                    document.getElementById('error-msg').style.display = 'block';
+                });
         };
 
         function loadData() {
@@ -245,29 +274,29 @@
                 photoUrl: document.getElementById('p-photo').value.trim() || 'https://via.placeholder.com/300',
                 detail: document.getElementById('p-detail').value.trim()
             }).then(() => { 
-                showCustomAlert('商品成功架設完成。'); 
+                window.showCustomAlert('商品成功架設完成。'); 
                 document.getElementById('product-form').reset(); 
             }).catch((err) => {
-                showCustomAlert('無法寫入資料庫，請確認管理員身份權限。錯誤訊息：' + err.message);
+                window.showCustomAlert('無法寫入資料庫，請確認管理員身份權限。錯誤訊息：' + err.message);
             });
         };
 
-        // 呼叫專屬確認彈窗執行下架
+        // 執行下架商品
         window.deleteProduct = function(id) {
-            showCustomConfirm('確定要將此商品從全線下架徹底清除嗎？', function() {
+            window.showCustomConfirm('確定要將此商品從全線下架徹底清除嗎？', function() {
                 remove(ref(database, 'products/' + id))
                     .then(() => {
-                        closeConfirm();
-                        showCustomAlert('商品已被成功清除下架。');
+                        window.closeConfirm();
+                        window.showCustomAlert('商品已被成功清除下架。');
                     })
                     .catch((err) => {
-                        closeConfirm();
-                        showCustomAlert('下架失敗，權限被拒。錯誤訊息：' + err.message);
+                        window.closeConfirm();
+                        window.showCustomAlert('下架失敗，權限被拒。錯誤訊息：' + err.message);
                     });
             });
         };
 
-        // 會員改名
+        // 觸發會員行內編輯
         window.toggleInlineEdit = function(uid, currentName) {
             const container = document.getElementById(`member-action-${uid}`);
             if(!container) return;
@@ -275,16 +304,35 @@
                 <div class="inline-edit-box">
                     <input type="text" id="inline-input-${uid}" value="${currentName}" style="padding:4px; font-size:12px;">
                     <button class="btn btn-primary" style="padding:4px 8px; font-size:11px;" onclick="saveInlineName('${uid}')">儲存</button>
+                    <button class="btn" style="padding:4px 8px; font-size:11px; background:#6c757d; color:white;" onclick="cancelInlineEdit('${uid}', '${currentName}')">取消</button>
                 </div>`;
         };
 
+        // 取消行內編輯
+        window.cancelInlineEdit = function(uid, currentName) {
+            const container = document.getElementById(`member-action-${uid}`);
+            if(!container) return;
+            container.innerHTML = `<button class="btn btn-primary" onclick="toggleInlineEdit('${uid}', '${currentName}')">更改名稱</button>`;
+        };
+
+        // 儲存修改後的會員名稱
         window.saveInlineName = function(uid) {
             const newName = document.getElementById(`inline-input-${uid}`).value.trim();
             if(!newName) return;
+            
+            // 優雅拆分姓氏與名字（防呆：若只有一個字則全部放入 firstName）
+            const lastName = newName.length > 1 ? newName.charAt(0) : "";
+            const firstName = newName.length > 1 ? newName.substring(1) : newName;
+
             update(ref(database, 'users/' + uid), {
-                lastName: newName.charAt(0), firstName: newName.substring(1)
-            }).then(() => showCustomAlert('會員姓名已成功修改。'))
-              .catch((err) => showCustomAlert('無法修改，錯誤訊息：' + err.message));
+                lastName: lastName, 
+                firstName: firstName
+            }).then(() => {
+                window.showCustomAlert('會員姓名已成功修改。');
+                // 成功後，資料監聽器 (onValue) 會自動觸發全列表重繪，不需手動塞回按鈕。
+            }).catch((err) => {
+                window.showCustomAlert('無法修改，錯誤訊息：' + err.message);
+            });
         };
 
         function renderProducts(prods) {
@@ -308,7 +356,7 @@
                 const name = `${mems[uid].lastName||''}${mems[uid].firstName||''}`;
                 list.insertAdjacentHTML('beforeend', `
                     <li class="data-item">
-                        <div><strong>${name}</strong> (${mems[uid].phone||'無電話'}) - ${mems[uid].birthday||'未填生日'}</div>
+                        <div><strong>${name || '未命名會員'}</strong> (${mems[uid].phone||'無電話'}) - ${mems[uid].birthday||'未填生日'}</div>
                         <div id="member-action-${uid}"><button class="btn btn-primary" onclick="toggleInlineEdit('${uid}', '${name}')">更改名稱</button></div>
                     </li>`);
             }
@@ -334,32 +382,6 @@
             }
             renderMembers(f);
         };
-    </script>
-    
-    <script>
-        // UI控制與提示框架構，完全摒棄外部預設彈窗與表情包
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-        function switchAdminPage(id) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active'); 
-            toggleSidebar();
-        }
-        
-        // 專屬通知提示框驅動
-        function showCustomAlert(text) { 
-            document.getElementById('alert-text').innerText = text; 
-            document.getElementById('alert-modal').classList.add('active'); 
-        }
-        function closeAlert() { document.getElementById('alert-modal').classList.remove('active'); }
-
-        // 專屬下架確認框驅動
-        function showCustomConfirm(text, callback) {
-            document.getElementById('confirm-text').innerText = text;
-            const yesBtn = document.getElementById('confirm-yes-btn');
-            yesBtn.onclick = callback;
-            document.getElementById('confirm-modal').classList.add('active');
-        }
-        function closeConfirm() { document.getElementById('confirm-modal').classList.remove('active'); }
     </script>
 </body>
 </html>
