@@ -79,6 +79,9 @@
         .custom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
         .custom-modal.active { opacity: 1; pointer-events: auto; }
         .modal-content { background: white; padding: 25px; border-radius: 6px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        
+        /* 專利客製化雙按鈕確認彈窗 */
+        .confirm-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -161,8 +164,20 @@
 
     <div class="custom-modal" id="alert-modal">
         <div class="modal-content">
-            <p id="alert-text" style="font-weight:600; margin-bottom:20px; color:#1e3932;"></p>
-            <button class="btn btn-primary" onclick="closeAlert()">確定</button>
+            <p id="alert-text" style="font-weight:600; color:#1e3932; line-height: 1.6;"></p>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="closeAlert()">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="custom-modal" id="confirm-modal">
+        <div class="modal-content">
+            <p id="confirm-text" style="font-weight:600; color:#b02a37; line-height: 1.6;"></p>
+            <div class="confirm-buttons">
+                <button class="btn btn-danger" id="confirm-yes-btn">確定下架</button>
+                <button class="btn" style="background:#6c757d; color:white;" onclick="closeConfirm()">取消</button>
+            </div>
         </div>
     </div>
 
@@ -188,7 +203,7 @@
         let allProducts = {}; 
         let allMembers = {};
 
-        // 💡 全域綁定登入函數
+        // 管理員登入
         window.handleAdminLogin = function(e) {
             if(e && e.preventDefault) e.preventDefault();
             const u = document.getElementById('admin-username').value.trim();
@@ -197,14 +212,14 @@
             if (u === 'admin01' && p === 'admin01') {
                 signInWithEmailAndPassword(auth, "admin01@aroma.com", "admin01SuperPassword")
                     .then(() => {
-                        showAlert('🎉 【管理授權成功】系統即將載入資料節點。');
+                        showCustomAlert('管理授權成功，系統即將載入資料節點。');
                         document.getElementById('admin-auth-overlay').style.display = 'none';
                         document.getElementById('admin-system').style.display = 'block';
                         loadData();
                     })
                     .catch((err) => {
                         console.error(err);
-                        showAlert('系統驗證失敗：請檢查 Firebase 中是否已建立 admin01@aroma.com 帳戶。');
+                        showCustomAlert('系統驗證失敗：請檢查 Firebase 中是否已建立管理員帳戶。');
                     });
             } else {
                 document.getElementById('error-msg').style.display = 'block';
@@ -216,7 +231,7 @@
             onValue(ref(database, 'users'), (snap) => { allMembers = snap.val() || {}; renderMembers(allMembers); });
         }
 
-        // 💡 全域綁定商品儲存
+        // 商品儲存上架
         window.saveProduct = function(e) {
             if(e && e.preventDefault) e.preventDefault();
             const id = document.getElementById('p-id').value.trim();
@@ -230,23 +245,29 @@
                 photoUrl: document.getElementById('p-photo').value.trim() || 'https://via.placeholder.com/300',
                 detail: document.getElementById('p-detail').value.trim()
             }).then(() => { 
-                showAlert('🟢 商品成功架設完成！'); 
+                showCustomAlert('商品成功架設完成。'); 
                 document.getElementById('product-form').reset(); 
             }).catch((err) => {
-                showAlert('❌ 無法寫入資料庫：請確認管理員身份權限。' + err.message);
+                showCustomAlert('無法寫入資料庫，請確認管理員身份權限。錯誤訊息：' + err.message);
             });
         };
 
-        // 💡 全域綁定刪除商品
+        // 呼叫專屬確認彈窗執行下架
         window.deleteProduct = function(id) {
-            if (confirm('🚨 確定要將此商品從全線下架徹底清除嗎？')) {
+            showCustomConfirm('確定要將此商品從全線下架徹底清除嗎？', function() {
                 remove(ref(database, 'products/' + id))
-                    .then(() => showAlert('🗑️ 商品已被成功清除下架。'))
-                    .catch((err) => showAlert('❌ 下架失敗：' + err.message));
-            }
+                    .then(() => {
+                        closeConfirm();
+                        showCustomAlert('商品已被成功清除下架。');
+                    })
+                    .catch((err) => {
+                        closeConfirm();
+                        showCustomAlert('下架失敗，權限被拒。錯誤訊息：' + err.message);
+                    });
+            });
         };
 
-        // 💡 全域綁定修改姓名開關
+        // 會員改名
         window.toggleInlineEdit = function(uid, currentName) {
             const container = document.getElementById(`member-action-${uid}`);
             if(!container) return;
@@ -257,14 +278,13 @@
                 </div>`;
         };
 
-        // 💡 全域綁定儲存修改姓名
         window.saveInlineName = function(uid) {
             const newName = document.getElementById(`inline-input-${uid}`).value.trim();
             if(!newName) return;
             update(ref(database, 'users/' + uid), {
                 lastName: newName.charAt(0), firstName: newName.substring(1)
-            }).then(() => showAlert('✅ 會員姓名已成功修改！'))
-              .catch((err) => showAlert('❌ 無法修改：' + err.message));
+            }).then(() => showCustomAlert('會員姓名已成功修改。'))
+              .catch((err) => showCustomAlert('無法修改，錯誤訊息：' + err.message));
         };
 
         function renderProducts(prods) {
@@ -294,7 +314,6 @@
             }
         }
 
-        // 💡 全域綁定搜尋函數
         window.searchProduct = function() {
             const k = document.getElementById('search-product-input').value.toLowerCase();
             const f = {}; 
@@ -318,15 +337,29 @@
     </script>
     
     <script>
-        // 這些是非 Firebase 模組的純 UI 控制函數，保持原樣即可
+        // UI控制與提示框架構，完全摒棄外部預設彈窗與表情包
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
         function switchAdminPage(id) {
             document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active'); 
             toggleSidebar();
         }
-        function showAlert(t) { document.getElementById('alert-text').innerText = t; document.getElementById('alert-modal').classList.add('active'); }
+        
+        // 專屬通知提示框驅動
+        function showCustomAlert(text) { 
+            document.getElementById('alert-text').innerText = text; 
+            document.getElementById('alert-modal').classList.add('active'); 
+        }
         function closeAlert() { document.getElementById('alert-modal').classList.remove('active'); }
+
+        // 專屬下架確認框驅動
+        function showCustomConfirm(text, callback) {
+            document.getElementById('confirm-text').innerText = text;
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            yesBtn.onclick = callback;
+            document.getElementById('confirm-modal').classList.add('active');
+        }
+        function closeConfirm() { document.getElementById('confirm-modal').classList.remove('active'); }
     </script>
 </body>
 </html>
