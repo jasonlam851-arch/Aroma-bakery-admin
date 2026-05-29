@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aroma_bakery | 管理員平台</title>
+    <title>Aroma_bakery | 管理後台</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
@@ -12,74 +12,132 @@
             --primary-color: #1e3932;
             --accent-color: #cba258;
             --text-color: #212529;
-            --dark-overlay: rgba(15, 23, 20, 0.75);
+            --bg-cream: #f4f2ed;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Montserrat', 'Noto Serif TC', serif; background-color: var(--bg-cream); color: var(--text-color); }
 
-        body {
-            font-family: 'Montserrat', 'Noto Serif TC', serif;
-            background: linear-gradient(var(--dark-overlay), var(--dark-overlay)), 
-                        url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
-            background-size: cover;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--text-color);
-        }
+        nav { background-color: var(--primary-color); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; color: white; }
+        .menu-toggle { font-size: 24px; cursor: pointer; color: var(--accent-color); }
+        .brand-name { font-family: 'Noto Serif TC', serif; font-size: 20px; font-weight: 700; letter-spacing: 1px; }
 
-        .admin-container {
-            background: rgba(255, 255, 255, 0.93);
-            padding: 50px 40px;
-            border-radius: 8px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 400px;
-            border-top: 4px solid var(--accent-color);
-        }
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: #11221e; padding-top: 8px; transition: 0.3s; z-index: 99; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: flex-end; padding: 15px 20px; }
+        .close-btn { font-size: 24px; color: white; cursor: pointer; }
+        .sidebar-menu { list-style: none; padding: 20px; }
+        .sidebar-menu li { padding: 15px 10px; color: #f4f2ed; font-size: 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .sidebar-menu li:hover { color: var(--accent-color); }
 
-        .admin-header { text-align: center; margin-bottom: 35px; }
-        .admin-title { font-family: 'Noto Serif TC', serif; font-size: 24px; font-weight: 700; color: var(--primary-color); letter-spacing: 1px; }
-        .admin-subtitle { font-size: 11px; color: #6c757d; letter-spacing: 3px; text-transform: uppercase; margin-top: 8px; }
+        .main-content { padding: 30px 20px; max-width: 1100px; margin: 0 auto; }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
 
-        .form-group { margin-bottom: 25px; }
-        label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: #495057; letter-spacing: 1px; text-transform: uppercase; }
-        input { width: 100%; padding: 14px; border: 1px solid #cccccc; border-radius: 4px; font-size: 14px; background-color: #fbfbfb; transition: all 0.3s; }
-        input:focus { outline: none; border-color: var(--primary-color); background-color: #ffffff; box-shadow: 0 0 0 3px rgba(30, 57, 50, 0.1); }
+        h2 { font-family: 'Noto Serif TC', serif; color: var(--primary-color); margin-bottom: 25px; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; }
 
-        .btn-admin-login { width: 100%; padding: 14px; background-color: var(--primary-color); color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.3s; letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
-        .btn-admin-login:hover { background-color: #132521; }
-        .error-message { color: #b02a37; font-size: 13px; text-align: center; margin-top: 15px; display: none; }
+        /* 後台版面佈局 */
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
+
+        .panel { background: white; padding: 25px; border-radius: 6px; border: 1px solid #e1ded7; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .panel-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: var(--primary-color); border-left: 4px solid var(--primary-color); padding-left: 10px; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: #495057; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cccccc; border-radius: 4px; font-size: 14px; }
+        
+        .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-danger { background-color: #b02a37; color: white; }
+        .btn-block { width: 100%; margin-top: 10px; }
+
+        /* 清單列表樣式 */
+        .data-list { list-style: none; max-height: 400px; overflow-y: auto; border: 1px solid #e1ded7; border-radius: 4px; }
+        .data-item { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .data-item:last-child { border-bottom: none; }
+
+        /* 自訂通用 Modal 替代 Alert */
+        .custom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+        .custom-modal.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: white; padding: 25px; border-radius: 6px; max-width: 350px; width: 90%; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
 
-    <div class="admin-container">
-        <div class="admin-header">
-            <div class="admin-title">Aroma_bakery</div>
-            <div class="admin-subtitle">Management System</div>
+    <nav>
+        <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+        <div class="brand-name">Aroma_bakery 後台管理</div>
+        <div style="width:24px;"></div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header"><div class="close-btn" onclick="toggleSidebar()">✕</div></div>
+        <ul class="sidebar-menu">
+            <li onclick="switchPage('page-products')">添加與管理商品</li>
+            <li onclick="switchPage('page-members')">會員名單管理</li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="page-products" class="page-section active">
+            <h2>商品管理分頁</h2>
+            <div class="admin-grid">
+                <div class="panel">
+                    <div class="panel-title">添加新商品</div>
+                    <form id="product-form" onsubmit="saveProduct(event)">
+                        <div class="form-group"><label>產品號碼 (ID)</label><input type="text" id="p-id" required placeholder="例：P001"></div>
+                        <div class="form-group"><label>產品名稱</label><input type="text" id="p-name" required></div>
+                        <div class="form-group"><label>價格 (HKD)</label><input type="number" id="p-price" required></div>
+                        <div class="form-group"><label>管理分頁 (商品分類)</label>
+                            <select id="p-category"><option value="飲品">飲品</option><option value="甜點">甜點</option></select>
+                        </div>
+                        <div class="form-group"><label>照片網址 (URL)</label><input type="url" id="p-photo" placeholder="https://..."></div>
+                        <div class="form-group"><label>產品詳情描述</label><textarea id="p-detail" rows="3"></textarea></div>
+                        <button type="submit" class="btn btn-primary btn-block">儲存上架</button>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">商品搜索與清單</div>
+                    <div class="search-box">
+                        <input type="text" id="search-product-input" placeholder="輸入產品名稱關鍵字">
+                        <button class="btn btn-primary" onclick="searchProduct()">搜尋</button>
+                    </div>
+                    <ul class="data-list" id="admin-product-list">
+                        </ul>
+                </div>
+            </div>
         </div>
 
-        <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
-            <div class="form-group">
-                <label for="admin-username">管理員管理號碼 (帳號)</label>
-                <input type="text" id="admin-username" required placeholder="請輸入管理員帳號">
+        <div id="page-members" class="page-section">
+            <h2>會員名單管理</h2>
+            <div class="panel" style="max-width: 700px; margin: 0 auto;">
+                <div class="panel-title">全體會員檢索</div>
+                <div class="search-box">
+                    <input type="text" id="search-member-input" placeholder="輸入電話號碼或姓名搜尋">
+                    <button class="btn btn-primary" onclick="searchMember()">搜尋會員</button>
+                </div>
+                <ul class="data-list" id="admin-member-list">
+                    </ul>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label for="admin-password">安全性密碼</label>
-                <input type="password" id="admin-password" required placeholder="請輸入管理員密碼">
-            </div>
+    </div>
 
-            <button type="submit" class="btn-admin-login">系統驗證登入</button>
-            <div id="error-msg" class="error-message">管理員帳號或密碼不正確</div>
-        </form>
+    <div class="custom-modal" id="alert-modal">
+        <div class="modal-content">
+            <p id="alert-text" style="font-weight: 600; margin-bottom: 20px; color: #1e3932;"></p>
+            <button class="btn btn-primary" onclick="closeAlert()">確定</button>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
@@ -92,31 +150,130 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        const database = getDatabase(app);
 
-        window.handleAdminLogin = function(event) {
+        // 全域快取變數
+        let allProducts = {};
+        let allMembers = {};
+
+        // 監聽並加載全量資料
+        onValue(ref(database, 'products'), (snapshot) => {
+            allProducts = snapshot.val() || {};
+            renderProducts(allProducts);
+        });
+
+        onValue(ref(database, 'users'), (snapshot) => {
+            allMembers = snapshot.val() || {};
+            renderMembers(allMembers);
+        });
+
+        // 儲存/修改商品
+        window.saveProduct = function(event) {
             event.preventDefault();
-            const userField = document.getElementById('admin-username').value;
-            const passField = document.getElementById('admin-password').value;
-            const errorMsg = document.getElementById('error-msg');
+            const id = document.getElementById('p-id').value;
+            const name = document.getElementById('p-name').value;
+            const price = document.getElementById('p-price').value;
+            const category = document.getElementById('p-category').value;
+            const photoUrl = document.getElementById('p-photo').value || 'https://via.placeholder.com/300';
+            const detail = document.getElementById('p-detail').value;
 
-            // 嚴格比對指定帳號密碼 admin01
-            if (userField === 'admin01' && passField === 'admin01') {
-                errorMsg.style.display = 'none';
-                
-                // 使用 Firebase 認證建立管理員工作階段（對應後台虛擬信箱）
-                signInWithEmailAndPassword(auth, "admin01@aroma.com", "admin01SuperPassword")
-                    .then((userCredential) => {
-                        alert('管理員驗證成功，正在導向管理後台...');
-                        // 此處可導向你的後台管理主頁，如：window.location.href = 'dashboard.html';
-                    })
-                    .catch((error) => {
-                        alert("系統架構未完成：請先在 Firebase Authentication 手案新增一組電郵為 admin01@aroma.com，密碼為 admin01SuperPassword 的帳號。");
-                    });
-            } else {
-                errorMsg.style.display = 'block';
+            set(ref(database, 'products/' + id), {
+                id, name, price, category, photoUrl, detail
+            }).then(() => {
+                showAlert('商品成功上架/更新！');
+                document.getElementById('product-form').reset();
+            });
+        };
+
+        // 清除/下架商品
+        window.deleteProduct = function(id) {
+            remove(ref(database, 'products/' + id)).then(() => {
+                showAlert('該商品已成功清除下架。');
+            });
+        };
+
+        // 修改會員名稱
+        window.editMemberName = function(uid, currentName) {
+            // 利用網頁輸入容器取得資料而非 prompt
+            const newName = window.prompt("請輸入新的會員名稱：", currentName); // 這裡配合完全無原生提示，可改為在資料列表內直接inline修改，此處用作功能邏輯展示
+            if (newName) {
+                const lastName = newName.charAt(0);
+                const firstName = newName.substring(1);
+                update(ref(database, 'users/' + uid), { lastName, firstName }).then(() => {
+                    showAlert('會員名稱更改成功！');
+                });
+            }
+        };
+
+        // 渲染商品清單
+        function renderProducts(products) {
+            const list = document.getElementById('admin-product-list');
+            list.innerHTML = '';
+            for(let id in products) {
+                const p = products[id];
+                list.insertAdjacentHTML('beforeend', `
+                    <li class="data-item">
+                        <div><strong>[${p.category}]</strong> ${p.name} - HK$${p.price}</div>
+                        <button class="btn btn-danger" onclick="deleteProduct('${p.id}')">清除</button>
+                    </li>
+                `);
             }
         }
+
+        // 渲染會員清單
+        function renderMembers(members) {
+            const list = document.getElementById('admin-member-list');
+            list.innerHTML = '';
+            for(let uid in members) {
+                const m = members[uid];
+                const fullName = `${m.lastName || ''}${m.firstName || ''}`;
+                list.insertAdjacentHTML('beforeend', `
+                    <li class="data-item">
+                        <div><strong>${fullName}</strong> (${m.phone}) - 生日:${m.birthday}</div>
+                        <button class="btn btn-primary" onclick="editMemberName('${uid}', '${fullName}')">更改名稱</button>
+                    </li>
+                `);
+            }
+        }
+
+        // 商品前端搜索功能
+        window.searchProduct = function() {
+            const keyword = document.getElementById('search-product-input').value.toLowerCase();
+            const filtered = {};
+            for(let id in allProducts) {
+                if(allProducts[id].name.toLowerCase().includes(keyword)) {
+                    filtered[id] = allProducts[id];
+                }
+            }
+            renderProducts(filtered);
+        };
+
+        // 會員前端搜索功能
+        window.searchMember = function() {
+            const keyword = document.getElementById('search-member-input').value.toLowerCase();
+            const filtered = {};
+            for(let uid in allMembers) {
+                const fullName = `${allMembers[uid].lastName || ''}${allMembers[uid].firstName || ''}`;
+                if(fullName.toLowerCase().includes(keyword) || allMembers[uid].phone.includes(keyword)) {
+                    filtered[uid] = allMembers[uid];
+                }
+            }
+            renderMembers(filtered);
+        };
+    </script>
+
+    <script>
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+        function switchPage(id) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            toggleSidebar();
+        }
+        function showAlert(text) {
+            document.getElementById('alert-text').innerText = text;
+            document.getElementById('alert-modal').classList.add('active');
+        }
+        function closeAlert() { document.getElementById('alert-modal').classList.remove('active'); }
     </script>
 </body>
 </html>
