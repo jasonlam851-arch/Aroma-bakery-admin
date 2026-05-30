@@ -34,6 +34,11 @@
     input, select, textarea { width: 100%; padding: 12px 16px; border: 1px solid var(--sb-border); font-size: 14px; background-color: #ffffff; border-radius: 6px; transition: border-color 0.2s; }
     input:focus, select:focus, textarea:focus { outline: none; border-color: var(--sb-green-dark); }
     
+    /* 搜尋欄特定樣式 */
+    .search-group { margin-bottom: 25px; position: relative; }
+    .search-input { padding: 14px 20px; border: 2px solid var(--sb-border); border-radius: 50px; font-size: 14px; transition: all 0.3s ease; }
+    .search-input:focus { border-color: var(--sb-accent-gold); box-shadow: 0 0 10px rgba(203, 162, 88, 0.2); }
+
     /* 星巴克風高級按鈕 */
     .btn { padding: 10px 24px; border: 1px solid transparent; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 50px; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; }
     .btn-primary { background-color: var(--sb-green-dark); color: white; }
@@ -78,7 +83,7 @@
     .data-sub-text { color: var(--sb-text-muted); margin-left: 10px; font-size: 13px; font-weight: 400; display: block; margin-top: 4px; }
     .data-actions { display: flex; gap: 10px; }
     
-    /* 星巴克風 隱藏/展開修改內面介面 */
+    /* 隱藏/展開修改內面介面 */
     .edit-zone { display: none; background: #faf9f6; border: 1px solid var(--sb-accent-gold); border-radius: 6px; padding: 25px; margin-top: 20px; animation: slideDown 0.25s ease; }
     .edit-zone.active { display: block; }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
@@ -86,9 +91,24 @@
     .edit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 18px; }
     .edit-full-row { grid-column: 1 / -1; }
     .edit-zone-footer { display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--sb-border); padding-top: 15px; }
+
+    /* 全自訂系統彈窗（替代傳統 Alert 與 Confirm） */
+    .sys-modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+    .sys-modal { background: #ffffff; border-radius: 8px; width: 90%; max-width: 450px; border-top: 4px solid var(--sb-accent-gold); box-shadow: 0 15px 35px rgba(0,0,0,0.3); overflow: hidden; animation: modalPop 0.3s ease; }
+    @keyframes modalPop { from { transform: scale(0.9); opacity:0; } to { transform: scale(1); opacity:1; } }
+    .sys-modal-body { padding: 30px; font-size: 15px; color: var(--sb-text-black); line-height: 1.6; }
+    .sys-modal-footer { background: #faf9f6; padding: 15px 25px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--sb-border); }
   </style>
 </head>
 <body>
+
+  <div id="sys-modal-container" class="sys-modal-overlay">
+    <div class="sys-modal">
+      <div id="sys-modal-content" class="sys-modal-body">系統提示訊息</div>
+      <div class="sys-modal-footer" id="sys-modal-actions">
+        </div>
+    </div>
+  </div>
 
   <div id="admin-auth-overlay">
     <div class="admin-container">
@@ -104,7 +124,7 @@
 
   <div id="admin-system">
     <nav>
-      <div class="menu-toggle" onclick="toggleSidebar()">☰ 系統選單</div>
+      <div class="menu-toggle" onclick="toggleSidebar()">系統選單</div>
       <div style="font-family: 'Noto Serif TC', serif; font-weight:700; letter-spacing:2px; font-size: 18px;">AROMA BAKERY CMS</div>
       <button class="btn-nav-logout" onclick="handleAdminLogout()">安全登出</button>
     </nav>
@@ -112,8 +132,8 @@
     <div class="sidebar" id="sidebar">
       <div class="sidebar-header"><div class="close-btn" onclick="toggleSidebar()">×</div></div>
       <ul class="sidebar-menu">
-        <li onclick="switchAdminPage('page-products')">☕ 商品上架與維護看板</li>
-        <li onclick="switchAdminPage('page-members')">👥 全系統會員檔案總庫</li>
+        <li onclick="switchAdminPage('page-products')">商品上架與維護看板</li>
+        <li onclick="switchAdminPage('page-members')">全系統會員檔案總庫</li>
       </ul>
     </div>
 
@@ -132,10 +152,11 @@
             </div>
             
             <div class="form-group">
-              <label>前台規格調節配置（僅限飲品生效）</label>
+              <label>前台規格調節配置</label>
               <div style="display: flex; gap: 25px; padding: 5px 0;">
-                <label style="display: inline-flex; align-items: center; font-size: 13px; cursor:pointer;"><input type="checkbox" id="p-has-ice" checked style="width: auto; margin-right: 8px;"> 啟用冰量配置調整</label>
-                <label style="display: inline-flex; align-items: center; font-size: 13px; cursor:pointer;"><input type="checkbox" id="p-has-sugar" checked style="width: auto; margin-right: 8px;"> 啟用甜度標準調整</label>
+                <label style="display: inline-flex; align-items: center; font-size: 13px; color: var(--sb-text-muted);">
+                  <input type="checkbox" checked disabled style="width: auto; margin-right: 8px;"> 一律只可選擇 500 ml
+                </label>
               </div>
             </div>
 
@@ -154,6 +175,12 @@
       <div id="page-members" class="admin-page">
         <div class="panel">
           <div class="panel-title">會員檢索與全權管理庫</div>
+          
+          <div class="search-group">
+            <label>輸入會員完整或部分手機號碼進行即時篩選</label>
+            <input type="text" id="member-search-input" class="search-input" placeholder="請輸入手機號碼搜尋...">
+          </div>
+
           <ul class="data-list" id="admin-members-list"></ul>
         </div>
       </div>
@@ -181,6 +208,35 @@
     const auth = getAuth(app);
     const database = getDatabase(app);
 
+    // 全域快取快照變數
+    let globalMembersData = {};
+
+    // 系統自訂 UI 提示彈窗
+    window.sysAlert = function(msg) {
+      document.getElementById('sys-modal-content').innerText = msg;
+      const footer = document.getElementById('sys-modal-actions');
+      footer.innerHTML = `<button class="btn btn-primary" onclick="closeSysModal()">確認</button>`;
+      document.getElementById('sys-modal-container').style.display = 'flex';
+    };
+
+    window.sysConfirm = function(msg, onConfirm) {
+      document.getElementById('sys-modal-content').innerText = msg;
+      const footer = document.getElementById('sys-modal-actions');
+      footer.innerHTML = `
+        <button class="btn btn-warning" onclick="closeSysModal()">取消變更</button>
+        <button class="btn btn-danger" id="sys-modal-confirm-btn">確定執行</button>
+      `;
+      document.getElementById('sys-modal-container').style.display = 'flex';
+      document.getElementById('sys-modal-confirm-btn').onclick = function() {
+        closeSysModal();
+        onConfirm();
+      };
+    };
+
+    window.closeSysModal = function() {
+      document.getElementById('sys-modal-container').style.display = 'none';
+    };
+
     window.toggleSidebar = function() { document.getElementById('sidebar').classList.toggle('active'); };
     window.switchAdminPage = function(pageId) { document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active')); document.getElementById(pageId).classList.add('active'); document.getElementById('sidebar').classList.remove('active'); };
 
@@ -199,11 +255,15 @@
     document.getElementById('admin-login-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const user = document.getElementById('admin-username').value;
-      if(user !== 'admin01@aroma.com') return alert('核心錯誤：本介面僅供高階資深管理員存取。');
-      signInWithEmailAndPassword(auth, user, document.getElementById('admin-password').value).catch(() => alert('安全驗證失敗：密碼不正確。'));
+      if(user !== 'admin01@aroma.com') return sysAlert('核心錯誤：本介面僅供高階資深管理員存取。');
+      signInWithEmailAndPassword(auth, user, document.getElementById('admin-password').value).catch(() => sysAlert('安全驗證失敗：密碼不正確。'));
     });
 
-    window.handleAdminLogout = function() { if(confirm("安全性提示：確定要中斷連線並安全登出主控台？")) signOut(auth); };
+    window.handleAdminLogout = function() { 
+      sysConfirm("安全性提示：確定要中斷連線並安全登出主控台？", () => {
+        signOut(auth);
+      });
+    };
 
     // 發布新商品
     document.getElementById('product-form').addEventListener('submit', (e) => {
@@ -215,12 +275,14 @@
         category: document.getElementById('p-category').value,
         photoUrl: document.getElementById('p-photo').value,
         detail: document.getElementById('p-detail').value,
-        hasIce: document.getElementById('p-has-ice').checked,
-        hasSugar: document.getElementById('p-has-sugar').checked
-      }).then(() => { alert('營運提示：新商品發布並部署上架成功！'); document.getElementById('product-form').reset(); });
+        sizeSpecification: "500 ml"
+      }).then(() => { 
+        sysAlert('營運提示：新商品發布並部署上架成功！'); 
+        document.getElementById('product-form').reset(); 
+      });
     });
 
-    // 讀取商品列表並渲染美化介面（含修改詳情描述）
+    // 讀取商品列表並渲染美化介面
     function loadProductsAdmin() {
       onValue(ref(database, 'products'), (snapshot) => {
         const list = document.getElementById('admin-products-list');
@@ -228,14 +290,12 @@
         const data = snapshot.val() || {};
         for(let id in data) {
           const p = data[id];
-          const iceChk = p.hasIce !== false ? 'checked' : '';
-          const sugarChk = p.hasSugar !== false ? 'checked' : '';
           list.insertAdjacentHTML('beforeend', `
             <li class="data-item">
               <div class="data-row-main">
                 <div class="data-info-text">
                   [${p.category || '未分類'}] ${p.name} 
-                  <span class="data-sub-text">標準定價：HK$ ${p.price} | 描述：${p.detail || '無'}</span>
+                  <span class="data-sub-text">標準定價：HK$ ${p.price} | 規格：500 ml | 描述：${p.detail || '無'}</span>
                 </div>
                 <div class="data-actions">
                   <button class="btn btn-warning" onclick="document.getElementById('edit-${id}').classList.toggle('active')">修改商品</button>
@@ -246,12 +306,10 @@
                 <div class="edit-grid">
                   <div><label>核心商品名稱</label><input type="text" id="e-name-${id}" value="${p.name || ''}"></div>
                   <div><label>標準定價 (HKD)</label><input type="number" id="e-price-${id}" value="${p.price || 0}"></div>
-                  <div>
-                    <label>客製化規格啟用</label>
-                    <div style="display:flex; gap:15px; padding-top:10px;">
-                      <label style="font-size:12px;"><input type="checkbox" id="e-ice-${id}" ${iceChk}> 冰量調節</label>
-                      <label style="font-size:12px;"><input type="checkbox" id="e-sugar-${id}" ${sugarChk}> 甜度調節</label>
-                    </div>
+                  <div><label>指定規格配置</label><input type="text" value="500 ml" disabled style="color: var(--sb-text-muted);"></div>
+                  <div class="edit-full-row">
+                    <label>商品視覺圖片外鏈 URL</label>
+                    <input type="url" id="e-photo-${id}" value="${p.photoUrl || ''}">
                   </div>
                   <div class="edit-full-row">
                     <label>詳情描述介紹 (動態修改)</label>
@@ -271,59 +329,81 @@
       update(ref(database, 'products/' + id), {
         name: document.getElementById(`e-name-${id}`).value, 
         price: parseInt(document.getElementById(`e-price-${id}`).value),
-        hasIce: document.getElementById(`e-ice-${id}`).checked, 
-        hasSugar: document.getElementById(`e-sugar-${id}`).checked,
+        photoUrl: document.getElementById(`e-photo-${id}`).value,
         detail: document.getElementById(`e-detail-${id}`).value
-      }).then(() => alert('營運提示：商品維護參數已成功同步至資料庫！'));
+      }).then(() => sysAlert('營運提示：商品維護參數已成功同步至資料庫！'));
     };
-    window.deleteProduct = function(id) { if(confirm("安全性確認：確定要將此商品永久下架並銷毀檔案？")) remove(ref(database, 'products/' + id)); };
 
-    // 讀取會員檢索庫並渲染美化介面（美式金邊風格）
+    window.deleteProduct = function(id) { 
+      sysConfirm("安全性確認：確定要將此商品永久下架並銷毀檔案？", () => {
+        remove(ref(database, 'products/' + id));
+      });
+    };
+
+    // 監聽搜尋列輸入事件
+    document.getElementById('member-search-input').addEventListener('input', (e) => {
+      renderMembersList(e.target.value.trim());
+    });
+
+    // 讀取會員數據
     function loadMembersAdmin() {
       onValue(ref(database, 'users'), (snapshot) => {
-        const container = document.getElementById('admin-members-list');
-        container.innerHTML = '';
-        const members = snapshot.val() || {};
-        for(let uid in members) {
-          const m = members[uid];
-          
-          let monthOptions = '';
-          for(let i=1; i<=12; i++) {
-            let val = i.toString().padStart(2, '0');
-            monthOptions += `<option value="${val}" ${m.birthdayMonth === val ? 'selected' : ''}>${i}月</option>`;
-          }
-          let dayOptions = '';
-          for(let i=1; i<=31; i++) {
-            let val = i.toString().padStart(2, '0');
-            dayOptions += `<option value="${val}" ${m.birthdayDay === val ? 'selected' : ''}>${i}日</option>`;
-          }
-
-          container.insertAdjacentHTML('beforeend', `
-            <li class="data-item" style="border-left: 4px solid var(--sb-green-dark);">
-              <div class="data-row-main">
-                <div class="data-info-text">
-                  <span style="font-size:16px; color:var(--sb-green-dark); font-weight:700;">${m.lastName || ''}${m.firstName || '顧客'}</span>
-                  <span class="data-sub-text">🎂 生日專利：${m.birthdayMonth || '--'}月${m.birthdayDay || '--'}日碼 | 📱 聯絡電話：${m.phone || '無'} | ✉️ 帳號信箱：${m.email || '無'}</span>
-                </div>
-                <div class="data-actions">
-                  <button class="btn btn-warning" onclick="document.getElementById('edit-mem-${uid}').classList.toggle('active')">修改檔案</button>
-                  <button class="btn btn-danger" onclick="deleteMember('${uid}')">刪除帳戶</button>
-                </div>
-              </div>
-              <div class="edit-zone" id="edit-mem-${uid}">
-                <div class="edit-grid">
-                  <div><label>中文姓氏</label><input type="text" id="em-lastname-${uid}" value="${m.lastName || ''}"></div>
-                  <div><label>專屬名字</label><input type="text" id="em-firstname-${uid}" value="${m.firstName || ''}"></div>
-                  <div><label>專屬出生月份</label><select id="em-month-${uid}">${monthOptions}</select></div>
-                  <div><label>專屬出生日期</label><select id="em-day-${uid}">${dayOptions}</select></div>
-                </div>
-                <div class="edit-zone-footer">
-                  <button class="btn btn-primary" onclick="saveMemberUpdate('${uid}')">同步覆蓋會員檔案</button>
-                </div>
-              </div>
-            </li>`);
-        }
+        globalMembersData = snapshot.val() || {};
+        const currentSearch = document.getElementById('member-search-input').value.trim();
+        renderMembersList(currentSearch);
       });
+    }
+
+    // 渲染會員列表（支援手機號篩選）
+    function renderMembersList(filterKeyword = '') {
+      const container = document.getElementById('admin-members-list');
+      container.innerHTML = '';
+      
+      for(let uid in globalMembersData) {
+        const m = globalMembersData[uid];
+        const phoneNum = m.phone || '';
+        
+        // 如果有輸入搜尋詞，且電話號碼不包含該搜尋詞，則不渲染
+        if(filterKeyword !== '' && !phoneNum.includes(filterKeyword)) {
+          continue;
+        }
+        
+        let monthOptions = '';
+        for(let i=1; i<=12; i++) {
+          let val = i.toString().padStart(2, '0');
+          monthOptions += `<option value="${val}" ${m.birthdayMonth === val ? 'selected' : ''}>${i}月</option>`;
+        }
+        let dayOptions = '';
+        for(let i=1; i<=31; i++) {
+          let val = i.toString().padStart(2, '0');
+          dayOptions += `<option value="${val}" ${m.birthdayDay === val ? 'selected' : ''}>${i}日</option>`;
+        }
+
+        container.insertAdjacentHTML('beforeend', `
+          <li class="data-item" style="border-left: 4px solid var(--sb-green-dark);">
+            <div class="data-row-main">
+              <div class="data-info-text">
+                <span style="font-size:16px; color:var(--sb-green-dark); font-weight:700;">${m.lastName || ''}${m.firstName || '顧客'}</span>
+                <span class="data-sub-text">生日專利：${m.birthdayMonth || '--'}月${m.birthdayDay || '--'}日碼 | 聯絡電話：${phoneNum || '無'} | 帳號信箱：${m.email || '無'}</span>
+              </div>
+              <div class="data-actions">
+                <button class="btn btn-warning" onclick="document.getElementById('edit-mem-${uid}').classList.toggle('active')">修改檔案</button>
+                <button class="btn btn-danger" onclick="deleteMember('${uid}')">刪除帳戶</button>
+              </div>
+            </div>
+            <div class="edit-zone" id="edit-mem-${uid}">
+              <div class="edit-grid">
+                <div><label>中文姓氏</label><input type="text" id="em-lastname-${uid}" value="${m.lastName || ''}"></div>
+                <div><label>專屬名字</label><input type="text" id="em-firstname-${uid}" value="${m.firstName || ''}"></div>
+                <div><label>專屬出生月份</label><select id="em-month-${uid}">${monthOptions}</select></div>
+                <div><label>專屬出生日期</label><select id="em-day-${uid}">${dayOptions}</select></div>
+              </div>
+              <div class="edit-zone-footer">
+                <button class="btn btn-primary" onclick="saveMemberUpdate('${uid}')">同步覆蓋會員檔案</button>
+              </div>
+            </div>
+          </li>`);
+      }
     }
 
     window.saveMemberUpdate = function(uid) {
@@ -332,13 +412,13 @@
         firstName: document.getElementById(`em-firstname-${uid}`).value,
         birthdayMonth: document.getElementById(`em-month-${uid}`).value,
         birthdayDay: document.getElementById(`em-day-${uid}`).value
-      }).then(() => alert('權限提示：該會員基本檔案與核心生日碼已同步更新成功！'));
+      }).then(() => sysAlert('權限提示：該會員基本檔案與核心生日碼已同步更新成功！'));
     };
 
     window.deleteMember = function(uid) {
-      if(confirm("❗ 終極警告 ❗\n您正在進行永久刪除會員帳戶的操作。\n這將導致該顧客無法登入，且所有消費權益、專屬號碼均會被立即清除，確定執行？")) {
-        remove(ref(database, 'users/' + uid)).then(() => alert('權限提示：該會員帳戶已從資料庫安全抹除。'));
-      }
+      sysConfirm("警告：您正在進行永久刪除會員帳戶的操作。這將導致該顧客無法登入，且所有消費權益、專屬號碼均會被立即清除，確定執行？", () => {
+        remove(ref(database, 'users/' + uid)).then(() => sysAlert('權限提示：該會員帳戶已從資料庫安全抹除。'));
+      });
     };
   </script>
 </body>
