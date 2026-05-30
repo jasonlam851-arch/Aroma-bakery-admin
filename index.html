@@ -63,6 +63,8 @@
     h2 { font-size: 22px; font-weight: 700; color: var(--sb-text-black); letter-spacing: -0.5px; }
     
     .card-panel { background: #ffffff; padding: 32px; border-radius: 8px; border: 1px solid var(--sb-border); margin-bottom: 32px; }
+    .search-panel { background: #ffffff; padding: 20px 24px; border-radius: 8px; border: 1px solid var(--sb-border); margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+    
     .btn-action { padding: 12px 28px; background-color: var(--sb-primary-green); color: white; border: none; border-radius: 50px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background-color 0.2s; display: inline-block; }
     .btn-action:hover { background-color: #004d33; }
     
@@ -81,6 +83,10 @@
     .preset-badge { background: var(--sb-light-green); color: var(--sb-primary-green); font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 4px; cursor: pointer; border: 1px solid transparent; }
     .preset-badge:hover { border-color: var(--sb-primary-green); }
     .hint-text { font-size: 12px; color: var(--sb-text-gray); margin-top: 6px; line-height: 1.4; }
+    
+    /* 生日局部修改編輯器 */
+    .birthday-inline-editor { display: flex; align-items: center; gap: 6px; }
+    .birthday-inline-editor select { padding: 6px 10px; font-size: 13px; width: 85px; border-radius: 4px; }
     
     /* 原生彈窗客製化替代方案 */
     .system-alert-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
@@ -156,7 +162,7 @@
             <button class="btn-action" onclick="openProductFormPanel('create')">上架全新商品</button>
           </div>
 
-          <!-- 商品資料表單 (隱藏/顯示) -->
+          <!-- 商品資料表單 -->
           <div id="product-form-panel" class="card-panel" style="display: none;">
             <h3 id="form-panel-title" style="font-size:16px; font-weight:700; margin-bottom:20px; border-bottom:1px solid var(--sb-border); padding-bottom:10px;">上架全新商品</h3>
             <form id="product-data-form" onsubmit="saveProductData(event); return false;">
@@ -167,7 +173,6 @@
                 <select id="form-product-category" required onchange="handleCategorySpecToggle()">
                   <option value="飲品">特調飲品</option>
                   <option value="甜點">精緻甜點</option>
-                  <option value="小食">美味小食</option>
                 </select>
               </div>
 
@@ -191,7 +196,7 @@
               <div id="spec-box-drink" class="form-group">
                 <div style="margin-bottom: 16px;">
                   <label>冰量規格配置</label>
-                  <input type="text" id="form-product-ice" value="正常冰,少冰,去冰" placeholder="請用逗號分隔各選項，填寫「不套用」則不啟用此客製化">
+                  <input type="text" id="form-product-ice" value="正常冰,少冰,去冰" placeholder="請用逗號分隔各選項">
                   <div class="spec-preset-container">
                     <span class="preset-badge" onclick="applyPresetSpec('form-product-ice', '正常冰,少冰,去冰')">預設飲品冰量</span>
                     <span class="preset-badge" onclick="applyPresetSpec('form-product-ice', '熱飲固定')">熱飲固定</span>
@@ -200,7 +205,7 @@
                 </div>
                 <div>
                   <label>甜度規格配置</label>
-                  <input type="text" id="form-product-sugar" value="正常甜,少甜,無甜" placeholder="請用逗號分隔各選項，填寫「不套用」則不啟用此客製化">
+                  <input type="text" id="form-product-sugar" value="正常甜,少甜,無甜" placeholder="請用逗號分隔各選項">
                   <div class="spec-preset-container">
                     <span class="preset-badge" onclick="applyPresetSpec('form-product-sugar', '正常甜,少甜,無甜')">預設飲品甜度</span>
                     <span class="preset-badge" onclick="applyPresetSpec('form-product-sugar', '不套用')">不啟用此設定</span>
@@ -208,24 +213,16 @@
                 </div>
               </div>
 
-              <!-- 規格配置區塊：美味小食專用 -->
-              <div id="spec-box-snack" class="form-group" style="display: none;">
-                <label>口味規格配置 (小食專用)</label>
+              <!-- 規格配置區塊：精緻甜點專用 -->
+              <div id="spec-box-dessert" class="form-group" style="display: none;">
+                <label>口味規格配置 (甜點專用)</label>
                 <input type="text" id="form-product-flavor" value="原味,朱古力,Oreo" placeholder="請用逗號分隔各選項，填寫「不套用」則不啟用此客製化">
                 <div class="spec-preset-container">
                   <span class="preset-badge" onclick="applyPresetSpec('form-product-flavor', '原味,朱古力,Oreo')">經典配置 (原味/朱古力/Oreo)</span>
-                  <span class="preset-badge" onclick="applyPresetSpec('form-product-flavor', '原味,芝士,蒜香')">鹹食配置 (原味/芝士/蒜香)</span>
+                  <span class="preset-badge" onclick="applyPresetSpec('form-product-flavor', '原味,抹茶,芝士')">風味配置 (原味/抹茶/芝士)</span>
                   <span class="preset-badge" onclick="applyPresetSpec('form-product-flavor', '不套用')">不啟用口味選擇</span>
                 </div>
-                <div class="hint-text">當分類選擇為「小食」時，前台將改為顯示口味選擇規格。</div>
-              </div>
-
-              <!-- 規格配置區塊：精緻甜點固定文字提示 -->
-              <div id="spec-box-dessert-hint" class="form-group" style="display: none;">
-                <label>客製化規格</label>
-                <div style="padding:14px; background-color: var(--sb-bg-cream); border:1px solid var(--sb-border); border-radius:6px; font-size:13px; color:var(--sb-text-gray);">
-                  精緻甜點分類目前預設採用經典固定配方，不開放前台甜度與冰量客製化調整。
-                </div>
+                <div class="hint-text">當分類選擇為「甜點」時，前台將會同步顯示口味選擇規格。</div>
               </div>
 
               <div class="form-group">
@@ -267,8 +264,14 @@
 
         <!-- 全體會員名冊區塊 -->
         <section id="section-user-mgr" class="management-section">
-          <div class="section-title-area">
+          <div class="section-title-area" style="margin-bottom:16px;">
             <h2>全體會員名冊</h2>
+          </div>
+
+          <!-- 全新高質感電話號碼搜尋控制列 -->
+          <div class="search-panel">
+            <div style="font-size:14px; font-weight:600; color:var(--sb-text-black); letter-spacing:0.5px;">搜尋會員電話：</div>
+            <input type="text" id="user-search-phone-input" placeholder="請輸入欲查詢的完整或部分行動電話號碼..." style="max-width:380px; padding:10px 16px; font-size:14px;" oninput="triggerUserSearchFilter()">
           </div>
 
           <div class="data-table-wrapper">
@@ -278,13 +281,12 @@
                   <th>會員姓名</th>
                   <th>聯絡電話</th>
                   <th>電子郵件帳戶 (Gmail)</th>
-                  <th>出生年月日</th>
-                  <th>帳戶星賞積點</th>
-                  <th>手動變更星點</th>
+                  <th>現存星點</th>
+                  <th>更動出生月日規格</th>
                 </tr>
               </thead>
               <tbody id="user-table-body">
-                <tr><td colspan="6" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">正在安全讀取全體會員名冊...</td></tr>
+                <tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">正在安全讀取全體會員名冊...</td></tr>
               </tbody>
             </table>
           </div>
@@ -315,6 +317,7 @@
     const database = getDatabase(app);
 
     let cachedProducts = {};
+    let cachedUsers = {};
 
     // 內置品牌提示與確認視窗機制
     window.showSystemAlert = function(msg, callback = null) {
@@ -376,8 +379,8 @@
 
         // 監聽雲端會員資料庫
         onValue(ref(database, 'users'), (snapshot) => {
-          const users = snapshot.val() || {};
-          renderAdminUsersTable(users);
+          cachedUsers = snapshot.val() || {};
+          renderAdminUsersTable(cachedUsers);
         });
 
       } else {
@@ -403,11 +406,10 @@
         const p = products[id];
         const row = document.createElement('tr');
         
-        // 解析客製化規格文字呈現
         let specString = '';
         if (p.category === '飲品') {
           specString = `冰量: ${p.iceSpecification || '未設定'}<br>甜度: ${p.sugarSpecification || '未設定'}`;
-        } else if (p.category === '小食') {
+        } else if (p.category === '甜點') {
           specString = `口味: ${p.flavorSpecification || '未設定'}`;
         } else {
           specString = `<span style="color:var(--sb-text-gray);">固定經典配方</span>`;
@@ -435,46 +437,88 @@
       });
     }
 
-    // 動態渲染會員名冊資料表
-    function renderAdminUsersTable(users) {
+    // 動態渲染會員名冊資料表（整合電話關鍵字過濾）
+    window.renderAdminUsersTable = function(users, filterKeyword = '') {
       const tbody = document.getElementById('user-table-body');
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      let hasCustomer = false;
+      let hasMatchedCustomer = false;
+      
       for (let uid in users) {
         const u = users[uid];
-        if (u.role === 'admin') continue; // 排除管理員帳號本身
-        hasCustomer = true;
+        if (u.role === 'admin') continue; 
 
+        // 電話過濾邏輯
+        const userPhone = u.phone || '';
+        if (filterKeyword && !userPhone.includes(filterKeyword)) {
+          continue; 
+        }
+
+        hasMatchedCustomer = true;
         const row = document.createElement('tr');
-        const birthStr = (u.birthdayMonth && u.birthdayDay) ? `${u.birthdayMonth}月${u.birthdayDay}日` : '未設定';
         const currentPoints = u.points !== undefined ? u.points : 0;
+        
+        // 建立行內生日切換配置選項
+        const currentMonth = u.birthdayMonth || "01";
+        const currentDay = u.birthdayDay || "01";
+
+        let mOptions = '';
+        for(let m=1; m<=12; m++) {
+          const mVal = m.toString().padStart(2, '0');
+          mOptions += `<option value="${mVal}" ${mVal === currentMonth ? 'selected' : ''}>${m}月</option>`;
+        }
+
+        let dOptions = '';
+        for(let d=1; d<=31; d++) {
+          const dVal = d.toString().padStart(2, '0');
+          dOptions += `<option value="${dVal}" ${dVal === currentDay ? 'selected' : ''}>${d}日</option>`;
+        }
 
         row.innerHTML = `
           <td style="font-weight:600;">${(u.lastName || '') + (u.firstName || '')}</td>
-          <td>${u.phone || '無資料'}</td>
+          <td>${userPhone}</td>
           <td>${u.email || '無資料'}</td>
-          <td>${birthStr}</td>
-          <td style="font-weight:700; color:var(--sb-dark-green); font-size:16px;">${currentPoints} ⭐</td>
+          <td style="font-weight:600; color:var(--sb-primary-green); font-size:15px;">${currentPoints} ⭐</td>
           <td>
-            <div style="display:flex; gap:6px;">
-              <input type="number" class="points-modify-input" data-uid="${uid}" value="5" style="width:70px; padding:6px; font-size:13px; text-align:center;">
-              <button class="btn-action btn-add-pts" style="padding:6px 12px; font-size:12px; border-radius:4px;">發放</button>
-              <button class="btn-action btn-sub-pts" style="padding:6px 12px; font-size:12px; border-radius:4px; background-color:var(--sb-danger);">扣除</button>
+            <div class="birthday-inline-editor">
+              <select class="sel-birth-m" data-uid="${uid}" id="inline-m-${uid}" onchange="syncInlineDays('${uid}')">${mOptions}</select>
+              <select class="sel-birth-d" data-uid="${uid}" id="inline-d-${uid}">${dOptions}</select>
+              <button class="btn-action btn-update-birth" style="padding:6px 14px; font-size:12px; border-radius:4px; margin-left:4px;">更新</button>
             </div>
           </td>
         `;
 
-        row.querySelector('.btn-add-pts').onclick = () => window.modifyUserPoints(uid, 'add', currentPoints);
-        row.querySelector('.btn-sub-pts').onclick = () => window.modifyUserPoints(uid, 'sub', currentPoints);
+        row.querySelector('.btn-update-birth').onclick = () => window.updateUserBirthdayInline(uid);
         tbody.appendChild(row);
+        
+        // 即時校正當前月份的天數規格
+        syncInlineDays(uid, currentDay);
       }
 
-      if (!hasCustomer) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">目前尚無新消費者註冊入會</td></tr>`;
+      if (!hasMatchedCustomer) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">未找到符合該條件的手機號碼會員項目</td></tr>`;
       }
-    }
+    };
+
+    // 觸發搜尋篩選
+    window.triggerUserSearchFilter = function() {
+      const keyword = document.getElementById('user-search-phone-input').value.trim();
+      window.renderAdminUsersTable(cachedUsers, keyword);
+    };
+
+    // 局部動態更動生日
+    window.updateUserBirthdayInline = function(uid) {
+      const newMonth = document.getElementById(`inline-m-${uid}`).value;
+      const newDay = document.getElementById(`inline-d-${uid}`).value;
+
+      update(ref(database, 'users/' + uid), {
+        birthdayMonth: newMonth,
+        birthdayDay: newDay
+      }).then(() => {
+        window.showSystemAlert('該會員的出生月日資料已成功變更同步。');
+      }).catch(() => window.showSystemAlert('更動失敗，請確認資料庫連線權限。'));
+    };
 
     // 新增/修改商品儲存邏輯
     window.saveProductData = function(e) {
@@ -489,11 +533,10 @@
 
       const productPayload = { category, name, price, points, photoUrl, detail };
 
-      // 依分類封裝客製化欄位
       if (category === '飲品') {
         productPayload.iceSpecification = document.getElementById('form-product-ice').value.trim();
         productPayload.sugarSpecification = document.getElementById('form-product-sugar').value.trim();
-      } else if (category === '小食') {
+      } else if (category === '甜點') {
         productPayload.flavorSpecification = document.getElementById('form-product-flavor').value.trim();
       }
 
@@ -512,21 +555,6 @@
         remove(ref(database, 'products/' + id))
           .then(() => window.showSystemAlert('商品已成功下架。'));
       });
-    };
-
-    // 手動增減會員積點
-    window.modifyUserPoints = function(uid, action, currentPts) {
-      const input = document.querySelector(`input[class="points-modify-input"][data-uid="${uid}"]`);
-      if(!input) return;
-      const val = parseInt(input.value) || 0;
-      if(val <= 0) return window.showSystemAlert('變更星點數值必須為正整數。');
-
-      let newPts = currentPts;
-      if (action === 'add') newPts += val;
-      else newPts = Math.max(0, currentPts - val);
-
-      update(ref(database, 'users/' + uid), { points: newPts })
-        .then(() => window.showSystemAlert(`會員積分異動成功。\n最新積點調整為: ${newPts} 顆星`));
     };
 
     // 開啟表單控制面板
@@ -600,25 +628,41 @@
       if (input) input.value = valueStr;
     }
 
-    // 根據商品分類動態隱藏/顯示對應規格配置區塊
+    // 根據商品分類動態調整商品規格區
     function handleCategorySpecToggle() {
       const currentCategory = document.getElementById('form-product-category').value;
       const drinkBox = document.getElementById('spec-box-drink');
-      const snackBox = document.getElementById('spec-box-snack');
-      const dessertHint = document.getElementById('spec-box-dessert-hint');
+      const dessertBox = document.getElementById('spec-box-dessert');
 
       if (currentCategory === '飲品') {
         drinkBox.style.display = 'block';
-        snackBox.style.display = 'none';
-        dessertHint.style.display = 'none';
-      } else if (currentCategory === '小食') {
-        drinkBox.style.display = 'none';
-        snackBox.style.display = 'block';
-        dessertHint.style.display = 'none';
+        dessertBox.style.display = 'none';
       } else if (currentCategory === '甜點') {
         drinkBox.style.display = 'none';
-        snackBox.style.display = 'none';
-        dessertHint.style.display = 'block';
+        dessertBox.style.display = 'block';
+      }
+    }
+
+    // 名冊行內月份連動日期天數校正
+    function syncInlineDays(uid, targetDay = null) {
+      const mSel = document.getElementById(`inline-m-${uid}`);
+      const dSel = document.getElementById(`inline-d-${uid}`);
+      if(!mSel || !dSel) return;
+
+      const month = parseInt(mSel.value);
+      let days = 31;
+      if([4, 6, 9, 11].includes(month)) days = 30;
+      else if(month === 2) days = 29;
+
+      const savedSelected = targetDay || dSel.value;
+      dSel.innerHTML = '';
+      for(let i=1; i<=days; i++) {
+        const val = i.toString().padStart(2, '0');
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = `${i}日`;
+        if(val === savedSelected) opt.selected = true;
+        dSel.appendChild(opt);
       }
     }
   </script>
