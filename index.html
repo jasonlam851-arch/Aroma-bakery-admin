@@ -69,7 +69,7 @@
     .btn-action:hover { background-color: #004d33; }
     
     /* 表格設計 */
-    .data-table-wrapper { background: white; border: 1px solid var(--sb-border); border-radius: 8px; overflow: hidden; }
+    .data-table-wrapper { background: white; border: 1px solid var(--sb-border); border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
     .data-table { width: 100%; border-collapse: collapse; text-align: left; }
     .data-table th { background-color: var(--sb-light-green); padding: 16px 20px; color: var(--sb-dark-green); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid var(--sb-border); }
     .data-table td { padding: 18px 20px; border-bottom: 1px solid var(--sb-border); font-size: 14px; color: var(--sb-text-black); }
@@ -100,11 +100,15 @@
 
     /* 商品圖片微縮圖 */
     .table-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--sb-border); vertical-align: middle; margin-right: 12px; }
+
+    /* 會員餘額動態調整輸入框樣式 */
+    .balance-mgr-input { width: 90px; padding: 6px 10px; font-size: 13px; border: 1px solid var(--sb-text-gray); border-radius: 4px; font-weight: 600; text-align: right; }
+    .btn-balance-save { background: var(--sb-primary-green); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; margin-left: 6px; }
+    .btn-balance-save:hover { background-color: #004d33; }
   </style>
 </head>
 <body>
 
-  <!-- 提示與確認 UI 組件 -->
   <div id="sys-alert-root" class="system-alert-overlay">
     <div class="system-alert-box">
       <p id="sys-alert-text" class="system-alert-msg"></p>
@@ -112,7 +116,6 @@
     </div>
   </div>
 
-  <!-- 登入驗證介面 -->
   <div id="auth-overlay">
     <div class="auth-container">
       <div class="brand-header">
@@ -133,7 +136,6 @@
     </div>
   </div>
 
-  <!-- 主系統面板 -->
   <div id="main-system">
     <nav>
       <div class="brand-logo" style="font-size:18px; color:white;">Aroma Bakery <span style="font-size:12px; color:var(--sb-gold); margin-left:8px; font-weight:500;">管理後台</span></div>
@@ -144,7 +146,6 @@
     </nav>
 
     <div class="layout-container">
-      <!-- 側邊選單欄 -->
       <aside class="panel-sidebar">
         <ul class="menu-list">
           <li class="menu-item active" id="menu-btn-products" onclick="switchManagementTab('section-product-mgr')">商品品項管理</li>
@@ -152,22 +153,50 @@
         </ul>
       </aside>
 
-      <!-- 主工作區域 -->
       <main class="panel-main">
         
-        <!-- 商品品項管理區塊 -->
         <section id="section-product-mgr" class="management-section active">
+          
+          <div class="card-panel">
+            <h3 style="font-size:15px; font-weight:700; margin-bottom:16px; border-bottom:1px solid var(--sb-border); padding-bottom:8px; text-transform:uppercase;">支付通知與增值二維碼配置</h3>
+            <form id="sys-config-form" onsubmit="saveSysConfig(event); return false;" style="margin-bottom: 24px;">
+              <div class="form-group">
+                <label>支付通知內照片二維碼 URL (請在此擺上您的支付二維碼網址)</label>
+                <input type="url" id="config-qr-url" placeholder="https://example.com/your-alipay-qr.png" style="margin-bottom:12px;">
+                <button type="submit" class="btn-action" style="padding: 10px 24px; font-size:13px;">保存支付照片配置</button>
+              </div>
+            </form>
+
+            <label style="margin-bottom:12px;">會員最新提交的入錢通知表單名冊</label>
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>會員帳號</th>
+                    <th>支付姓名</th>
+                    <th>匯款日期</th>
+                    <th>匯款金額</th>
+                    <th>提交時間</th>
+                  </tr>
+                </thead>
+                <tbody id="topup-notices-table-body">
+                  <tr>
+                    <td colspan="5" style="text-align:center; color:var(--sb-text-gray);">目前無任何會員提交增值通知。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <div class="section-title-area">
             <h2>商品品項管理</h2>
             <button class="btn-action" onclick="openProductFormPanel('create')">上架全新商品</button>
           </div>
 
-          <!-- 商品資料表單 -->
           <div id="product-form-panel" class="card-panel" style="display: none;">
             <h3 id="form-panel-title" style="font-size:16px; font-weight:700; margin-bottom:20px; border-bottom:1px solid var(--sb-border); padding-bottom:10px;">上架全新商品</h3>
             <form id="product-data-form" onsubmit="saveProductData(event); return false;">
               <input type="hidden" id="form-product-id">
-              
               <div class="form-group">
                 <label>商品分類</label>
                 <select id="form-product-category" required onchange="handleCategorySpecToggle()">
@@ -175,7 +204,6 @@
                   <option value="甜點">精緻甜點</option>
                 </select>
               </div>
-
               <div class="form-row" style="display:flex; gap:16px;">
                 <div class="form-group" style="flex:1;">
                   <label>商品名稱</label>
@@ -186,13 +214,11 @@
                   <input type="number" id="form-product-price" required min="0" placeholder="0">
                 </div>
               </div>
-
               <div class="form-group">
                 <label>可獲星賞點數 (綠星顆數)</label>
                 <input type="number" id="form-product-points" required min="0" value="1" placeholder="請設定購買此商品可獲得的點數">
               </div>
 
-              <!-- 規格配置區塊：特調飲品專用 -->
               <div id="spec-box-drink" class="form-group">
                 <div style="margin-bottom: 16px;">
                   <label>冰量規格配置</label>
@@ -213,81 +239,57 @@
                 </div>
               </div>
 
-              <!-- 規格配置區塊：精緻甜點專用 -->
               <div id="spec-box-dessert" class="form-group" style="display: none;">
-                <label>口味規格配置 (甜點專用)</label>
-                <input type="text" id="form-product-flavor" value="原味,朱古力,Oreo" placeholder="請用逗號分隔各選項，填寫「不套用」則不啟用此客製化">
+                <label>糕點享用加熱配置</label>
+                <input type="text" id="form-product-warming" value="常溫享用,微波加熱" placeholder="請用逗號分隔各選項">
                 <div class="spec-preset-container">
-                  <span class="preset-badge" onclick="applyPresetSpec('form-product-flavor', '原味,朱古力,Oreo')">經典配置 (原味/朱古力/Oreo)</span>
-                  <span class="preset-badge" onclick="applyPresetSpec('form-product-flavor', '原味,抹茶,芝士')">風味配置 (原味/抹茶/芝士)</span>
-                  <span class="preset-badge" onclick="applyPresetSpec('form-product-flavor', '不套用')">不啟用口味選擇</span>
+                  <span class="preset-badge" onclick="applyPresetSpec('form-product-warming', '常溫享用,微波加熱')">預設糕點加熱設定</span>
+                  <span class="preset-badge" onclick="applyPresetSpec('form-product-warming', '不套用')">不啟用此設定</span>
                 </div>
-                <div class="hint-text">當分類選擇為「甜點」時，前台將會同步顯示口味選擇規格。</div>
               </div>
 
-              <div class="form-group">
-                <label>商品外觀圖片網址 (Photo URL)</label>
-                <input type="url" id="form-product-photo" placeholder="https://images.unsplash.com/...">
-              </div>
-
-              <div class="form-group">
-                <label>商品特色簡介 (Detail Description)</label>
-                <textarea id="form-product-detail" rows="3" placeholder="請輸入商品故事與風味描述..."></textarea>
-              </div>
-
-              <div style="display:flex; justify-content:flex-end; gap:12px;">
-                <button type="button" class="btn-action" style="background-color:var(--sb-text-gray);" onclick="closeProductFormPanel()">取消關閉</button>
-                <button type="submit" class="btn-action">儲存商品資料</button>
+              <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:12px;">
+                <button type="button" class="btn-action" style="background:none; border:1px solid var(--sb-text-gray); color:var(--sb-text-black);" onclick="closeProductFormPanel()">取消放棄</button>
+                <button type="submit" class="btn-action">確認儲存並發佈</button>
               </div>
             </form>
           </div>
 
-          <!-- 商品清單列表 -->
           <div class="data-table-wrapper">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>商品</th>
-                  <th>分類</th>
-                  <th>販售價格</th>
-                  <th>綠星點數</th>
-                  <th>客製化配置規格狀態</th>
-                  <th>後台維護</th>
+                  <th>商品名稱資訊</th>
+                  <th>商品分類</th>
+                  <th>定價價格</th>
+                  <th>設定點數</th>
+                  <th>配置規格狀況</th>
+                  <th>管理控制操作</th>
                 </tr>
               </thead>
-              <tbody id="product-table-body">
-                <tr><td colspan="6" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">正在即時同步雲端商品資料庫...</td></tr>
-              </tbody>
+              <tbody id="products-table-body"></tbody>
             </table>
           </div>
         </section>
 
-        <!-- 全體會員名冊區塊 -->
         <section id="section-user-mgr" class="management-section">
-          <div class="section-title-area" style="margin-bottom:16px;">
-            <h2>全體會員名冊</h2>
+          <div class="section-title-area">
+            <h2>全體會員名冊資料庫管理</h2>
           </div>
-
-          <!-- 全新高質感電話號碼搜尋控制列 -->
-          <div class="search-panel">
-            <div style="font-size:14px; font-weight:600; color:var(--sb-text-black); letter-spacing:0.5px;">搜尋會員電話：</div>
-            <input type="text" id="user-search-phone-input" placeholder="請輸入欲查詢的完整或部分行動電話號碼..." style="max-width:380px; padding:10px 16px; font-size:14px;" oninput="triggerUserSearchFilter()">
-          </div>
-
+          
           <div class="data-table-wrapper">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>會員姓名</th>
-                  <th>聯絡電話</th>
-                  <th>電子郵件帳戶 (Gmail)</th>
-                  <th>現存星點</th>
-                  <th>更動出生月日規格</th>
+                  <th>會員手機帳號 (HK)</th>
+                  <th>會員姓名/稱呼</th>
+                  <th>星賞綠星點數</th>
+                  <th>錢包餘額 (HKD)</th>
+                  <th>生日設定連動連動校正</th>
+                  <th>刪除</th>
                 </tr>
               </thead>
-              <tbody id="user-table-body">
-                <tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">正在安全讀取全體會員名冊...</td></tr>
-              </tbody>
+              <tbody id="users-table-body"></tbody>
             </table>
           </div>
         </section>
@@ -296,354 +298,319 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  <script>
+    // 內置自定義確認與提示控制框架
+    function showSystemAlert(msg, onConfirm = null, showCancel = false) {
+      const root = document.getElementById('sys-alert-root');
+      document.getElementById('sys-alert-text').innerText = msg;
+      const actionArea = document.getElementById('sys-alert-action-area');
+      actionArea.innerHTML = '';
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
-      authDomain: "aroma-bakery-492fa.firebaseapp.com",
-      databaseURL: "https://aroma-bakery-492fa-default-rtdb.firebaseio.com",
-      projectId: "aroma-bakery-492fa",
-      storageBucket: "aroma-bakery-492fa.firebasestorage.app",
-      messagingSenderId: "1060567946315",
-      appId: "1:1060567946315:web:9693ac0e3486ab52c5e9ce",
-      measurementId: "G-D2C1M4SBPC"
-    };
+      if(showCancel) {
+        const cBtn = document.createElement('button');
+        cBtn.className = 'system-alert-btn confirm-cancel';
+        cBtn.innerText = '取消放棄';
+        cBtn.onclick = () => { root.classList.remove('active'); };
+        actionArea.appendChild(cBtn);
+      }
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const database = getDatabase(app);
-
-    let cachedProducts = {};
-    let cachedUsers = {};
-
-    // 內置品牌提示與確認視窗機制
-    window.showSystemAlert = function(msg, callback = null) {
-      document.getElementById('sys-alert-text').textContent = msg;
-      const area = document.getElementById('sys-alert-action-area');
-      area.innerHTML = '';
-      const btn = document.createElement('button');
-      btn.className = 'system-alert-btn confirm-main';
-      btn.textContent = '確定';
-      btn.onclick = () => {
-        document.getElementById('sys-alert-root').classList.remove('active');
-        if(callback) callback();
-      };
-      area.appendChild(btn);
-      document.getElementById('sys-alert-root').classList.add('active');
-    };
-
-    window.showSystemConfirm = function(msg, onConfirm) {
-      document.getElementById('sys-alert-text').textContent = msg;
-      const area = document.getElementById('sys-alert-action-area');
-      area.innerHTML = '';
-      const btnCancel = document.createElement('button');
-      btnCancel.className = 'system-alert-btn confirm-cancel';
-      btnCancel.textContent = '取消';
-      btnCancel.onclick = () => document.getElementById('sys-alert-root').classList.remove('active');
-      
-      const btnConfirm = document.createElement('button');
-      btnConfirm.className = 'system-alert-btn confirm-main';
-      btnConfirm.textContent = '確定執行';
-      btnConfirm.onclick = () => {
-        document.getElementById('sys-alert-root').classList.remove('active');
+      const mBtn = document.createElement('button');
+      mBtn.className = 'system-alert-btn confirm-main';
+      mBtn.innerText = '確認執行';
+      mBtn.onclick = () => {
+        root.classList.remove('active');
         if(onConfirm) onConfirm();
       };
-      area.appendChild(btnCancel);
-      area.appendChild(btnConfirm);
-      document.getElementById('sys-alert-root').classList.add('active');
-    };
+      actionArea.appendChild(mBtn);
+      root.classList.add('active');
+    }
 
-    // 監聽管理員登入狀態
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        if (user.email !== 'admin01@aroma.com') {
-          window.showSystemAlert('權限錯誤：此端點僅限官方授權管理員專用。', () => { signOut(auth); });
-          return;
-        }
-        document.getElementById('auth-overlay').style.opacity = '0';
-        setTimeout(() => {
-          document.getElementById('auth-overlay').style.display = 'none';
-          document.getElementById('main-system').style.display = 'block';
-        }, 400);
+    // 核心數據庫存取封裝
+    function getStorageData(key, defaultVal) {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : defaultVal;
+    }
+    function setStorageData(key, data) {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
 
-        document.getElementById('admin-user-display').textContent = `系統管理員: ${user.email}`;
-
-        // 監聽雲端商品資料庫
-        onValue(ref(database, 'products'), (snapshot) => {
-          cachedProducts = snapshot.val() || {};
-          renderAdminProductsTable(cachedProducts);
-        });
-
-        // 監聽雲端會員資料庫
-        onValue(ref(database, 'users'), (snapshot) => {
-          cachedUsers = snapshot.val() || {};
-          renderAdminUsersTable(cachedUsers);
-        });
-
-      } else {
-        document.getElementById('main-system').style.display = 'none';
-        document.getElementById('auth-overlay').style.display = 'flex';
-        setTimeout(() => document.getElementById('auth-overlay').style.opacity = '1', 50);
+    // 管理端生命週期初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem('admin_session') === 'active') {
+        initAdminDashboardFlow();
       }
     });
 
-    // 動態渲染商品資料表
-    function renderAdminProductsTable(products) {
-      const tbody = document.getElementById('product-table-body');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      const keys = Object.keys(products);
-      if (keys.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">目前資料庫內尚無上架商品項目</td></tr>`;
-        return;
-      }
-
-      keys.forEach((id) => {
-        const p = products[id];
-        const row = document.createElement('tr');
-        
-        let specString = '';
-        if (p.category === '飲品') {
-          specString = `冰量: ${p.iceSpecification || '未設定'}<br>甜度: ${p.sugarSpecification || '未設定'}`;
-        } else if (p.category === '甜點') {
-          specString = `口味: ${p.flavorSpecification || '未設定'}`;
-        } else {
-          specString = `<span style="color:var(--sb-text-gray);">固定經典配方</span>`;
-        }
-
-        row.innerHTML = `
-          <td>
-            <img class="table-img" src="${p.photoUrl || 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=80&q=80'}">
-            <span class="p-name-txt" style="font-weight:600;"></span>
-          </td>
-          <td><span class="p-cat-badge">${p.category || '飲品'}</span></td>
-          <td style="font-weight:600;">HK$ ${p.price || 0}</td>
-          <td>${p.points || 0} 顆星</td>
-          <td style="font-size:12px; line-height:1.4;">${specString}</td>
-          <td>
-            <button class="btn-table-edit">編輯</button>
-            <button class="btn-table-delete">下架</button>
-          </td>
-        `;
-
-        row.querySelector('.p-name-txt').textContent = p.name || '';
-        row.querySelector('.btn-table-edit').onclick = () => window.openProductFormPanel('edit', id);
-        row.querySelector('.btn-table-delete').onclick = () => window.deleteProductItem(id);
-        tbody.appendChild(row);
-      });
-    }
-
-    // 動態渲染會員名冊資料表（整合電話關鍵字過濾）
-    window.renderAdminUsersTable = function(users, filterKeyword = '') {
-      const tbody = document.getElementById('user-table-body');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      let hasMatchedCustomer = false;
-      
-      for (let uid in users) {
-        const u = users[uid];
-        if (u.role === 'admin') continue; 
-
-        // 電話過濾邏輯
-        const userPhone = u.phone || '';
-        if (filterKeyword && !userPhone.includes(filterKeyword)) {
-          continue; 
-        }
-
-        hasMatchedCustomer = true;
-        const row = document.createElement('tr');
-        const currentPoints = u.points !== undefined ? u.points : 0;
-        
-        // 建立行內生日切換配置選項
-        const currentMonth = u.birthdayMonth || "01";
-        const currentDay = u.birthdayDay || "01";
-
-        let mOptions = '';
-        for(let m=1; m<=12; m++) {
-          const mVal = m.toString().padStart(2, '0');
-          mOptions += `<option value="${mVal}" ${mVal === currentMonth ? 'selected' : ''}>${m}月</option>`;
-        }
-
-        let dOptions = '';
-        for(let d=1; d<=31; d++) {
-          const dVal = d.toString().padStart(2, '0');
-          dOptions += `<option value="${dVal}" ${dVal === currentDay ? 'selected' : ''}>${d}日</option>`;
-        }
-
-        row.innerHTML = `
-          <td style="font-weight:600;">${(u.lastName || '') + (u.firstName || '')}</td>
-          <td>${userPhone}</td>
-          <td>${u.email || '無資料'}</td>
-          <td style="font-weight:600; color:var(--sb-primary-green); font-size:15px;">${currentPoints} ⭐</td>
-          <td>
-            <div class="birthday-inline-editor">
-              <select class="sel-birth-m" data-uid="${uid}" id="inline-m-${uid}" onchange="syncInlineDays('${uid}')">${mOptions}</select>
-              <select class="sel-birth-d" data-uid="${uid}" id="inline-d-${uid}">${dOptions}</select>
-              <button class="btn-action btn-update-birth" style="padding:6px 14px; font-size:12px; border-radius:4px; margin-left:4px;">更新</button>
-            </div>
-          </td>
-        `;
-
-        row.querySelector('.btn-update-birth').onclick = () => window.updateUserBirthdayInline(uid);
-        tbody.appendChild(row);
-        
-        // 即時校正當前月份的天數規格
-        syncInlineDays(uid, currentDay);
-      }
-
-      if (!hasMatchedCustomer) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">未找到符合該條件的手機號碼會員項目</td></tr>`;
-      }
-    };
-
-    // 觸發搜尋篩選
-    window.triggerUserSearchFilter = function() {
-      const keyword = document.getElementById('user-search-phone-input').value.trim();
-      window.renderAdminUsersTable(cachedUsers, keyword);
-    };
-
-    // 局部動態更動生日
-    window.updateUserBirthdayInline = function(uid) {
-      const newMonth = document.getElementById(`inline-m-${uid}`).value;
-      const newDay = document.getElementById(`inline-d-${uid}`).value;
-
-      update(ref(database, 'users/' + uid), {
-        birthdayMonth: newMonth,
-        birthdayDay: newDay
-      }).then(() => {
-        window.showSystemAlert('該會員的出生月日資料已成功變更同步。');
-      }).catch(() => window.showSystemAlert('更動失敗，請確認資料庫連線權限。'));
-    };
-
-    // 新增/修改商品儲存邏輯
-    window.saveProductData = function(e) {
-      e.preventDefault();
-      const id = document.getElementById('form-product-id').value;
-      const category = document.getElementById('form-product-category').value;
-      const name = document.getElementById('form-product-name').value.trim();
-      const price = parseInt(document.getElementById('form-product-price').value) || 0;
-      const points = parseInt(document.getElementById('form-product-points').value) || 0;
-      const photoUrl = document.getElementById('form-product-photo').value.trim();
-      const detail = document.getElementById('form-product-detail').value.trim();
-
-      const productPayload = { category, name, price, points, photoUrl, detail };
-
-      if (category === '飲品') {
-        productPayload.iceSpecification = document.getElementById('form-product-ice').value.trim();
-        productPayload.sugarSpecification = document.getElementById('form-product-sugar').value.trim();
-      } else if (category === '甜點') {
-        productPayload.flavorSpecification = document.getElementById('form-product-flavor').value.trim();
-      }
-
-      const targetId = id ? id : 'PROD_' + Date.now();
-      set(ref(database, 'products/' + targetId), productPayload)
-        .then(() => {
-          window.showSystemAlert('商品資料已成功同步更新至雲端菜單。');
-          closeProductFormPanel();
-        })
-        .catch(() => window.showSystemAlert('同步失敗，請檢查雲端伺服器權限。'));
-    };
-
-    // 刪除下架商品
-    window.deleteProductItem = function(id) {
-      window.showSystemConfirm("確定要下架此商品項目嗎？\n此操作將同步自全體消費者的菜單內移除。", () => {
-        remove(ref(database, 'products/' + id))
-          .then(() => window.showSystemAlert('商品已成功下架。'));
-      });
-    };
-
-    // 開啟表單控制面板
-    window.openProductFormPanel = function(mode, id = null) {
-      const panel = document.getElementById('product-form-panel');
-      const title = document.getElementById('form-panel-title');
-      document.getElementById('product-data-form').reset();
-      document.getElementById('form-product-id').value = '';
-
-      if (mode === 'create') {
-        title.textContent = '上架全新商品';
-      } else if (mode === 'edit' && id) {
-        title.textContent = '編輯現存商品內容';
-        const p = cachedProducts[id];
-        if (p) {
-          document.getElementById('form-product-id').value = id;
-          document.getElementById('form-product-category').value = p.category || '飲品';
-          document.getElementById('form-product-name').value = p.name || '';
-          document.getElementById('form-product-price').value = p.price || 0;
-          document.getElementById('form-product-points').value = p.points !== undefined ? p.points : 1;
-          document.getElementById('form-product-ice').value = p.iceSpecification || '正常冰,少冰,去冰';
-          document.getElementById('form-product-sugar').value = p.sugarSpecification || '正常甜,少甜,無甜';
-          document.getElementById('form-product-flavor').value = p.flavorSpecification || '原味,朱古力,Oreo';
-          document.getElementById('form-product-photo').value = p.photoUrl || '';
-          document.getElementById('form-product-detail').value = p.detail || '';
-        }
-      }
-      handleCategorySpecToggle();
-      panel.style.display = 'block';
-      window.scrollTo({ top: panel.offsetTop - 20, behavior: 'smooth' });
-    };
-
-    // 後台安全登入驗證
-    window.handleAdminLogin = function(e) {
+    function handleAdminLogin(e) {
       e.preventDefault();
       const email = document.getElementById('login-email').value;
       const pass = document.getElementById('login-password').value;
-      if (email !== 'admin01@aroma.com') {
-        window.showSystemAlert('安全錯誤：此帳號無權存取中央管理端。');
+
+      if(email === 'admin01@aroma.com' && pass === 'aroma2026') {
+        sessionStorage.setItem('admin_session', 'active');
+        initAdminDashboardFlow();
+      } else {
+        showSystemAlert('後台驗證權限被拒絕：管理密碼不正確。');
+      }
+    }
+
+    function handleAdminLogout() {
+      showSystemAlert('您確定要退出 Aroma Bakery 中央管理系統嗎？', () => {
+        sessionStorage.removeItem('admin_session');
+        document.getElementById('auth-overlay').style.display = 'flex';
+        document.getElementById('main-system').style.display = 'none';
+      }, true);
+    }
+
+    function initAdminDashboardFlow() {
+      document.getElementById('auth-overlay').style.display = 'none';
+      document.getElementById('main-system').style.display = 'block';
+      refreshProductsTable();
+      refreshUsersTable();
+      refreshTopupNoticesTable();
+      
+      // 讀取並填入目前的二維碼網址
+      const config = getStorageData('aroma_sys_config', { qrUrl: "" });
+      document.getElementById('config-qr-url').value = config.qrUrl || "";
+    }
+
+    function switchManagementTab(tabId) {
+      document.querySelectorAll('.management-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.menu-item').forEach(li => li.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      
+      if(tabId === 'section-product-mgr') {
+        document.getElementById('menu-btn-products').classList.add('active');
+        refreshProductsTable();
+        refreshTopupNoticesTable();
+      } else {
+        document.getElementById('menu-btn-users').classList.add('active');
+        refreshUsersTable();
+      }
+    }
+
+    // 保存全局支付 QR URL
+    function saveSysConfig(e) {
+      e.preventDefault();
+      const url = document.getElementById('config-qr-url').value.trim();
+      setStorageData('aroma_sys_config', { qrUrl: url });
+      showSystemAlert('支付通知照片二維碼 URL 已儲存並即時發佈到客戶端！');
+    }
+
+    // 刷新增值通知名冊
+    function refreshTopupNoticesTable() {
+      const notices = getStorageData('aroma_topup_notices', []);
+      const tbody = document.getElementById('topup-notices-table-body');
+      tbody.innerHTML = '';
+      
+      if(notices.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray);">目前無任何會員提交增值通知。</td></tr>`;
         return;
       }
-      signInWithEmailAndPassword(auth, email, pass)
-        .catch(() => window.showSystemAlert('安全密碼驗證失敗，請重新輸入。'));
-    };
 
-    // 後台安全登出
-    window.handleAdminLogout = function() {
-      window.showSystemConfirm("確定要安全登出中央管理控制台嗎？", () => { signOut(auth); });
-    };
-
-  </script>
-
-  <script>
-    // 單純 UI 切換控制邏輯
-    function switchManagementTab(targetSectionId) {
-      document.querySelectorAll('.management-section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-      
-      document.getElementById(targetSectionId).classList.add('active');
-      if (targetSectionId === 'section-product-mgr') document.getElementById('menu-btn-products').classList.add('active');
-      else if (targetSectionId === 'section-user-mgr') document.getElementById('menu-btn-users').classList.add('active');
+      notices.forEach(n => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>+852 ${n.phone}</td>
+          <td style="font-weight:600;">${n.name}</td>
+          <td>${n.date}</td>
+          <td style="font-weight:700; color:var(--sb-primary-green);">HKD ${parseFloat(n.amount).toFixed(2)}</td>
+          <td style="font-size:12px; color:var(--sb-text-gray);">${n.timestamp}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    function closeProductFormPanel() {
-      document.getElementById('product-form-panel').style.display = 'none';
+    // 管理員手動手調更改會員餘額
+    function saveUserBalanceInline(phone) {
+      const users = getStorageData('aroma_users', {});
+      const inputEl = document.getElementById(`inline-balance-${phone}`);
+      if (!inputEl || !users[phone]) return;
+
+      const newBalance = parseFloat(inputEl.value);
+      if (isNaN(newBalance) || newBalance < 0) {
+        showSystemAlert('餘額數值不合法，不可為負數。');
+        return;
+      }
+
+      users[phone].balance = newBalance;
+      setStorageData('aroma_users', users);
+      showSystemAlert(`成功將會員 +852 ${phone} 的餘額變更為 HKD ${newBalance.toFixed(2)}`);
+      refreshUsersTable();
     }
 
-    // 一鍵代入預設配置
+    function refreshProductsTable() {
+      const products = getStorageData('aroma_products', []);
+      const tbody = document.getElementById('products-table-body');
+      tbody.innerHTML = '';
+
+      products.forEach(p => {
+        let specs = [];
+        if (p.category === '飲品') {
+          if(p.ice && p.ice!=='不套用') specs.push(`冰:[${p.ice}]`);
+          if(p.sugar && p.sugar!=='不套用') specs.push(`糖:[${p.sugar}]`);
+        } else {
+          if(p.warming && p.warming!=='不套用') specs.push(`熱:[${p.warming}]`);
+        }
+        const specText = specs.length > 0 ? specs.join(' / ') : '固定規格';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight:600;"><div class="table-img" style="display:inline-flex; align-items:center; justify-content:center; color:white; background:var(--sb-dark-green); font-size:16px;">A</div>${p.name}</td>
+          <td><span style="padding:4px 8px; background:var(--sb-bg-cream); font-size:12px; border-radius:4px; font-weight:600;">${p.category}</span></td>
+          <td style="font-weight:700; color:var(--sb-primary-green);">HK$ ${p.price}</td>
+          <td style="font-weight:600; color:var(--sb-gold);">${p.points} ★</td>
+          <td style="font-size:12px; color:var(--sb-text-gray); max-width:240px; word-break:break-all;">${specText}</td>
+          <td>
+            <button class="btn-table-edit" onclick="editProductRecordInit('${p.id}')">變更</button>
+            <button class="btn-table-delete" onclick="deleteProductRecord('${p.id}')">下架</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleCategorySpecToggle() {
+      const cat = document.getElementById('form-product-category').value;
+      if (cat === '飲品') {
+        document.getElementById('spec-box-drink').style.display = 'block';
+        document.getElementById('spec-box-dessert').style.display = 'none';
+      } else {
+        document.getElementById('spec-box-drink').style.display = 'none';
+        document.getElementById('spec-box-dessert').style.display = 'block';
+      }
+    }
+
     function applyPresetSpec(inputElementId, valueStr) {
       const input = document.getElementById(inputElementId);
       if (input) input.value = valueStr;
     }
 
-    // 根據商品分類動態調整商品規格區
-    function handleCategorySpecToggle() {
-      const currentCategory = document.getElementById('form-product-category').value;
-      const drinkBox = document.getElementById('spec-box-drink');
-      const dessertBox = document.getElementById('spec-box-dessert');
-
-      if (currentCategory === '飲品') {
-        drinkBox.style.display = 'block';
-        dessertBox.style.display = 'none';
-      } else if (currentCategory === '甜點') {
-        drinkBox.style.display = 'none';
-        dessertBox.style.display = 'block';
+    function openProductFormPanel(mode) {
+      document.getElementById('product-form-panel').style.display = 'block';
+      if (mode === 'create') {
+        document.getElementById('form-panel-title').innerText = '上架全新卓越星賞品項';
+        document.getElementById('product-data-form').reset();
+        document.getElementById('form-product-id').value = '';
+        handleCategorySpecToggle();
       }
     }
 
-    // 名冊行內月份連動日期天數校正
+    function closeModal() { document.getElementById('custom-modal').classList.remove('active'); }
+
+    function closeProductFormPanel() {
+      document.getElementById('product-form-panel').style.display = 'none';
+    }
+
+    function saveProductData(e) {
+      e.preventDefault();
+      const id = document.getElementById('form-product-id').value;
+      const category = document.getElementById('form-product-category').value;
+      const name = document.getElementById('form-product-name').value.trim();
+      const price = parseInt(document.getElementById('form-product-price').value);
+      const points = parseInt(document.getElementById('form-product-points').value);
+      
+      let pData = { id: id || "p_" + Date.now(), category, name, price, points };
+
+      if (category === '飲品') {
+        pData.ice = document.getElementById('form-product-ice').value;
+        pData.sugar = document.getElementById('form-product-sugar').value;
+        pData.warming = "不套用";
+      } else {
+        pData.ice = "不套用";
+        pData.sugar = "不套用";
+        pData.warming = document.getElementById('form-product-warming').value;
+      }
+
+      let products = getStorageData('aroma_products', []);
+      if (id) {
+        products = products.map(p => p.id === id ? pData : p);
+      } else {
+        products.push(pData);
+      }
+
+      setStorageData('aroma_products', products);
+      closeProductFormPanel();
+      refreshProductsTable();
+      showSystemAlert('商品品項結構數據保存並即時部署成功！');
+    }
+
+    function editProductRecordInit(id) {
+      const products = getStorageData('aroma_products', []);
+      const p = products.find(prod => prod.id === id);
+      if(!p) return;
+
+      openProductFormPanel('edit');
+      document.getElementById('form-panel-title').innerText = `修改項目資訊: ${p.name}`;
+      document.getElementById('form-product-id').value = p.id;
+      document.getElementById('form-product-category').value = p.category;
+      document.getElementById('form-product-name').value = p.name;
+      document.getElementById('form-product-price').value = p.price;
+      document.getElementById('form-product-points').value = p.points;
+
+      handleCategorySpecToggle();
+
+      if (p.category === '飲品') {
+        document.getElementById('form-product-ice').value = p.ice;
+        document.getElementById('form-product-sugar').value = p.sugar;
+      } else {
+        document.getElementById('form-product-warming').value = p.warming;
+      }
+    }
+
+    function deleteProductRecord(id) {
+      showSystemAlert('確認下架並徹底移除這款經典商品嗎？下架後前端將無法再點餐。', () => {
+        let products = getStorageData('aroma_products', []);
+        products = products.filter(p => p.id !== id);
+        setStorageData('aroma_products', products);
+        refreshProductsTable();
+      }, true);
+    }
+
+    function refreshUsersTable() {
+      const users = getStorageData('aroma_users', {});
+      const tbody = document.getElementById('users-table-body');
+      tbody.innerHTML = '';
+
+      const phoneKeys = Object.keys(users);
+      if(phoneKeys.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--sb-text-gray);">當前系統數據庫中尚無任何註冊會員登記。</td></tr>`;
+        return;
+      }
+
+      phoneKeys.forEach(phone => {
+        const u = users[phone];
+        if (u.balance === undefined) u.balance = 0.00; // 預設餘額健全性處理
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight:600; color:var(--sb-dark-green);">+852 ${phone}</td>
+          <td>${u.name}</td>
+          <td style="font-weight:700; color:var(--sb-gold);">${u.points || 0} ★</td>
+          
+          <td>
+            <input type="number" id="inline-balance-${phone}" value="${parseFloat(u.balance)}" step="any" min="0" class="balance-mgr-input">
+            <button class="btn-balance-save" onclick="saveUserBalanceInline('${phone}')">儲存</button>
+          </td>
+
+          <td>
+            <div class="birthday-inline-editor">
+              <select id="inline-m-${phone}" onchange="syncInlineDays('${phone}')">
+                ${Array.from({length:12}, (_,i)=>`
+                  <option value="${(i+1).toString().padStart(2,'0')}" ${u.birthMonth===((i+1).toString().padStart(2,'0'))?'selected':''}>${i+1}月</option>
+                `).join('')}
+              </select>
+              <select id="inline-d-${phone}"></select>
+              <button class="btn-balance-save" style="background:#6b6b6b;" onclick="saveInlineBirthdayChange('${phone}')">對齊</button>
+            </div>
+          </td>
+          <td><button class="btn-table-delete" onclick="deleteUserAccount('${phone}')">註銷</button></td>
+        `;
+        tbody.appendChild(tr);
+        syncInlineDays(phone, u.birthDay);
+      });
+    }
+
     function syncInlineDays(uid, targetDay = null) {
       const mSel = document.getElementById(`inline-m-${uid}`);
       const dSel = document.getElementById(`inline-d-${uid}`);
@@ -656,14 +623,36 @@
 
       const savedSelected = targetDay || dSel.value;
       dSel.innerHTML = '';
-      for(let i=1; i<=days; i++) {
+      for (let i = 1; i <= days; i++) {
         const val = i.toString().padStart(2, '0');
         const opt = document.createElement('option');
         opt.value = val;
-        opt.textContent = `${i}日`;
+        opt.innerText = `${i}日`;
         if(val === savedSelected) opt.selected = true;
         dSel.appendChild(opt);
       }
+    }
+
+    function saveInlineBirthdayChange(phone) {
+      const users = getStorageData('aroma_users', {});
+      const mSel = document.getElementById(`inline-m-${phone}`);
+      const dSel = document.getElementById(`inline-d-${phone}`);
+      
+      if(users[phone] && mSel && dSel) {
+        users[phone].birthMonth = mSel.value;
+        users[phone].birthDay = dSel.value;
+        setStorageData('aroma_users', users);
+        showSystemAlert(`會員 +852 ${phone} 的生日已成功對齊並變更為 ${parseInt(mSel.value)}月${parseInt(dSel.value)}日。`);
+      }
+    }
+
+    function deleteUserAccount(phone) {
+      showSystemAlert('確定要永久註銷與刪除該會員的所有點數、餘額與註冊檔案嗎？此操作不可逆。', () => {
+        const users = getStorageData('aroma_users', {});
+        delete users[phone];
+        setStorageData('aroma_users', users);
+        refreshUsersTable();
+      }, true);
     }
   </script>
 </body>
