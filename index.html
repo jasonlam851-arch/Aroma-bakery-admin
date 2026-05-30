@@ -1,247 +1,628 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aroma_bakery | 管理中央主控台</title>
-  <style>
-    :root {
-      --sb-green-dark: #1e3932; --sb-green-light: #006241; --sb-accent-gold: #cba258;
-      --sb-gray-bg: #f2f0eb; --sb-gray-card: #ffffff; --sb-border: #dbd9d3;
-      --sb-text-black: #212529; --sb-text-muted: #6c757d; --sb-danger: #b02a37; --sb-warning: #ffc107;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Montserrat', 'Noto Serif TC', serif; background-color: var(--sb-gray-bg); color: var(--sb-text-black); min-height: 100vh; letter-spacing: 0.5px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aroma_bakery | Core Administrative Console</title>
     
-    #admin-auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(30,57,50,0.85), rgba(30,57,50,0.85)), url('https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed; background-size: cover; z-index: 1000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
-    .admin-container { background: #ffffff; padding: 45px; width: 90%; max-width: 440px; box-shadow: 0 20px 45px rgba(0,0,0,0.3); border-top: 5px solid var(--sb-accent-gold); }
-    .admin-title-main { font-size: 22px; font-weight: 700; color: var(--sb-green-dark); text-align: center; margin-bottom: 5px; }
-    .admin-subtitle-main { font-size: 11px; color: var(--sb-accent-gold); text-align: center; margin-bottom: 30px; letter-spacing: 2px; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--sb-green-dark); }
-    input, select, textarea { width: 100%; padding: 13px 16px; border: 1px solid var(--sb-border); font-size: 14px; background-color: #ffffff; }
-    .btn { padding: 10px 20px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-    .btn-primary { background-color: var(--sb-green-dark); color: white; }
-    .btn-warning { background-color: var(--sb-warning); color: #000; }
-    .btn-danger { background-color: var(--sb-danger); color: white; }
-    .btn-block { width: 100%; margin-top: 15px; padding: 14px; }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
     
-    #admin-system { display: none; }
-    nav { background-color: var(--sb-green-dark); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 100; }
-    .menu-toggle { font-size: 14px; font-weight: 600; cursor: pointer; color: var(--sb-accent-gold); border: 1px solid var(--sb-accent-gold); padding: 6px 15px; }
-    .btn-nav-logout { background: transparent; border: 1px solid white; color: white; padding: 6px 15px; font-size: 12px; cursor: pointer; font-weight: 600; }
-    .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: var(--sb-green-dark); padding-top: 10px; transition: 0.3s; z-index: 200; }
-    .sidebar.active { left: 0; }
-    .sidebar-header { display: flex; justify-content: flex-end; padding: 20px; }
-    .close-btn { font-size: 20px; color: white; cursor: pointer; }
-    .sidebar-menu { list-style: none; padding: 30px; }
-    .sidebar-menu li { padding: 18px 15px; color: #ffffff; font-size: 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .sidebar-menu li:hover { color: var(--sb-accent-gold); }
-    
-    .admin-main-view { padding: 40px 20px; max-width: 1200px; margin: 0 auto; display: grid; gap: 35px; }
-    .admin-page { display: none; }
-    .admin-page.active { display: block; }
-    .panel { background: #ffffff; padding: 35px; border: 1px solid var(--sb-border); margin-bottom: 30px; }
-    .panel-title { font-size: 18px; font-weight: 700; color: var(--sb-green-dark); margin-bottom: 25px; border-left: 4px solid var(--sb-accent-gold); padding-left: 12px; }
-    
-    .data-list { list-style: none; max-height: 550px; overflow-y: auto; border: 1px solid var(--sb-border); padding: 0; }
-    .data-item { border-bottom: 1px solid var(--sb-border); padding: 20px; font-size: 14px; }
-    .data-row-main { display: flex; justify-content: space-between; align-items: center; }
-    .data-info-text { font-weight: 500; }
-    .data-sub-text { color: var(--sb-text-muted); margin-left: 12px; font-size: 12px; }
-    .data-actions { display: flex; gap: 10px; }
-    
-    .edit-zone { display: none; background: #fdfdfc; border: 1px dashed var(--sb-accent-gold); padding: 25px; margin-top: 20px; }
-    .edit-zone.active { display: block; }
-    .edit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
-  </style>
+    <style>
+        :root {
+            /* 星巴克經典美式配色系統 */
+            --sb-green-dark: #1e3932;
+            --sb-green-light: #006241;
+            --sb-accent-gold: #cba258;
+            --sb-gray-bg: #f2f0eb;
+            --sb-gray-card: #f9f9f9;
+            --sb-text-black: #212529;
+            --sb-text-muted: #6c757d;
+            --sb-border: #dbd9d3;
+            --sb-danger: #a61c1c;
+            --sb-success: #1e3932;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Montserrat', 'Noto Serif TC', serif; 
+            background-color: var(--sb-gray-bg); 
+            color: var(--sb-text-black);
+            min-height: 100vh; 
+            letter-spacing: 0.5px;
+        }
+        
+        /* 管理員登入封面 */
+        #admin-auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(30, 57, 50, 0.85), rgba(30, 57, 50, 0.85)),
+                        url('https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        
+        .admin-container {
+            background: #ffffff;
+            padding: 50px 40px;
+            border-radius: 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            width: 90%;
+            max-width: 450px;
+            border-top: 5px solid var(--sb-accent-gold);
+        }
+        
+        .admin-header { text-align: center; margin-bottom: 35px; }
+        .admin-title { font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 600; color: var(--sb-green-dark); letter-spacing: 3px; }
+        .admin-subtitle { font-size: 11px; color: var(--sb-text-muted); letter-spacing: 4px; text-transform: uppercase; margin-top: 10px; font-weight: 500; }
+        
+        .form-group { margin-bottom: 24px; }
+        label { display: block; margin-bottom: 10px; font-size: 11px; font-weight: 600; color: var(--sb-text-black); letter-spacing: 1.5px; text-transform: uppercase; }
+        input, select, textarea { 
+            width: 100%; padding: 14px; border: 1px solid var(--sb-border); 
+            border-radius: 4px; font-size: 14px; background-color: #ffffff;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--sb-green-light); }
+        
+        .btn-admin-login { 
+            width: 100%; padding: 16px; background-color: var(--sb-green-dark); 
+            color: #ffffff; border: none; border-radius: 50px; font-size: 14px; 
+            font-weight: 600; cursor: pointer; letter-spacing: 2px; text-transform: uppercase;
+            transition: background-color 0.2s;
+        }
+        .btn-admin-login:hover { background-color: var(--sb-green-light); }
+        
+        .error-message { color: var(--sb-danger); font-size: 12px; text-align: center; margin-top: 20px; display: none; font-weight: 500; }
+        
+        /* 內部管理主系統 */
+        #admin-system { display: none; }
+        
+        nav { 
+            background-color: var(--sb-green-dark); padding: 20px 40px; 
+            display: flex; align-items: center; justify-content: space-between; color: #ffffff; 
+        }
+        .brand-name { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: 2px; }
+        .menu-toggle { font-size: 22px; cursor: pointer; color: #ffffff; transition: color 0.2s; }
+        .menu-toggle:hover { color: var(--sb-accent-gold); }
+        
+        .btn-nav-logout { 
+            background: transparent; color: #ffffff; border: 1px solid #ffffff; 
+            padding: 8px 20px; border-radius: 50px; transition: all 0.2s; font-size: 12px; font-weight: 600; cursor: pointer;
+            letter-spacing: 1px;
+        }
+        .btn-nav-logout:hover { background: #ffffff; color: var(--sb-green-dark); }
+        
+        /* 側邊欄 */
+        .sidebar { 
+            position: fixed; top: 0; left: -300px; width: 300px; height: 100%; 
+            background-color: var(--sb-green-dark); padding-top: 20px; transition: transform 0.3s ease; 
+            z-index: 200; box-shadow: 5px 0 25px rgba(0,0,0,0.1); 
+        }
+        .sidebar.active { transform: translateX(300px); }
+        .sidebar-header { display: flex; justify-content: flex-end; padding: 20px 30px; }
+        .close-btn { font-size: 22px; color: #ffffff; cursor: pointer; transition: color 0.2s; }
+        .close-btn:hover { color: var(--sb-accent-gold); }
+        .sidebar-menu { list-style: none; padding: 30px; }
+        .sidebar-menu li { 
+            padding: 18px 15px; color: #ffffff; font-size: 15px; cursor: pointer; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; 
+            font-weight: 500;
+        }
+        .sidebar-menu li:hover { color: var(--sb-accent-gold); padding-left: 25px; background-color: rgba(255,255,255,0.02); }
+        
+        /* 主體內容 */
+        .main-content { padding: 40px 30px; max-width: 1280px; margin: 0 auto; }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+        
+        h2 { font-family: 'Montserrat', 'Noto Serif TC', serif; font-size: 24px; font-weight: 600; color: var(--sb-green-dark); margin-bottom: 35px; letter-spacing: 1px; }
+        
+        .panel { background: #ffffff; padding: 35px; border-radius: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid var(--sb-border); }
+        .panel-title { font-size: 15px; font-weight: 600; margin-bottom: 25px; color: var(--sb-green-dark); letter-spacing: 1px; text-transform: uppercase; padding-bottom: 10px; border-bottom: 1px solid var(--sb-border); }
+        
+        .search-box { display: flex; gap: 12px; margin-bottom: 25px; }
+        
+        /* 星巴克標誌性圓角按鈕樣式 */
+        .btn { 
+            padding: 10px 24px; border: 1px solid transparent; border-radius: 50px; 
+            font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.2s; 
+            display: inline-flex; align-items: center; justify-content: center; letter-spacing: 1px;
+        }
+        .btn-primary { background-color: var(--sb-green-dark); color: #ffffff; }
+        .btn-primary:hover { background-color: var(--sb-green-light); }
+        
+        .btn-danger { background-color: transparent; color: var(--sb-danger); border-color: var(--sb-danger); }
+        .btn-danger:hover { background-color: var(--sb-danger); color: #ffffff; }
+        
+        .btn-warning { background-color: transparent; color: var(--sb-green-light); border-color: var(--sb-green-light); }
+        .btn-warning:hover { background-color: var(--sb-green-light); color: #ffffff; }
+        
+        .btn-success { background-color: var(--sb-green-light); color: #ffffff; }
+        .btn-success:hover { background-color: var(--sb-green-dark); }
+        
+        .btn-secondary { background-color: transparent; color: var(--sb-text-black); border-color: var(--sb-text-black); }
+        .btn-secondary:hover { background-color: var(--sb-text-black); color: #ffffff; }
+        
+        .btn-block { width: 100%; margin-top: 15px; padding: 14px; }
+        
+        .data-list { list-style: none; max-height: 550px; overflow-y: auto; border: 1px solid var(--sb-border); border-radius: 0; padding: 0; background: #ffffff; }
+        .data-item { border-bottom: 1px solid var(--sb-border); padding: 20px; font-size: 14px; transition: background-color 0.2s; }
+        .data-item:hover { background-color: var(--sb-gray-card); }
+        .data-item:last-child { border-bottom: none; }
+        .data-row-main { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .data-info-text { font-weight: 500; }
+        .data-sub-text { color: var(--sb-text-muted); margin-left: 12px; font-size: 12px; font-weight: 400; }
+        .data-actions { display: flex; gap: 10px; }
+        
+        /* 內嵌修改區域 */
+        .edit-zone { display: none; background: var(--sb-gray-bg); border: 1px solid var(--sb-border); padding: 25px; margin-top: 20px; }
+        .edit-zone.active { display: block; }
+        .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        
+        /* 彈窗樣式 */
+        .custom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px); }
+        .custom-modal.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: #ffffff; padding: 40px; border-radius: 0; max-width: 450px; width: 90%; position: relative; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border-top: 4px solid var(--sb-green-dark); }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 22px; cursor: pointer; color: var(--sb-text-muted); }
+    </style>
 </head>
 <body>
 
-  <div id="admin-auth-overlay">
-    <div class="admin-container">
-      <div class="admin-title-main">AROMA BAKERY</div><div class="admin-subtitle-main">CENTRAL MANAGEMENT SYSTEM</div>
-      <form id="admin-login-form">
-        <div class="form-group"><label>管理員帳號</label><input type="text" id="admin-username" required></div>
-        <div class="form-group"><label>密碼</label><input type="password" id="admin-password" required></div>
-        <button type="submit" class="btn btn-primary btn-block">登入主控台</button>
-      </form>
-    </div>
-  </div>
-
-  <div id="admin-system">
-    <nav>
-      <div class="menu-toggle" onclick="toggleSidebar()">選單</div>
-      <div style="font-weight:700; letter-spacing:2px;">AROMA BAKERY CMS</div>
-      <button class="btn-nav-logout" onclick="handleAdminLogout()">登出</button>
-    </nav>
-
-    <div class="sidebar" id="sidebar">
-      <div class="sidebar-header"><div class="close-btn" onclick="toggleSidebar()">×</div></div>
-      <ul class="sidebar-menu">
-        <li onclick="switchAdminPage('page-products')">商品架設與維護</li>
-        <li onclick="switchAdminPage('page-members')">全系統會員檔案庫</li>
-      </ul>
-    </div>
-
-    <div class="admin-main-view">
-      <div id="page-products" class="admin-page active">
-        <div class="panel">
-          <div class="panel-title">建立新商品</div>
-          <form id="product-form">
-            <div class="form-group"><label>商品名稱</label><input type="text" id="p-name" required></div>
-            <div class="form-group"><label>定價 (HKD)</label><input type="number" id="p-price" required></div>
-            <div class="form-group"><label>分類</label>
-              <select id="p-category"><option value="飲品">飲品</option><option value="甜點">甜點</option></select>
+    <div id="admin-auth-overlay">
+        <div class="admin-container">
+            <div class="admin-header">
+                <div class="admin-title">AROMA BAKERY</div>
+                <div class="admin-subtitle">Administrative Management Terminal</div>
             </div>
-            
-            <div class="form-group">
-              <label>前台客製化規格選項配置（僅對飲品生效）</label>
-              <div style="display: flex; gap: 20px; padding: 5px 0;">
-                <label style="display: inline-flex; align-items: center;"><input type="checkbox" id="p-has-ice" checked style="width: auto; margin-right: 5px;"> 啟用冰量調節</label>
-                <label style="display: inline-flex; align-items: center;"><input type="checkbox" id="p-has-sugar" checked style="width: auto; margin-right: 5px;"> 啟用甜度調節</label>
-              </div>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label>管理員帳號信箱</label>
+                    <input type="email" id="admin-username" required placeholder="請輸入管理員電子郵件">
+                </div>
+                <div class="form-group">
+                    <label>安全性密碼</label>
+                    <input type="password" id="admin-password" required placeholder="請輸入安全性授權密碼">
+                </div>
+                <button type="submit" class="btn-admin-login">驗證並登入系統</button>
+                <div id="error-msg" class="error-message">安全驗證失敗：帳號或密碼錯誤，拒絕存取權限。</div>
+            </form>
+        </div>
+    </div>
+
+    <div id="admin-system">
+        <nav>
+            <div class="menu-toggle" onclick="toggleSidebar()">主選單</div>
+            <div class="brand-name">AROMA BAKERY CENTRAL SYSTEM</div>
+            <button class="btn-nav-logout" onclick="handleAdminLogout()">登出控制台</button>
+        </nav>
+
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header"><div class="close-btn" onclick="toggleSidebar()">關閉</div></div>
+            <ul class="sidebar-menu">
+                <li onclick="switchAdminPage('page-products')">商品架設與維護管理</li>
+                <li onclick="switchAdminPage('page-members')">全體會員名單與帳籍管理</li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div id="page-products" class="page-section active">
+                <h2>商品架設與維護管理</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 30px;">
+                    <div class="panel">
+                        <div class="panel-title">架設全新商品</div>
+                        <form id="product-form">
+                            <div class="form-group">
+                                <label>商品名稱</label>
+                                <input type="text" id="p-name" required placeholder="填寫商品名稱">
+                            </div>
+                            <div class="form-group">
+                                <label>販售價格 (HKD)</label>
+                                <input type="number" id="p-price" required placeholder="設定數值">
+                            </div>
+                            <div class="form-group">
+                                <label>商品類別歸屬</label>
+                                <select id="p-category" required>
+                                    <option value="飲品">精選飲品類 / Drinks</option>
+                                    <option value="甜點">精緻甜點類 / Desserts</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>商品映像網址 (URL)</label>
+                                <input type="url" id="p-photo" placeholder="請輸入圖片連結位址">
+                            </div>
+                            <div class="form-group">
+                                <label>商品詳細描述與配方說明</label>
+                                <textarea id="p-detail" rows="4" placeholder="請輸入商品背景、風味或配方簡介..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">確認商品發布上架</button>
+                        </form>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-title">商品實時數據檢索</div>
+                        <div class="search-box">
+                            <input type="text" id="search-product-input" placeholder="請輸入商品名稱關鍵字進行篩選">
+                            <button class="btn btn-primary" onclick="searchProduct()">搜尋</button>
+                        </div>
+                        <ul class="data-list" id="admin-product-list"></ul>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group"><label>圖片 URL</label><input type="url" id="p-photo"></div>
-            <div class="form-group"><label>詳細描述</label><textarea id="p-detail" rows="3"></textarea></div>
-            <button type="submit" class="btn btn-primary btn-block">發布上架</button>
-          </form>
+            <div id="page-members" class="page-section">
+                <h2>全體會員名單與帳籍管理</h2>
+                <div class="panel" style="max-width: 960px; margin: 0 auto;">
+                    <div class="panel-title">會員資料庫檢索</div>
+                    <div class="search-box">
+                        <input type="text" id="search-member-input" placeholder="請輸入會員姓名、電話進行精確或模糊檢索">
+                        <button class="btn btn-primary" onclick="searchMember()">搜尋</button>
+                    </div>
+                    <ul class="data-list" id="admin-member-list"></ul>
+                </div>
+            </div>
         </div>
-
-        <div class="panel">
-          <div class="panel-title">商品維護庫</div>
-          <ul class="data-list" id="admin-products-list"></ul>
-        </div>
-      </div>
-
-      <div id="page-members" class="admin-page">
-        <div class="panel">
-          <div class="panel-title">會員檢索庫</div>
-          <ul class="data-list" id="admin-members-list"></ul>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    <div class="custom-modal" id="alert-modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeAlert()">×</span>
+            <div id="alert-text" style="padding: 25px 0; font-size: 15px; font-weight: 500; line-height: 1.6;"></div>
+            <button class="btn btn-primary" onclick="closeAlert()" style="padding: 10px 35px;">確認</button>
+        </div>
+    </div>
 
-    // Firebase Config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
-      authDomain: "aroma-bakery-492fa.firebaseapp.com",
-      databaseURL: "https://aroma-bakery-492fa-default-rtdb.firebaseio.com",
-      projectId: "aroma-bakery-492fa",
-      storageBucket: "aroma-bakery-492fa.firebasestorage.app",
-      messagingSenderId: "1060567946315",
-      appId: "1:1060567946315:web:9693ac0e3486ab52c5e9ce",
-      measurementId: "G-D2C1M4SBPC"
-    };
+    <div class="custom-modal" id="confirm-modal">
+        <div class="modal-content">
+            <div id="confirm-text" style="padding: 25px 0; font-size: 15px; font-weight: 500; line-height: 1.6;"></div>
+            <div style="display: flex; justify-content: center; gap: 15px;">
+                <button class="btn btn-danger" id="confirm-yes-btn" style="padding: 10px 35px;">執行確認</button>
+                <button class="btn btn-secondary" onclick="closeConfirm()" style="padding: 10px 35px;">取消變更</button>
+            </div>
+        </div>
+    </div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const database = getDatabase(app);
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    onAuthStateChanged(auth, (user) => {
-      if(user && user.email === 'admin01@aroma.com') {
-        document.getElementById('admin-auth-overlay').style.display = 'none';
-        document.getElementById('admin-system').style.display = 'block';
-        loadProductsAdmin(); loadMembersAdmin();
-      } else {
-        document.getElementById('admin-system').style.display = 'none';
-        document.getElementById('admin-auth-overlay').style.display = 'flex';
-      }
-    });
+        const firebaseConfig = {
+            apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
+            authDomain: "aroma-bakery-492fa.firebaseapp.com",
+            databaseURL: "https://aroma-bakery-492fa-default-rtdb.firebaseio.com",
+            projectId: "aroma-bakery-492fa",
+            storageBucket: "aroma-bakery-492fa.firebasestorage.app",
+            messagingSenderId: "1060567946315",
+            appId: "1:1060567946315:web:9693ac0e3486ab52c5e9ce"
+        };
 
-    document.getElementById('admin-login-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const user = document.getElementById('admin-username').value;
-      if(user !== 'admin01@aroma.com') return alert('非管理帳號！');
-      signInWithEmailAndPassword(auth, user, document.getElementById('admin-password').value).catch(() => alert('密碼錯誤。'));
-    });
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
 
-    window.handleAdminLogout = function() { if(confirm("確定登出後台？")) signOut(auth); };
+        let allProducts = {};
+        let allMembers = {};
+        let activeConfirmCallback = null;
 
-    // 商品發布 
-    document.getElementById('product-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const id = 'PROD_' + Date.now();
-      const name = document.getElementById('p-name').value;
-      const price = parseInt(document.getElementById('p-price').value);
-      const category = document.getElementById('p-category').value;
-      const hasIce = document.getElementById('p-has-ice').checked;
-      const hasSugar = document.getElementById('p-has-sugar').checked;
+        // 監聽登入狀態改變
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                if (user.email !== 'admin01@aroma.com') {
+                    window.showCustomAlert('安全性警示：您目前的帳號不具備管理員權限，系統已自動拒絕連線。');
+                    signOut(auth);
+                    return;
+                }
+                document.getElementById('admin-auth-overlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('admin-auth-overlay').style.display = 'none';
+                    document.getElementById('admin-system').style.display = 'block';
+                }, 400);
 
-      set(ref(database, 'products/' + id), {
-        name, price, category, photoUrl: document.getElementById('p-photo').value, detail: document.getElementById('p-detail').value, hasIce, hasSugar
-      }).then(() => { alert('發布成功！'); document.getElementById('product-form').reset(); });
-    });
+                // 實時讀取商品列表
+                onValue(ref(database, 'products'), (snapshot) => {
+                    allProducts = snapshot.val() || {};
+                    renderProducts(allProducts);
+                });
 
-    // 修正：將 loadProductsAdmin 內動態 HTML 呼叫的函式掛載到 window 全域物件
-    function loadProductsAdmin() {
-      onValue(ref(database, 'products'), (snapshot) => {
-        const list = document.getElementById('admin-products-list');
-        list.innerHTML = '';
-        const data = snapshot.val() || {};
-        for(let id in data) {
-          const p = data[id];
-          const iceChk = p.hasIce !== false ? 'checked' : '';
-          const sugarChk = p.hasSugar !== false ? 'checked' : '';
-          list.insertAdjacentHTML('beforeend', `
-            <li class="data-item">
-              <div class="data-row-main">
-                <div class="data-info-text">[${p.category}] ${p.name} <span class="data-sub-text">HKD ${p.price}</span></div>
-                <div class="data-actions">
-                  <button class="btn btn-warning" onclick="document.getElementById('edit-${id}').classList.toggle('active')">修改</button>
-                  <button class="btn btn-danger" onclick="deleteProduct('${id}')">下架</button>
-                </div>
-              </div>
-              <div class="edit-zone" id="edit-${id}">
-                <div class="edit-grid">
-                  <div><label>名稱</label><input type="text" id="e-name-${id}" value="${p.name}"></div>
-                  <div><label>價格</label><input type="number" id="e-price-${id}" value="${p.price}"></div>
-                  <div><label>選項</label><label><input type="checkbox" id="e-ice-${id}" ${iceChk}> 冰量</label> <label><input type="checkbox" id="e-sugar-${id}" ${sugarChk}> 甜度</label></div>
-                </div>
-                <button class="btn btn-primary" onclick="saveUpdate('${id}')">儲存變更</button>
-              </div>
-            </li>`);
+                // 實時讀取會員列表
+                onValue(ref(database, 'users'), (snapshot) => {
+                    allMembers = snapshot.val() || {};
+                    renderMembers(allMembers);
+                });
+
+            } else {
+                document.getElementById('admin-system').style.display = 'none';
+                document.getElementById('admin-auth-overlay').style.display = 'flex';
+                setTimeout(() => {
+                    document.getElementById('admin-auth-overlay').style.opacity = '1';
+                }, 50);
+            }
+        });
+
+        // 處理管理員驗證登入
+        document.getElementById('admin-login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('admin-username').value.trim();
+            const p = document.getElementById('admin-password').value;
+
+            if (email !== 'admin01@aroma.com') {
+                document.getElementById('error-msg').style.display = 'block';
+                return;
+            }
+
+            signInWithEmailAndPassword(auth, email, p)
+                .then(() => {
+                    document.getElementById('error-msg').style.display = 'none';
+                })
+                .catch((err) => {
+                    console.error(err);
+                    document.getElementById('error-msg').style.display = 'block';
+                });
+        });
+
+        // 安全登出執行函式
+        window.handleAdminLogout = function() {
+            window.showCustomConfirm("安全提示：確定要結束本次登入工作階段並中斷與主控台的安全連線嗎？", function() {
+                window.closeConfirm();
+                signOut(auth).then(() => {
+                    document.getElementById('admin-username').value = '';
+                    document.getElementById('admin-password').value = '';
+                });
+            });
+        };
+
+        // 處理全新商品架設儲存
+        document.getElementById('product-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = 'PROD_' + Date.now();
+            const name = document.getElementById('p-name').value.trim();
+            const price = parseInt(document.getElementById('p-price').value);
+            const category = document.getElementById('p-category').value;
+            const photoUrl = document.getElementById('p-photo').value.trim() || 'https://via.placeholder.com/300';
+            const detail = document.getElementById('p-detail').value.trim();
+
+            set(ref(database, 'products/' + id), {
+                id, name, price, category, photoUrl, detail
+            }).then(() => {
+                window.showCustomAlert('系統通知：商品資料已成功發布並架設至客戶端。');
+                document.getElementById('product-form').reset();
+            }).catch((err) => {
+                window.showCustomAlert('資料寫入失敗：' + err.message);
+            });
+        });
+
+        /* ==================== 商品資料控制區 ==================== */
+        
+        // 渲染商品列表（更換為美式膠囊式圓角按鈕組）
+        function renderProducts(productsObj) {
+            const list = document.getElementById('admin-product-list');
+            list.innerHTML = '';
+            for (let id in productsObj) {
+                const p = productsObj[id];
+                list.insertAdjacentHTML('beforeend', `
+                    <li class="data-item" id="item-prod-${id}">
+                        <div class="data-row-main">
+                            <div class="data-info-text">[${p.category}] ${p.name} <span class="data-sub-text">HKD ${p.price}</span></div>
+                            <div class="data-actions">
+                                <button class="btn btn-warning" onclick="toggleProductEditZone('${id}')">修改資料</button>
+                                <button class="btn btn-danger" onclick="deleteProduct('${id}')">下架清除</button>
+                            </div>
+                        </div>
+                        
+                        <div class="edit-zone" id="edit-zone-${id}">
+                            <div class="edit-grid">
+                                <div>
+                                    <label>更變商品名稱</label>
+                                    <input type="text" id="edit-p-name-${id}" value="${p.name}">
+                                </div>
+                                <div>
+                                    <label>更變售價 (HKD)</label>
+                                    <input type="number" id="edit-p-price-${id}" value="${p.price}">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label>變更品類歸屬</label>
+                                <select id="edit-p-category-${id}">
+                                    <option value="飲品" ${p.category==='飲品'?'selected':''}>精選飲品類 / Drinks</option>
+                                    <option value="甜點" ${p.category==='甜點'?'selected':''}>精緻甜點類 / Desserts</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label>更新映像網址</label>
+                                <input type="url" id="edit-p-photo-${id}" value="${p.photoUrl || ''}">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label>重編商品配方與風味說明</label>
+                                <textarea id="edit-p-detail-${id}" rows="3">${p.detail || ''}</textarea>
+                            </div>
+                            <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:15px;">
+                                <button class="btn btn-success" onclick="saveProductUpdate('${id}')">儲存變更</button>
+                                <button class="btn btn-secondary" onclick="toggleProductEditZone('${id}')">放棄關閉</button>
+                            </div>
+                        </div>
+                    </li>
+                `);
+            }
         }
-      });
-    }
 
-    // 修正：明確掛載到 window，確保行內屬性 onclick="saveUpdate(...)" 可成功觸壞
-    window.saveUpdate = function(id) {
-      update(ref(database, 'products/' + id), {
-        name: document.getElementById(`e-name-${id}`).value, 
-        price: parseInt(document.getElementById(`e-price-${id}`).value),
-        hasIce: document.getElementById(`e-ice-${id}`).checked, 
-        hasSugar: document.getElementById(`e-sugar-${id}`).checked
-      }).then(() => alert('更新成功！'));
-    };
+        window.toggleProductEditZone = function(id) {
+            document.getElementById(`edit-zone-${id}`).classList.toggle('active');
+        };
 
-    // 修正：明確掛載到 window，確保 onclick="deleteProduct(...)" 可運作
-    window.deleteProduct = function(id) { if(confirm("確定下架？")) remove(ref(database, 'products/' + id)); };
+        window.saveProductUpdate = function(id) {
+            const name = document.getElementById(`edit-p-name-${id}`).value.trim();
+            const price = parseInt(document.getElementById(`edit-p-price-${id}`).value);
+            const category = document.getElementById(`edit-p-category-${id}`).value;
+            const photoUrl = document.getElementById(`edit-p-photo-${id}`).value.trim();
+            const detail = document.getElementById(`edit-p-detail-${id}`).value.trim();
 
-    function loadMembersAdmin() {
-      onValue(ref(database, 'users'), (snapshot) => {
-        const container = document.getElementById('admin-members-list');
-        container.innerHTML = '';
-        const members = snapshot.val() || {};
-        for(let uid in members) {
-          const m = members[uid];
-          container.insertAdjacentHTML('beforeend', `<li class="data-item"><div class="data-info-text">${m.lastName||''}${m.firstName||'未填名'} <span class="data-sub-text">電話: ${m.phone||'無'} | 電郵: ${m.email||'無'}</span></div></li>`);
+            if(!name || isNaN(price)) {
+                window.showCustomAlert('輸入錯誤：名稱與定價欄位不得空缺。');
+                return;
+            }
+
+            update(ref(database, 'products/' + id), {
+                name, price, category, photoUrl, detail
+            }).then(() => {
+                window.showCustomAlert('系統通知：商品資訊已成功進行同步變更。');
+            }).catch(err => window.showCustomAlert('更新失敗: ' + err.message));
+        };
+
+        window.deleteProduct = function(id) {
+            window.showCustomConfirm('安全確認：確定要將該商品執行下架程序並自全線核心移除嗎？', function() {
+                remove(ref(database, 'products/' + id)).then(() => {
+                    window.closeConfirm();
+                    window.showCustomAlert('系統通知：該商品已被強制執行下架並徹底移除。');
+                });
+            });
+        };
+
+        window.searchProduct = function() {
+            const k = document.getElementById('search-product-input').value.toLowerCase();
+            const f = {};
+            for(let id in allProducts) {
+                if(allProducts[id].name.toLowerCase().includes(k)) f[id] = allProducts[id];
+            }
+            renderProducts(f);
+        };
+
+
+        /* ==================== 會員資料控制區 ==================== */
+
+        // 渲染全體會員列表（更換為星巴克極簡風與圓角膠囊控制鍵組）
+        function renderMembers(mems) {
+            const list = document.getElementById('admin-member-list');
+            list.innerHTML = '';
+            for (let uid in mems) {
+                if(mems[uid].email === 'admin01@aroma.com') continue; 
+
+                const name = `${mems[uid].lastName||''}${mems[uid].firstName||''}`;
+                const phone = mems[uid].phone || '無電話紀錄';
+                const birthday = mems[uid].birthday || '未填寫';
+
+                list.insertAdjacentHTML('beforeend', `
+                    <li class="data-item">
+                        <div class="data-row-main">
+                            <div class="data-info-text">
+                                <span>${name || '新註冊會員(尚未完成認證)'}</span> 
+                                <span class="data-sub-text">聯絡電話: ${phone} | 出生日期: ${birthday}</span>
+                            </div>
+                            <div class="data-actions">
+                                <button class="btn btn-warning" onclick="toggleMemberEditZone('${uid}')">變更資料</button>
+                                <button class="btn btn-danger" onclick="deleteMember('${uid}', '${name}')">除名註銷</button>
+                            </div>
+                        </div>
+                        
+                        <div class="edit-zone" id="edit-member-zone-${uid}">
+                            <div class="edit-grid">
+                                <div>
+                                    <label>更變完整姓名</label>
+                                    <input type="text" id="edit-m-name-${uid}" value="${name}">
+                                </div>
+                                <div>
+                                    <label>變更出生日期 (Birthday)</label>
+                                    <input type="date" id="edit-m-birthday-${uid}" value="${mems[uid].birthday || ''}">
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:15px;">
+                                <button class="btn btn-success" onclick="saveMemberUpdate('${uid}')">確認儲存</button>
+                                <button class="btn btn-secondary" onclick="toggleMemberEditZone('${uid}')">取消變更</button>
+                            </div>
+                        </div>
+                    </li>
+                `);
+            }
         }
-      });
-    }
-  </script>
 
-  <script>
-    // 側邊欄與頁面切換控制（保持在全域作用域）
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-    function switchAdminPage(pageId) { document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active')); document.getElementById(pageId).classList.add('active'); document.getElementById('sidebar').classList.remove('active'); }
-  </script>
+        window.toggleMemberEditZone = function(uid) {
+            document.getElementById(`edit-member-zone-${uid}`).classList.toggle('active');
+        };
+
+        window.saveMemberUpdate = function(uid) {
+            const fullName = document.getElementById(`edit-m-name-${uid}`).value.trim();
+            const newBirthday = document.getElementById(`edit-m-birthday-${uid}`).value;
+
+            if(!fullName) {
+                window.showCustomAlert('輸入限制：姓名欄位不得留空。');
+                return;
+            }
+
+            const lastName = fullName.length > 1 ? fullName.charAt(0) : "";
+            const firstName = fullName.length > 1 ? fullName.substring(1) : fullName;
+
+            update(ref(database, 'users/' + uid), {
+                lastName: lastName,
+                firstName: firstName,
+                birthday: newBirthday || "未填寫"
+            }).then(() => {
+                window.showCustomAlert('系統通知：會員檔案及出生日期設定已同步修改完成。');
+            }).catch(err => window.showCustomAlert('修改失敗: ' + err.message));
+        };
+
+        window.deleteMember = function(uid, name) {
+            const displayTitle = name ? `會員「${name}」` : "該名會員";
+            window.showCustomConfirm(`嚴重警告：您確定要將 ${displayTitle} 的所有帳籍與紀錄從數據庫徹底註銷並抹除嗎？此項目將無法復原。`, function() {
+                remove(ref(database, 'users/' + uid)).then(() => {
+                    window.closeConfirm();
+                    window.showCustomAlert('系統通知：該會員的所有相關帳籍已被完全移除。');
+                }).catch(err => window.showCustomAlert('註銷失敗: ' + err.message));
+            });
+        };
+
+        window.searchMember = function() {
+            const k = document.getElementById('search-member-input').value.toLowerCase();
+            const f = {};
+            for(let uid in allMembers) {
+                const name = `${allMembers[uid].lastName||''}${allMembers[uid].firstName||''}`.toLowerCase();
+                const phone = (allMembers[uid].phone || '').toLowerCase();
+                if(name.includes(k) || phone.includes(k)) {
+                    f[uid] = allMembers[uid];
+                }
+            }
+            renderMembers(f);
+        };
+
+
+        /* ==================== 頁面全局交互配置 ==================== */
+        
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        };
+
+        window.switchAdminPage = function(id) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.toggleSidebar();
+        };
+
+        window.showCustomAlert = function(text) {
+            document.getElementById('alert-text').innerText = text;
+            document.getElementById('alert-modal').classList.add('active');
+        };
+        window.closeAlert = function() {
+            document.getElementById('alert-modal').classList.remove('active');
+        };
+
+        window.showCustomConfirm = function(text, callback) {
+            document.getElementById('confirm-text').innerText = text;
+            document.getElementById('confirm-modal').classList.add('active');
+            activeConfirmCallback = callback;
+        };
+        window.closeConfirm = function() {
+            document.getElementById('confirm-modal').classList.remove('active');
+            activeConfirmCallback = null;
+        };
+        
+        document.getElementById('confirm-yes-btn').addEventListener('click', () => {
+            if(activeConfirmCallback) activeConfirmCallback();
+        });
+    </script>
 </body>
 </html>
