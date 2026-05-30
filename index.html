@@ -129,7 +129,7 @@
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // ✅ 更新為正確的 Firebase Config
+    // ✅ Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
       authDomain: "aroma-bakery-492fa.firebaseapp.com",
@@ -145,17 +145,31 @@
     const auth = getAuth(app);
     const database = getDatabase(app);
 
+    // 🌟 將 UI 控制方法綁定到 window 使 HTML 屬性能直接調用
+    window.toggleSidebar = function() {
+      document.getElementById('sidebar').classList.toggle('active');
+    };
+
+    window.switchAdminPage = function(pageId) {
+      document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      document.getElementById('sidebar').classList.remove('active');
+    };
+
+    // 監聽權限狀態
     onAuthStateChanged(auth, (user) => {
       if(user && user.email === 'admin01@aroma.com') {
         document.getElementById('admin-auth-overlay').style.display = 'none';
         document.getElementById('admin-system').style.display = 'block';
-        loadProductsAdmin(); loadMembersAdmin();
+        loadProductsAdmin(); 
+        loadMembersAdmin();
       } else {
         document.getElementById('admin-system').style.display = 'none';
         document.getElementById('admin-auth-overlay').style.display = 'flex';
       }
     });
 
+    // 登入邏輯
     document.getElementById('admin-login-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const user = document.getElementById('admin-username').value;
@@ -163,9 +177,12 @@
       signInWithEmailAndPassword(auth, user, document.getElementById('admin-password').value).catch(() => alert('密碼錯誤。'));
     });
 
-    window.handleAdminLogout = function() { if(confirm("確定登出後台？")) signOut(auth); };
+    // 登出邏輯
+    window.handleAdminLogout = function() { 
+      if(confirm("確定登出後台？")) signOut(auth); 
+    };
 
-    // 商品發布 (含冰量/甜度設定)
+    // 商品發布
     document.getElementById('product-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const id = 'PROD_' + Date.now();
@@ -177,9 +194,13 @@
 
       set(ref(database, 'products/' + id), {
         name, price, category, photoUrl: document.getElementById('p-photo').value, detail: document.getElementById('p-detail').value, hasIce, hasSugar
-      }).then(() => { alert('發布成功！'); document.getElementById('product-form').reset(); });
+      }).then(() => { 
+        alert('發布成功！'); 
+        document.getElementById('product-form').reset(); 
+      });
     });
 
+    // 讀取並動態渲染商品
     function loadProductsAdmin() {
       onValue(ref(database, 'products'), (snapshot) => {
         const list = document.getElementById('admin-products-list');
@@ -202,7 +223,10 @@
                 <div class="edit-grid">
                   <div><label>名稱</label><input type="text" id="e-name-${id}" value="${p.name}"></div>
                   <div><label>價格</label><input type="number" id="e-price-${id}" value="${p.price}"></div>
-                  <div><label>選項</label><label><input type="checkbox" id="e-ice-${id}" ${iceChk}> 冰量</label> <label><input type="checkbox" id="e-sugar-${id}" ${sugarChk}> 甜度</label></div>
+                  <div><label>選項</label>
+                    <label style="display:inline-block; margin-right:10px;"><input type="checkbox" id="e-ice-${id}" ${iceChk}> 冰量</label> 
+                    <label style="display:inline-block;"><input type="checkbox" id="e-sugar-${id}" ${sugarChk}> 甜度</label>
+                  </div>
                 </div>
                 <button class="btn btn-primary" onclick="saveUpdate('${id}')">儲存變更</button>
               </div>
@@ -211,14 +235,22 @@
       });
     }
 
+    // 更新商品
     window.saveUpdate = function(id) {
       update(ref(database, 'products/' + id), {
-        name: document.getElementById(`e-name-${id}`).value, price: parseInt(document.getElementById(`e-price-${id}`).value),
-        hasIce: document.getElementById(`e-ice-${id}`).checked, hasSugar: document.getElementById(`e-sugar-${id}`).checked
+        name: document.getElementById(`e-name-${id}`).value, 
+        price: parseInt(document.getElementById(`e-price-${id}`).value),
+        hasIce: document.getElementById(`e-ice-${id}`).checked, 
+        hasSugar: document.getElementById(`e-sugar-${id}`).checked
       }).then(() => alert('更新成功！'));
     };
-    window.deleteProduct = function(id) { if(confirm("確定下架？")) remove(ref(database, 'products/' + id)); };
 
+    // 下架商品
+    window.deleteProduct = function(id) { 
+      if(confirm("確定下架？")) remove(ref(database, 'products/' + id)); 
+    };
+
+    // 讀取並動態渲染全系統會員
     function loadMembersAdmin() {
       onValue(ref(database, 'users'), (snapshot) => {
         const container = document.getElementById('admin-members-list');
@@ -226,15 +258,16 @@
         const members = snapshot.val() || {};
         for(let uid in members) {
           const m = members[uid];
-          container.insertAdjacentHTML('beforeend', `<li class="data-item"><div class="data-info-text">${m.lastName||''}${m.firstName||'未填名'} <span class="data-sub-text">電話: ${m.phone||'無'} | 電郵: ${m.email||'無'}</span></div></li>`);
+          container.insertAdjacentHTML('beforeend', `
+            <li class="data-item">
+              <div class="data-info-text">
+                ${m.lastName || ''}${m.firstName || '未填姓名'} 
+                <span class="data-sub-text">電話: ${m.phone || '無'} | 電郵: ${m.email || '無'}</span>
+              </div>
+            </li>`);
         }
       });
     }
-  </script>
-
-  <script>
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-    function switchAdminPage(pageId) { document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active')); document.getElementById(pageId).classList.add('active'); document.getElementById('sidebar').classList.remove('active'); }
   </script>
 </body>
 </html>
