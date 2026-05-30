@@ -104,7 +104,6 @@
 </head>
 <body>
 
-  <!-- 提示與確認 UI 組件 -->
   <div id="sys-alert-root" class="system-alert-overlay">
     <div class="system-alert-box">
       <p id="sys-alert-text" class="system-alert-msg"></p>
@@ -112,7 +111,6 @@
     </div>
   </div>
 
-  <!-- 登入驗證介面 -->
   <div id="auth-overlay">
     <div class="auth-container">
       <div class="brand-header">
@@ -133,7 +131,6 @@
     </div>
   </div>
 
-  <!-- 主系統面板 -->
   <div id="main-system">
     <nav>
       <div class="brand-logo" style="font-size:18px; color:white;">Aroma Bakery <span style="font-size:12px; color:var(--sb-gold); margin-left:8px; font-weight:500;">管理後台</span></div>
@@ -144,7 +141,6 @@
     </nav>
 
     <div class="layout-container">
-      <!-- 側邊選單欄 -->
       <aside class="panel-sidebar">
         <ul class="menu-list">
           <li class="menu-item active" id="menu-btn-products" onclick="switchManagementTab('section-product-mgr')">商品品項管理</li>
@@ -152,17 +148,14 @@
         </ul>
       </aside>
 
-      <!-- 主工作區域 -->
       <main class="panel-main">
         
-        <!-- 商品品項管理區塊 -->
         <section id="section-product-mgr" class="management-section active">
           <div class="section-title-area">
             <h2>商品品項管理</h2>
             <button class="btn-action" onclick="openProductFormPanel('create')">上架全新商品</button>
           </div>
 
-          <!-- 商品資料表單 -->
           <div id="product-form-panel" class="card-panel" style="display: none;">
             <h3 id="form-panel-title" style="font-size:16px; font-weight:700; margin-bottom:20px; border-bottom:1px solid var(--sb-border); padding-bottom:10px;">上架全新商品</h3>
             <form id="product-data-form" onsubmit="saveProductData(event); return false;">
@@ -192,7 +185,6 @@
                 <input type="number" id="form-product-points" required min="0" value="1" placeholder="請設定購買此商品可獲得的點數">
               </div>
 
-              <!-- 規格配置區塊：特調飲品專用 -->
               <div id="spec-box-drink" class="form-group">
                 <div style="margin-bottom: 16px;">
                   <label>冰量規格配置</label>
@@ -213,10 +205,9 @@
                 </div>
               </div>
 
-              <!-- 規格配置區塊：精緻甜點專用 -->
               <div id="spec-box-dessert" class="form-group" style="display: none;">
                 <label>口味規格配置 (甜點專用)</label>
-                <input type="text" id="form-product-flavor" value="原味,朱古力,Oreo" placeholder="請用逗號分隔各選項，填寫「不套用」則不啟用此客製化">
+                <input type="text" id="form-product-flavor" value="原味,朱古力,Oreo" placeholder="請用逗號分隔各選項，填寫「不套用']則不啟用此客製化">
                 <div class="spec-preset-container">
                   <span class="preset-badge" onclick="applyPresetSpec('form-product-flavor', '原味,朱古力,Oreo')">經典配置 (原味/朱古力/Oreo)</span>
                   <span class="preset-badge" onclick="applyPresetSpec('form-product-flavor', '原味,抹茶,芝士')">風味配置 (原味/抹茶/芝士)</span>
@@ -242,7 +233,6 @@
             </form>
           </div>
 
-          <!-- 商品清單列表 -->
           <div class="data-table-wrapper">
             <table class="data-table">
               <thead>
@@ -262,13 +252,11 @@
           </div>
         </section>
 
-        <!-- 全體會員名冊區塊 -->
         <section id="section-user-mgr" class="management-section">
           <div class="section-title-area" style="margin-bottom:16px;">
             <h2>全體會員名冊</h2>
           </div>
 
-          <!-- 全新高質感電話號碼搜尋控制列 -->
           <div class="search-panel">
             <div style="font-size:14px; font-weight:600; color:var(--sb-text-black); letter-spacing:0.5px;">搜尋會員電話：</div>
             <input type="text" id="user-search-phone-input" placeholder="請輸入欲查詢的完整或部分行動電話號碼..." style="max-width:380px; padding:10px 16px; font-size:14px;" oninput="triggerUserSearchFilter()">
@@ -373,12 +361,16 @@
 
         // 監聽雲端商品資料庫
         onValue(ref(database, 'products'), (snapshot) => {
+          // 安全守衛：防止非登入狀態讀取資料
+          if (!auth.currentUser || auth.currentUser.email !== 'admin01@aroma.com') return;
           cachedProducts = snapshot.val() || {};
           renderAdminProductsTable(cachedProducts);
         });
 
         // 監聽雲端會員資料庫
         onValue(ref(database, 'users'), (snapshot) => {
+          // 安全守衛：防止非登入狀態讀取資料
+          if (!auth.currentUser || auth.currentUser.email !== 'admin01@aroma.com') return;
           cachedUsers = snapshot.val() || {};
           renderAdminUsersTable(cachedUsers);
         });
@@ -482,7 +474,7 @@
           <td style="font-weight:600; color:var(--sb-primary-green); font-size:15px;">${currentPoints} ⭐</td>
           <td>
             <div class="birthday-inline-editor">
-              <select class="sel-birth-m" data-uid="${uid}" id="inline-m-${uid}" onchange="syncInlineDays('${uid}')">${mOptions}</select>
+              <select class="sel-birth-m" data-uid="${uid}" id="inline-m-${uid}" onchange="window.syncInlineDays('${uid}')">${mOptions}</select>
               <select class="sel-birth-d" data-uid="${uid}" id="inline-d-${uid}">${dOptions}</select>
               <button class="btn-action btn-update-birth" style="padding:6px 14px; font-size:12px; border-radius:4px; margin-left:4px;">更新</button>
             </div>
@@ -493,11 +485,34 @@
         tbody.appendChild(row);
         
         // 即時校正當前月份的天數規格
-        syncInlineDays(uid, currentDay);
+        window.syncInlineDays(uid, currentDay);
       }
 
       if (!hasMatchedCustomer) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">未找到符合該條件的手機號碼會員項目</td></tr>`;
+      }
+    };
+
+    // 將天數連動邏輯同步綁定在 window 上，解決 module 與普通 script 作用域分開找不到函式的主因
+    window.syncInlineDays = function(uid, targetDay = null) {
+      const mSel = document.getElementById(`inline-m-${uid}`);
+      const dSel = document.getElementById(`inline-d-${uid}`);
+      if(!mSel || !dSel) return;
+
+      const month = parseInt(mSel.value);
+      let days = 31;
+      if([4, 6, 9, 11].includes(month)) days = 30;
+      else if(month === 2) days = 29;
+
+      const savedSelected = targetDay || dSel.value;
+      dSel.innerHTML = '';
+      for(let i=1; i<=days; i++) {
+        const val = i.toString().padStart(2, '0');
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = `${i}日`;
+        if(val === savedSelected) opt.selected = true;
+        dSel.appendChild(opt);
       }
     };
 
@@ -509,6 +524,7 @@
 
     // 局部動態更動生日
     window.updateUserBirthdayInline = function(uid) {
+      if (!auth.currentUser || auth.currentUser.email !== 'admin01@aroma.com') return;
       const newMonth = document.getElementById(`inline-m-${uid}`).value;
       const newDay = document.getElementById(`inline-d-${uid}`).value;
 
@@ -523,13 +539,20 @@
     // 新增/修改商品儲存邏輯
     window.saveProductData = function(e) {
       e.preventDefault();
+      if (!auth.currentUser || auth.currentUser.email !== 'admin01@aroma.com') return;
+
       const id = document.getElementById('form-product-id').value;
       const category = document.getElementById('form-product-category').value;
       const name = document.getElementById('form-product-name').value.trim();
-      const price = parseInt(document.getElementById('form-product-price').value) || 0;
-      const points = parseInt(document.getElementById('form-product-points').value) || 0;
+      const price = parseInt(document.getElementById('form-product-price').value);
+      const points = parseInt(document.getElementById('form-product-points').value);
       const photoUrl = document.getElementById('form-product-photo').value.trim();
       const detail = document.getElementById('form-product-detail').value.trim();
+
+      if(isNaN(price) || isNaN(points) || price < 0 || points < 0) {
+        window.showSystemAlert('請輸入有效的售價與星賞點數。');
+        return;
+      }
 
       const productPayload = { category, name, price, points, photoUrl, detail };
 
@@ -551,6 +574,7 @@
 
     // 刪除下架商品
     window.deleteProductItem = function(id) {
+      if (!auth.currentUser || auth.currentUser.email !== 'admin01@aroma.com') return;
       window.showSystemConfirm("確定要下架此商品項目嗎？\n此操作將同步自全體消費者的菜單內移除。", () => {
         remove(ref(database, 'products/' + id))
           .then(() => window.showSystemAlert('商品已成功下架。'));
@@ -640,29 +664,6 @@
       } else if (currentCategory === '甜點') {
         drinkBox.style.display = 'none';
         dessertBox.style.display = 'block';
-      }
-    }
-
-    // 名冊行內月份連動日期天數校正
-    function syncInlineDays(uid, targetDay = null) {
-      const mSel = document.getElementById(`inline-m-${uid}`);
-      const dSel = document.getElementById(`inline-d-${uid}`);
-      if(!mSel || !dSel) return;
-
-      const month = parseInt(mSel.value);
-      let days = 31;
-      if([4, 6, 9, 11].includes(month)) days = 30;
-      else if(month === 2) days = 29;
-
-      const savedSelected = targetDay || dSel.value;
-      dSel.innerHTML = '';
-      for(let i=1; i<=days; i++) {
-        const val = i.toString().padStart(2, '0');
-        const opt = document.createElement('option');
-        opt.value = val;
-        opt.textContent = `${i}日`;
-        if(val === savedSelected) opt.selected = true;
-        dSel.appendChild(opt);
       }
     }
   </script>
