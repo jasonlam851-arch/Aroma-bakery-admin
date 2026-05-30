@@ -79,7 +79,7 @@
     .hint-text { font-size: 12px; color: var(--sb-text-gray); margin-top: 6px; line-height: 1.4; }
     
     .birthday-inline-editor { display: flex; align-items: center; gap: 6px; }
-    .birthday-inline-editor select { padding: 6px 10px; font-size: 13px; width: 85px; border-radius: 4px; }
+    .birthday-inline-editor select, .birthday-inline-editor input { padding: 6px 10px; font-size: 13px; width: 85px; border-radius: 4px; border: 1px solid var(--sb-text-gray); }
     
     .system-alert-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
     .system-alert-overlay.active { opacity: 1; pointer-events: auto; }
@@ -135,6 +135,7 @@
       <aside class="panel-sidebar">
         <ul class="menu-list">
           <li class="menu-item active" id="menu-btn-products" onclick="switchManagementTab('section-product-mgr')">商品品項管理</li>
+          <li class="menu-item" id="menu-btn-orders" onclick="switchManagementTab('section-order-mgr')">訂單管理</li>
           <li class="menu-item" id="menu-btn-users" onclick="switchManagementTab('section-user-mgr')">全體會員名冊</li>
           <li class="menu-item" id="menu-btn-topup" onclick="switchManagementTab('section-topup-mgr')">增值與錢包設定</li>
         </ul>
@@ -234,6 +235,28 @@
           </div>
         </section>
 
+        <section id="section-order-mgr" class="management-section">
+          <div class="section-title-area" style="margin-bottom:16px;">
+            <h2>客戶訂單管理</h2>
+          </div>
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>訂單號</th>
+                  <th>客戶資訊 / 地址</th>
+                  <th>預計配送時間</th>
+                  <th>訂單進度</th>
+                  <th>快速操作</th>
+                </tr>
+              </thead>
+              <tbody id="order-table-body">
+                <tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">載入中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         <section id="section-user-mgr" class="management-section">
           <div class="section-title-area" style="margin-bottom:16px;">
             <h2>全體會員名冊</h2>
@@ -264,7 +287,6 @@
           <div class="section-title-area">
             <h2>增值與錢包管理</h2>
           </div>
-          
           <div class="card-panel">
             <h3 style="font-size: 16px; margin-bottom: 16px;">支付寶收款二維碼設定</h3>
             <div class="form-group">
@@ -273,7 +295,6 @@
             </div>
             <button class="btn-action" onclick="saveAlipayUrl()">儲存二維碼設定</button>
           </div>
-
           <h3 style="font-size: 18px; margin-bottom: 16px; margin-top: 32px;">會員增值通知列表</h3>
           <div class="data-table-wrapper">
             <table class="data-table">
@@ -318,6 +339,7 @@
 
     let cachedProducts = {};
     let cachedUsers = {};
+    let cachedOrders = {};
 
     window.showSystemAlert = function(msg, callback = null) {
       document.getElementById('sys-alert-text').textContent = msg;
@@ -326,10 +348,7 @@
       const btn = document.createElement('button');
       btn.className = 'system-alert-btn confirm-main';
       btn.textContent = '確定';
-      btn.onclick = () => {
-        document.getElementById('sys-alert-root').classList.remove('active');
-        if(callback) callback();
-      };
+      btn.onclick = () => { document.getElementById('sys-alert-root').classList.remove('active'); if(callback) callback(); };
       area.appendChild(btn);
       document.getElementById('sys-alert-root').classList.add('active');
     };
@@ -342,14 +361,10 @@
       btnCancel.className = 'system-alert-btn confirm-cancel';
       btnCancel.textContent = '取消';
       btnCancel.onclick = () => document.getElementById('sys-alert-root').classList.remove('active');
-      
       const btnConfirm = document.createElement('button');
       btnConfirm.className = 'system-alert-btn confirm-main';
       btnConfirm.textContent = '確定執行';
-      btnConfirm.onclick = () => {
-        document.getElementById('sys-alert-root').classList.remove('active');
-        if(onConfirm) onConfirm();
-      };
+      btnConfirm.onclick = () => { document.getElementById('sys-alert-root').classList.remove('active'); if(onConfirm) onConfirm(); };
       area.appendChild(btnCancel);
       area.appendChild(btnConfirm);
       document.getElementById('sys-alert-root').classList.add('active');
@@ -379,7 +394,6 @@
           renderAdminUsersTable(cachedUsers);
         });
 
-        // 監聽增值通知
         onValue(ref(database, 'topupRequests'), (snapshot) => {
           const requests = snapshot.val() || {};
           const tbody = document.getElementById('topup-table-body');
@@ -403,11 +417,16 @@
           });
         });
 
-        // 讀取當前設定的支付寶 URL
         onValue(ref(database, 'adminSettings/alipayQrUrl'), (snapshot) => {
            const url = snapshot.val() || '';
            const el = document.getElementById('admin-alipay-url');
            if(el) el.value = url;
+        });
+
+        // 讀取訂單清單
+        onValue(ref(database, 'orders'), (snapshot) => {
+          cachedOrders = snapshot.val() || {};
+          renderAdminOrdersTable(cachedOrders);
         });
 
       } else {
@@ -417,21 +436,94 @@
       }
     });
 
+    // 自動排程：15分鐘後自動取消已到達之訂單
+    setInterval(() => {
+        if (!cachedOrders) return;
+        const now = Date.now();
+        for (let id in cachedOrders) {
+            const o = cachedOrders[id];
+            if (o.status === '已到達' && o.arrivedAt && (now - o.arrivedAt > 15 * 60 * 1000)) {
+                remove(ref(database, 'orders/' + id));
+            }
+        }
+    }, 60000); 
+
+    function renderAdminOrdersTable(orders) {
+      const tbody = document.getElementById('order-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      
+      const keys = Object.keys(orders).sort((a,b) => orders[b].timestamp - orders[a].timestamp);
+      if (keys.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">目前無任何訂單紀錄</td></tr>`;
+        return;
+      }
+
+      const statusOptions = ['已接單', '準備中', '製作中', '配送中', '已到達'];
+
+      keys.forEach((id) => {
+        const o = orders[id];
+        const row = document.createElement('tr');
+        
+        let selectHtml = `<select id="status-select-${id}" onchange="updateOrderStatus('${id}')" style="width:100px; padding:4px;">`;
+        statusOptions.forEach(s => { selectHtml += `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s}</option>`; });
+        selectHtml += `</select>`;
+
+        row.innerHTML = `
+          <td style="font-weight:700;">${o.orderNum}</td>
+          <td style="font-size:13px; line-height:1.5;">
+            <div><span style="font-weight:600;">${o.customerName}</span> (${o.customerPhone})</div>
+            <div style="color:var(--sb-text-gray); margin-top:4px;">${o.deliveryType}: ${o.address}</div>
+          </td>
+          <td>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <input type="text" id="time-input-${id}" value="${o.deliveryTime || ''}" placeholder="如 14:30" style="width:80px; padding:6px;">
+              <button class="btn-action" style="padding:6px 10px; font-size:12px; border-radius:4px;" onclick="updateOrderTime('${id}')">更新</button>
+            </div>
+          </td>
+          <td>${selectHtml}</td>
+          <td><button class="btn-table-delete" onclick="deleteOrder('${id}')">取消訂單</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    window.updateOrderStatus = function(id) {
+      const selectElement = document.getElementById(`status-select-${id}`);
+      const newStatus = selectElement.value;
+      const payload = { status: newStatus };
+      if (newStatus === '已到達') {
+        payload.arrivedAt = Date.now();
+        window.showSystemAlert('訂單已標記為「已到達」，系統將於 15 分鐘後自動取消並隱藏此訂單。');
+      }
+      update(ref(database, 'orders/' + id), payload);
+    };
+
+    window.updateOrderTime = function(id) {
+      const timeVal = document.getElementById(`time-input-${id}`).value.trim();
+      update(ref(database, 'orders/' + id), { deliveryTime: timeVal }).then(() => {
+        window.showSystemAlert('預計配送時間已成功更新。');
+      });
+    };
+
+    window.deleteOrder = function(id) {
+      window.showSystemConfirm("您確定要直接取消並移除此訂單嗎？", () => {
+        remove(ref(database, 'orders/' + id)).then(() => window.showSystemAlert('訂單已成功移除。'));
+      });
+    };
+
     function renderAdminProductsTable(products) {
       const tbody = document.getElementById('product-table-body');
       if (!tbody) return;
       tbody.innerHTML = '';
-
       const keys = Object.keys(products);
       if (keys.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">目前資料庫內尚無上架商品項目</td></tr>`;
         return;
       }
-
       keys.forEach((id) => {
         const p = products[id];
         const row = document.createElement('tr');
-        
         let specString = '';
         if (p.category === '飲品') {
           specString = `冰量: ${p.iceSpecification || '未設定'}<br>甜度: ${p.sugarSpecification || '未設定'}`;
@@ -440,22 +532,14 @@
         } else {
           specString = `<span style="color:var(--sb-text-gray);">固定經典配方</span>`;
         }
-
         row.innerHTML = `
-          <td>
-            <img class="table-img" src="${p.photoUrl || 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=80&q=80'}">
-            <span class="p-name-txt" style="font-weight:600;"></span>
-          </td>
+          <td><img class="table-img" src="${p.photoUrl || 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=80&q=80'}"><span class="p-name-txt" style="font-weight:600;"></span></td>
           <td><span class="p-cat-badge">${p.category || '飲品'}</span></td>
           <td style="font-weight:600;">HK$ ${p.price || 0}</td>
-          <td>${p.points || 0} 顆星</td>
+          <td>${p.points || 0} 顆星賞</td>
           <td style="font-size:12px; line-height:1.4;">${specString}</td>
-          <td>
-            <button class="btn-table-edit">編輯</button>
-            <button class="btn-table-delete">下架</button>
-          </td>
+          <td><button class="btn-table-edit">編輯</button><button class="btn-table-delete">下架</button></td>
         `;
-
         row.querySelector('.p-name-txt').textContent = p.name || '';
         row.querySelector('.btn-table-edit').onclick = () => window.openProductFormPanel('edit', id);
         row.querySelector('.btn-table-delete').onclick = () => window.deleteProductItem(id);
@@ -463,23 +547,16 @@
       });
     }
 
-    // 更新包含「修改餘額」的渲染邏輯
     window.renderAdminUsersTable = function(users, filterKeyword = '') {
       const tbody = document.getElementById('user-table-body');
       if (!tbody) return;
       tbody.innerHTML = '';
-
       let hasMatchedCustomer = false;
-      
       for (let uid in users) {
         const u = users[uid];
         if (u.role === 'admin') continue; 
-
         const userPhone = u.phone || '';
-        if (filterKeyword && !userPhone.includes(filterKeyword)) {
-          continue;
-        }
-
+        if (filterKeyword && !userPhone.includes(filterKeyword)) { continue; }
         hasMatchedCustomer = true;
         const row = document.createElement('tr');
         const currentPoints = u.points !== undefined ? u.points : 0;
@@ -492,20 +569,17 @@
           const mVal = m.toString().padStart(2, '0');
           mOptions += `<option value="${mVal}" ${mVal === currentMonth ? 'selected' : ''}>${m}月</option>`;
         }
-
         let dOptions = '';
         for(let d=1; d<=31; d++) {
           const dVal = d.toString().padStart(2, '0');
           dOptions += `<option value="${dVal}" ${dVal === currentDay ? 'selected' : ''}>${d}日</option>`;
         }
-
         row.innerHTML = `
           <td style="font-weight:600;">${(u.lastName || '') + (u.firstName || '')}</td>
           <td>${userPhone}</td>
           <td>${u.email || '無資料'}</td>
           <td style="font-weight:600; color:var(--sb-primary-green); font-size:15px;">
-            ${currentPoints} 星賞<br>
-            <span style="color:var(--sb-text-black);">HK$ ${currentBalance}</span>
+            ${currentPoints} 星賞<br><span style="color:var(--sb-text-black);">HK$ ${currentBalance}</span>
           </td>
           <td>
             <div class="birthday-inline-editor">
@@ -514,7 +588,6 @@
               <select class="sel-birth-d" data-uid="${uid}" id="inline-d-${uid}">${dOptions}</select>
               <button class="btn-action btn-update-birth" style="padding:6px 14px; font-size:12px; border-radius:4px; margin-left:4px;">更新</button>
             </div>
-            
             <div class="birthday-inline-editor" style="margin-top: 12px; border-top: 1px solid var(--sb-border); padding-top: 12px;">
               <span style="font-size:12px; font-weight:600; min-width:40px;">餘額:</span>
               <input type="number" id="inline-balance-${uid}" value="${currentBalance}" style="width: 85px; padding: 6px 10px; font-size: 13px; border-radius: 4px; border: 1px solid var(--sb-text-gray);">
@@ -525,10 +598,8 @@
         row.querySelector('.btn-update-birth').onclick = () => window.updateUserBirthdayInline(uid);
         row.querySelector('.btn-update-balance').onclick = () => window.updateUserBalanceInline(uid);
         tbody.appendChild(row);
-        
         syncInlineDays(uid, currentDay);
       }
-
       if (!hasMatchedCustomer) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">未找到符合該條件的手機號碼會員項目</td></tr>`;
       }
@@ -547,7 +618,6 @@
         .catch(() => window.showSystemAlert('更動失敗，請確認資料庫連線權限。'));
     };
 
-    // 新增：會員餘額同步邏輯
     window.updateUserBalanceInline = function(uid) {
       const newBalance = parseInt(document.getElementById(`inline-balance-${uid}`).value) || 0;
       update(ref(database, 'users/' + uid), { balance: newBalance })
@@ -564,7 +634,6 @@
       const points = parseInt(document.getElementById('form-product-points').value) || 0;
       const photoUrl = document.getElementById('form-product-photo').value.trim();
       const detail = document.getElementById('form-product-detail').value.trim();
-
       const productPayload = { category, name, price, points, photoUrl, detail };
       if (category === '飲品') {
         productPayload.iceSpecification = document.getElementById('form-product-ice').value.trim();
@@ -572,7 +641,6 @@
       } else if (category === '甜點') {
         productPayload.flavorSpecification = document.getElementById('form-product-flavor').value.trim();
       }
-
       const targetId = id ? id : 'PROD_' + Date.now();
       set(ref(database, 'products/' + targetId), productPayload)
         .then(() => { window.showSystemAlert('商品資料已成功同步更新至雲端菜單。'); closeProductFormPanel(); })
@@ -629,7 +697,6 @@
       window.showSystemConfirm("確定要安全登出中央管理控制台嗎？", () => { signOut(auth); });
     };
 
-    // 新增：儲存支付寶 QR Code 圖片位置
     window.saveAlipayUrl = function() {
       const url = document.getElementById('admin-alipay-url').value.trim();
       set(ref(database, 'adminSettings/alipayQrUrl'), url).then(() => {
@@ -637,13 +704,11 @@
       });
     };
 
-    // 新增：刪除／標記完成增值申請
     window.deleteTopupRequest = function(id) {
        remove(ref(database, 'topupRequests/' + id)).then(() => {
            window.showSystemAlert('已將該筆申請標記為完成並移除。');
        });
     };
-
   </script>
 
   <script>
@@ -653,6 +718,7 @@
       
       document.getElementById(targetSectionId).classList.add('active');
       if (targetSectionId === 'section-product-mgr') document.getElementById('menu-btn-products').classList.add('active');
+      else if (targetSectionId === 'section-order-mgr') document.getElementById('menu-btn-orders').classList.add('active');
       else if (targetSectionId === 'section-user-mgr') document.getElementById('menu-btn-users').classList.add('active');
       else if (targetSectionId === 'section-topup-mgr') document.getElementById('menu-btn-topup').classList.add('active');
     }
