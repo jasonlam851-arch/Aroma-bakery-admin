@@ -134,6 +134,7 @@
       <ul class="sidebar-menu">
         <li onclick="switchAdminPage('page-products')">商品上架與維護看板</li>
         <li onclick="switchAdminPage('page-members')">全系統會員檔案總庫</li>
+        <li onclick="switchAdminPage('page-broadcast')">客戶通知版發布中心</li>
       </ul>
     </div>
 
@@ -146,17 +147,26 @@
             <div class="edit-grid">
               <div class="form-group"><label>商品名稱</label><input type="text" id="p-name" required placeholder="例如：焦糖瑪奇朵"></div>
               <div class="form-group"><label>定價 (HKD)</label><input type="number" id="p-price" required placeholder="42"></div>
-              <div class="form-group"><label>核心分類</label>
+              <div class="form-group"><label>可獲取積分數目</label><input type="number" id="p-points" required value="10" placeholder="例如：10"></div>
+              <div>
+                <label>核心分類</label>
                 <select id="p-category"><option value="飲品">飲品類 / Drinks</option><option value="甜點">甜點類 / Desserts</option></select>
               </div>
             </div>
             
-            <div class="form-group">
-              <label>前台規格調節配置</label>
-              <div style="display: flex; gap: 25px; padding: 5px 0;">
-                <label style="display: inline-flex; align-items: center; font-size: 13px; color: var(--sb-text-muted);">
-                  <input type="checkbox" checked disabled style="width: auto; margin-right: 8px;"> 一律只可選擇 500 ml
-                </label>
+            <div class="edit-grid" style="border: 1px solid var(--sb-border); padding: 15px; border-radius: 6px; background-color: #faf9f6; margin-bottom: 20px;">
+              <div class="edit-full-row"><label style="margin-bottom:2px;">前台規格可選配置調整</label></div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>容量配置</label>
+                <select id="p-size-spec" disabled><option value="500 ml">固定 500 ml</option></select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>冰量規格配置</label>
+                <select id="p-ice-spec"><option value="正常冰,少冰,去冰">支援調整（正常冰, 少冰, 去冰）</option><option value="不套用">此商品不提供冰量選擇</option></select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>甜度規格配置</label>
+                <select id="p-sugar-spec"><option value="正常甜,少甜,無甜">支援調整（正常甜, 少甜, 無甜）</option><option value="不套用">此商品不提供甜度選擇</option></select>
               </div>
             </div>
 
@@ -184,6 +194,17 @@
           <ul class="data-list" id="admin-members-list"></ul>
         </div>
       </div>
+
+      <div id="page-broadcast" class="admin-page">
+        <div class="panel">
+          <div class="panel-title">動態發布客戶通知</div>
+          <div class="form-group">
+            <label>通知版廣播內文</label>
+            <textarea id="broadcast-textarea" rows="6" placeholder="請在此輸入公告、營業更動或促銷訊息。當顧客在前台打開系統時，將會即時彈窗收到本通知..."></textarea>
+          </div>
+          <button class="btn btn-primary btn-block" onclick="saveBroadcastNotification()">立即同步發布通知</button>
+        </div>
+      </div>
       
     </div>
   </div>
@@ -208,7 +229,6 @@
     const auth = getAuth(app);
     const database = getDatabase(app);
 
-    // 全域快取快照變數
     let globalMembersData = {};
 
     // 系統自訂 UI 提示彈窗
@@ -233,10 +253,7 @@
       };
     };
 
-    window.closeSysModal = function() {
-      document.getElementById('sys-modal-container').style.display = 'none';
-    };
-
+    window.closeSysModal = function() { document.getElementById('sys-modal-container').style.display = 'none'; };
     window.toggleSidebar = function() { document.getElementById('sidebar').classList.toggle('active'); };
     window.switchAdminPage = function(pageId) { document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active')); document.getElementById(pageId).classList.add('active'); document.getElementById('sidebar').classList.remove('active'); };
 
@@ -245,7 +262,7 @@
       if(user && user.email === 'admin01@aroma.com') {
         document.getElementById('admin-auth-overlay').style.display = 'none';
         document.getElementById('admin-system').style.display = 'block';
-        loadProductsAdmin(); loadMembersAdmin();
+        loadProductsAdmin(); loadMembersAdmin(); loadBroadcastAdmin();
       } else {
         document.getElementById('admin-system').style.display = 'none';
         document.getElementById('admin-auth-overlay').style.display = 'flex';
@@ -259,11 +276,7 @@
       signInWithEmailAndPassword(auth, user, document.getElementById('admin-password').value).catch(() => sysAlert('安全驗證失敗：密碼不正確。'));
     });
 
-    window.handleAdminLogout = function() { 
-      sysConfirm("安全性提示：確定要中斷連線並安全登出主控台？", () => {
-        signOut(auth);
-      });
-    };
+    window.handleAdminLogout = function() { sysConfirm("安全性提示：確定要中斷連線並安全登出主控台？", () => { signOut(auth); }); };
 
     // 發布新商品
     document.getElementById('product-form').addEventListener('submit', (e) => {
@@ -272,17 +285,20 @@
       set(ref(database, 'products/' + id), {
         name: document.getElementById('p-name').value,
         price: parseInt(document.getElementById('p-price').value),
+        points: parseInt(document.getElementById('p-points').value) || 0,
         category: document.getElementById('p-category').value,
         photoUrl: document.getElementById('p-photo').value,
         detail: document.getElementById('p-detail').value,
-        sizeSpecification: "500 ml"
+        sizeSpecification: "500 ml",
+        iceSpecification: document.getElementById('p-ice-spec').value,
+        sugarSpecification: document.getElementById('p-sugar-spec').value
       }).then(() => { 
         sysAlert('營運提示：新商品發布並部署上架成功！'); 
         document.getElementById('product-form').reset(); 
       });
     });
 
-    // 讀取商品列表並渲染美化介面
+    // 讀取並渲染現存商品營運維護庫
     function loadProductsAdmin() {
       onValue(ref(database, 'products'), (snapshot) => {
         const list = document.getElementById('admin-products-list');
@@ -290,12 +306,14 @@
         const data = snapshot.val() || {};
         for(let id in data) {
           const p = data[id];
+          const iceVal = p.iceSpecification || '正常冰,少冰,去冰';
+          const sugarVal = p.sugarSpecification || '正常甜,少甜,無甜';
           list.insertAdjacentHTML('beforeend', `
             <li class="data-item">
               <div class="data-row-main">
                 <div class="data-info-text">
                   [${p.category || '未分類'}] ${p.name} 
-                  <span class="data-sub-text">標準定價：HK$ ${p.price} | 規格：500 ml | 描述：${p.detail || '無'}</span>
+                  <span class="data-sub-text">標準定價：HK$ ${p.price} | 商品積分：${p.points || 0} 分 | 容量：500 ml | 描述：${p.detail || '無'}</span>
                 </div>
                 <div class="data-actions">
                   <button class="btn btn-warning" onclick="document.getElementById('edit-${id}').classList.toggle('active')">修改商品</button>
@@ -306,7 +324,25 @@
                 <div class="edit-grid">
                   <div><label>核心商品名稱</label><input type="text" id="e-name-${id}" value="${p.name || ''}"></div>
                   <div><label>標準定價 (HKD)</label><input type="number" id="e-price-${id}" value="${p.price || 0}"></div>
-                  <div><label>指定規格配置</label><input type="text" value="500 ml" disabled style="color: var(--sb-text-muted);"></div>
+                  <div><label>設定商品積分</label><input type="number" id="e-points-${id}" value="${p.points || 0}"></div>
+                  <div>
+                    <label>容量配置</label>
+                    <input type="text" value="500 ml" disabled style="color: var(--sb-text-muted);">
+                  </div>
+                  <div>
+                    <label>修改冰量可選規格</label>
+                    <select id="e-ice-${id}">
+                      <option value="正常冰,少冰,去冰" ${iceVal==='正常冰,少冰,去冰'?'selected':''}>支援調整（正常冰, 少冰, 去冰）</option>
+                      <option value="不套用" ${iceVal==='不套用'?'selected':''}>此商品不提供冰量選擇</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label>修改甜度可選規格</label>
+                    <select id="e-sugar-${id}">
+                      <option value="正常甜,少甜,無甜" ${sugarVal==='正常甜,少甜,無甜'?'selected':''}>支援調整（正常甜, 少甜, 無甜）</option>
+                      <option value="不套用" ${sugarVal==='不套用'?'selected':''}>此商品不提供甜度選擇</option>
+                    </select>
+                  </div>
                   <div class="edit-full-row">
                     <label>商品視覺圖片外鏈 URL</label>
                     <input type="url" id="e-photo-${id}" value="${p.photoUrl || ''}">
@@ -329,32 +365,27 @@
       update(ref(database, 'products/' + id), {
         name: document.getElementById(`e-name-${id}`).value, 
         price: parseInt(document.getElementById(`e-price-${id}`).value),
+        points: parseInt(document.getElementById(`e-points-${id}`).value) || 0,
         photoUrl: document.getElementById(`e-photo-${id}`).value,
-        detail: document.getElementById(`e-detail-${id}`).value
+        detail: document.getElementById(`e-detail-${id}`).value,
+        iceSpecification: document.getElementById(`e-ice-${id}`).value,
+        sugarSpecification: document.getElementById(`e-sugar-${id}`).value
       }).then(() => sysAlert('營運提示：商品維護參數已成功同步至資料庫！'));
     };
 
-    window.deleteProduct = function(id) { 
-      sysConfirm("安全性確認：確定要將此商品永久下架並銷毀檔案？", () => {
-        remove(ref(database, 'products/' + id));
-      });
-    };
+    window.deleteProduct = function(id) { sysConfirm("安全性確認：確定要將此商品永久下架並銷毀檔案？", () => { remove(ref(database, 'products/' + id)); }); };
 
-    // 監聽搜尋列輸入事件
-    document.getElementById('member-search-input').addEventListener('input', (e) => {
-      renderMembersList(e.target.value.trim());
-    });
+    // 搜尋列過濾監聽
+    document.getElementById('member-search-input').addEventListener('input', (e) => { renderMembersList(e.target.value.trim()); });
 
-    // 讀取會員數據
     function loadMembersAdmin() {
       onValue(ref(database, 'users'), (snapshot) => {
         globalMembersData = snapshot.val() || {};
-        const currentSearch = document.getElementById('member-search-input').value.trim();
-        renderMembersList(currentSearch);
+        renderMembersList(document.getElementById('member-search-input').value.trim());
       });
     }
 
-    // 渲染會員列表（支援手機號篩選）
+    // 渲染會員管理介面（含修改與顯示累積積分功能）
     function renderMembersList(filterKeyword = '') {
       const container = document.getElementById('admin-members-list');
       container.innerHTML = '';
@@ -362,11 +393,9 @@
       for(let uid in globalMembersData) {
         const m = globalMembersData[uid];
         const phoneNum = m.phone || '';
+        const currentPoints = m.points !== undefined ? m.points : 0;
         
-        // 如果有輸入搜尋詞，且電話號碼不包含該搜尋詞，則不渲染
-        if(filterKeyword !== '' && !phoneNum.includes(filterKeyword)) {
-          continue;
-        }
+        if(filterKeyword !== '' && !phoneNum.includes(filterKeyword)) continue;
         
         let monthOptions = '';
         for(let i=1; i<=12; i++) {
@@ -384,6 +413,7 @@
             <div class="data-row-main">
               <div class="data-info-text">
                 <span style="font-size:16px; color:var(--sb-green-dark); font-weight:700;">${m.lastName || ''}${m.firstName || '顧客'}</span>
+                <span class="data-sub-text" style="color:var(--sb-accent-gold); font-weight:600; margin-top:2px;">二維碼下累積積分：${currentPoints} Points</span>
                 <span class="data-sub-text">生日專利：${m.birthdayMonth || '--'}月${m.birthdayDay || '--'}日碼 | 聯絡電話：${phoneNum || '無'} | 帳號信箱：${m.email || '無'}</span>
               </div>
               <div class="data-actions">
@@ -395,6 +425,7 @@
               <div class="edit-grid">
                 <div><label>中文姓氏</label><input type="text" id="em-lastname-${uid}" value="${m.lastName || ''}"></div>
                 <div><label>專屬名字</label><input type="text" id="em-firstname-${uid}" value="${m.firstName || ''}"></div>
+                <div><label>調整會員積分（前台同步更新）</label><input type="number" id="em-points-${uid}" value="${currentPoints}"></div>
                 <div><label>專屬出生月份</label><select id="em-month-${uid}">${monthOptions}</select></div>
                 <div><label>專屬出生日期</label><select id="em-day-${uid}">${dayOptions}</select></div>
               </div>
@@ -410,14 +441,30 @@
       update(ref(database, 'users/' + uid), {
         lastName: document.getElementById(`em-lastname-${uid}`).value,
         firstName: document.getElementById(`em-firstname-${uid}`).value,
+        points: parseInt(document.getElementById(`em-points-${uid}`).value) || 0,
         birthdayMonth: document.getElementById(`em-month-${uid}`).value,
         birthdayDay: document.getElementById(`em-day-${uid}`).value
-      }).then(() => sysAlert('權限提示：該會員基本檔案與核心生日碼已同步更新成功！'));
+      }).then(() => sysAlert('權限提示：該會員基本檔案與核心積分/生日碼已同步更新成功！'));
     };
 
     window.deleteMember = function(uid) {
-      sysConfirm("警告：您正在進行永久刪除會員帳戶的操作。這將導致該顧客無法登入，且所有消費權益、專屬號碼均會被立即清除，確定執行？", () => {
+      sysConfirm("警告：您正在進行永久刪除會員帳戶的操作。這將導致該顧客無法登入，且所有消費權益、專屬號碼與積分均會被立即清除，確定執行？", () => {
         remove(ref(database, 'users/' + uid)).then(() => sysAlert('權限提示：該會員帳戶已從資料庫安全抹除。'));
+      });
+    };
+
+    // 讀取與發布客戶通知版
+    function loadBroadcastAdmin() {
+      onValue(ref(database, 'broadcast/currentNotification'), (snapshot) => {
+        const text = snapshot.val() || '';
+        document.getElementById('broadcast-textarea').value = text;
+      });
+    }
+
+    window.saveBroadcastNotification = function() {
+      const txtValue = document.getElementById('broadcast-textarea').value;
+      set(ref(database, 'broadcast/currentNotification'), txtValue).then(() => {
+        sysAlert('系統提示：客戶通知內文已部署發布，前台客戶開啟系統時將同步接收到此通知！');
       });
     };
   </script>
