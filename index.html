@@ -4,191 +4,200 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aroma_bakery | 管理中央主控台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --sb-green-dark: #1e3932;
       --sb-green-light: #006241;
       --sb-accent-gold: #cba258;
-      --sb-gray-bg: #f2f0eb;
+      --sb-gray-bg: #f4f2ed;
       --sb-gray-card: #ffffff;
       --sb-border: #dbd9d3;
       --sb-text-black: #212529;
       --sb-text-muted: #6c757d;
       --sb-danger: #b02a37;
-      --sb-warning: #ffc107;
+      --sb-warning: #f5a623;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Montserrat', 'Noto Serif TC', serif; background-color: var(--sb-gray-bg); color: var(--sb-text-black); min-height: 100vh; letter-spacing: 0.5px; }
     
-    /* 登入介面 */
-    #admin-auth-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(rgba(30, 57, 50, 0.85), rgba(30, 57, 50, 0.85)), url('https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
-      background-size: cover; z-index: 1000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease;
-    }
-    .admin-container { background: #ffffff; padding: 45px; width: 90%; max-width: 440px; box-shadow: 0 20px 45px rgba(0,0,0,0.3); border-top: 5px solid var(--sb-accent-gold); }
-    .admin-title-main { font-size: 22px; font-weight: 700; color: var(--sb-green-dark); text-align: center; margin-bottom: 5px; letter-spacing: 1px; }
-    .admin-subtitle-main { font-size: 11px; color: var(--sb-accent-gold); text-align: center; margin-bottom: 30px; letter-spacing: 2px; }
+    /* 登入封面 */
+    #admin-auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(30,57,50,0.85), rgba(30,57,50,0.85)), url('https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed; background-size: cover; z-index: 1000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
+    .admin-container { background: #ffffff; padding: 45px; width: 90%; max-width: 440px; box-shadow: 0 20px 45px rgba(0,0,0,0.3); border-top: 5px solid var(--sb-accent-gold); border-radius: 4px; }
+    .admin-title-main { font-family: 'Noto Serif TC', serif; font-size: 24px; font-weight: 700; color: var(--sb-green-dark); text-align: center; margin-bottom: 5px; letter-spacing: 1px; }
+    .admin-subtitle-main { font-size: 11px; color: var(--sb-accent-gold); text-align: center; margin-bottom: 30px; letter-spacing: 3px; font-weight: 600; }
     
     .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--sb-green-dark); letter-spacing: 0.5px; }
-    input, select, textarea { width: 100%; padding: 13px 16px; border: 1px solid var(--sb-border); font-size: 14px; background-color: #ffffff; transition: border-color 0.2s; }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--sb-green-light); }
+    label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--sb-green-dark); text-transform: uppercase; letter-spacing: 1px; }
+    input, select, textarea { width: 100%; padding: 12px 16px; border: 1px solid var(--sb-border); font-size: 14px; background-color: #ffffff; border-radius: 6px; transition: border-color 0.2s; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--sb-green-dark); }
     
-    /* 彈窗控制按鈕 */
-    .btn { padding: 10px 20px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
+    /* 搜尋欄特定樣式 */
+    .search-group { margin-bottom: 25px; position: relative; }
+    .search-input { padding: 14px 20px; border: 2px solid var(--sb-border); border-radius: 50px; font-size: 14px; transition: all 0.3s ease; }
+    .search-input:focus { border-color: var(--sb-accent-gold); box-shadow: 0 0 10px rgba(203, 162, 88, 0.2); }
+
+    /* 星巴克風高級按鈕 */
+    .btn { padding: 10px 24px; border: 1px solid transparent; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 50px; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; }
     .btn-primary { background-color: var(--sb-green-dark); color: white; }
-    .btn-primary:hover { background-color: var(--sb-green-light); }
-    .btn-warning { background-color: var(--sb-warning); color: #000; }
-    .btn-danger { background-color: var(--sb-danger); color: white; }
-    .btn-block { width: 100%; margin-top: 15px; padding: 14px; }
+    .btn-primary:hover { background-color: #132521; }
+    .btn-warning { background-color: transparent; border-color: var(--sb-accent-gold); color: var(--sb-green-dark); }
+    .btn-warning:hover { background-color: var(--sb-accent-gold); color: white; }
+    .btn-danger { background-color: transparent; border-color: var(--sb-danger); color: var(--sb-danger); }
+    .btn-danger:hover { background-color: var(--sb-danger); color: white; }
+    .btn-block { width: 100%; margin-top: 15px; padding: 14px; border-radius: 50px; font-size: 14px; }
     
-    /* 後台管理架構 */
     #admin-system { display: none; }
-    nav { background-color: var(--sb-green-dark); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .menu-toggle { font-size: 14px; font-weight: 600; cursor: pointer; color: var(--sb-accent-gold); border: 1px solid var(--sb-accent-gold); padding: 6px 15px; }
-    .brand-name { font-size: 16px; font-weight: 700; letter-spacing: 2px; }
-    .btn-nav-logout { background: transparent; border: 1px solid white; color: white; padding: 6px 15px; font-size: 12px; cursor: pointer; font-weight: 600; }
+    nav { background-color: var(--sb-green-dark); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .menu-toggle { font-size: 13px; font-weight: 600; cursor: pointer; color: var(--sb-accent-gold); border: 1px solid var(--sb-accent-gold); padding: 8px 18px; border-radius: 50px; transition: 0.2s; }
+    .menu-toggle:hover { background-color: var(--sb-accent-gold); color: var(--sb-green-dark); }
+    .btn-nav-logout { background: transparent; border: 1px solid rgba(255,255,255,0.6); color: white; padding: 8px 18px; font-size: 12px; cursor: pointer; font-weight: 600; border-radius: 50px; transition: 0.2s; }
     .btn-nav-logout:hover { background: white; color: var(--sb-green-dark); }
     
-    .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: var(--sb-green-dark); padding-top: 10px; transition: 0.3s; z-index: 200; }
+    /* 側邊欄 */
+    .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: rgba(30, 57, 50, 0.98); padding-top: 10px; transition: 0.3s; z-index: 200; box-shadow: 5px 0 15px rgba(0,0,0,0.2); backdrop-filter: blur(5px); }
     .sidebar.active { left: 0; }
     .sidebar-header { display: flex; justify-content: flex-end; padding: 20px; }
-    .close-btn { font-size: 20px; color: white; cursor: pointer; }
-    .sidebar-menu { list-style: none; padding: 30px; }
-    .sidebar-menu li { padding: 18px 15px; color: #ffffff; font-size: 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s; font-weight: 500; }
-    .sidebar-menu li:hover { color: var(--sb-accent-gold); padding-left: 25px; background-color: rgba(255,255,255,0.02); }
+    .close-btn { font-size: 24px; color: white; cursor: pointer; }
+    .sidebar-menu { list-style: none; padding: 20px; }
+    .sidebar-menu li { padding: 16px 15px; color: #ffffff; font-size: 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.08); transition: 0.2s; }
+    .sidebar-menu li:hover { color: var(--sb-accent-gold); padding-left: 22px; }
     
-    .admin-main-view { padding: 40px 20px; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 35px; }
+    /* 主面板佈局 */
+    .admin-main-view { padding: 40px 20px; max-width: 1100px; margin: 0 auto; }
     .admin-page { display: none; }
-    .admin-page.active { display: block; }
+    .admin-page.active { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     
-    .panel { background: var(--sb-gray-card); padding: 35px; border: 1px solid var(--sb-border); margin-bottom: 30px; }
-    .panel-title { font-size: 18px; font-weight: 700; color: var(--sb-green-dark); margin-bottom: 25px; border-left: 4px solid var(--sb-accent-gold); padding-left: 12px; text-transform: uppercase; }
+    .panel { background: #ffffff; padding: 35px; border-radius: 8px; border: 1px solid var(--sb-border); margin-bottom: 35px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+    .panel-title { font-family: 'Noto Serif TC', serif; font-size: 20px; font-weight: 700; color: var(--sb-green-dark); margin-bottom: 25px; border-left: 4px solid var(--sb-accent-gold); padding-left: 12px; }
     
-    /* 條目列表樣式 */
-    .data-list { list-style: none; max-height: 550px; overflow-y: auto; border: 1px solid var(--sb-border); padding: 0; background: #ffffff; }
-    .data-item { border-bottom: 1px solid var(--sb-border); padding: 20px; font-size: 14px; transition: background-color 0.2s; }
-    .data-item:hover { background-color: #faf9f7; }
-    .data-row-main { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-    .data-info-text { font-weight: 500; }
-    .data-sub-text { color: var(--sb-text-muted); margin-left: 12px; font-size: 12px; }
+    /* 資料列表與美式卡片設計 */
+    .data-list { list-style: none; padding: 0; }
+    .data-item { background: #ffffff; border: 1px solid var(--sb-border); border-radius: 8px; padding: 22px; margin-bottom: 18px; transition: box-shadow 0.2s; }
+    .data-item:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+    .data-row-main { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    
+    /* 商品列表專用圖片樣式 */
+    .prod-thumbnail { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid var(--sb-border); background-color: var(--sb-gray-bg); }
+    .prod-info-wrapper { display: flex; align-items: center; gap: 15px; flex: 1; min-width: 280px; }
+    
+    .data-info-text { font-size: 15px; font-weight: 600; color: var(--sb-green-dark); flex: 1; }
+    .data-sub-text { color: var(--sb-text-muted); margin-left: 10px; font-size: 13px; font-weight: 400; display: block; margin-top: 4px; }
     .data-actions { display: flex; gap: 10px; }
     
-    /* 修改內嵌區域 */
-    .edit-zone { display: none; background: #fdfdfc; border: 1px dashed var(--sb-accent-gold); padding: 25px; margin-top: 20px; }
+    /* 隱藏/展開修改內面介面 */
+    .edit-zone { display: none; background: #faf9f6; border: 1px solid var(--sb-accent-gold); border-radius: 6px; padding: 25px; margin-top: 20px; animation: slideDown 0.25s ease; }
     .edit-zone.active { display: block; }
-    .edit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     
-    /* 自訂通知視窗 */
-    .custom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 3000; display: none; }
-    .modal-content { background: white; padding: 35px; text-align: center; max-width: 440px; width: 90%; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border-top: 4px solid var(--sb-green-dark); }
+    .edit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 18px; }
+    .edit-full-row { grid-column: 1 / -1; }
+    .edit-zone-footer { display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--sb-border); padding-top: 15px; }
+
+    /* 全自訂系統彈窗（替代傳統 Alert 與 Confirm） */
+    .sys-modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+    .sys-modal { background: #ffffff; border-radius: 8px; width: 90%; max-width: 450px; border-top: 4px solid var(--sb-accent-gold); box-shadow: 0 15px 35px rgba(0,0,0,0.3); overflow: hidden; animation: modalPop 0.3s ease; }
+    @keyframes modalPop { from { transform: scale(0.9); opacity:0; } to { transform: scale(1); opacity:1; } }
+    .sys-modal-body { padding: 30px; font-size: 15px; color: var(--sb-text-black); line-height: 1.6; }
+    .sys-modal-footer { background: #faf9f6; padding: 15px 25px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--sb-border); }
   </style>
 </head>
 <body>
 
+  <div id="sys-modal-container" class="sys-modal-overlay">
+    <div class="sys-modal">
+      <div id="sys-modal-content" class="sys-modal-body">系統提示訊息</div>
+      <div class="sys-modal-footer" id="sys-modal-actions"></div>
+    </div>
+  </div>
+
   <div id="admin-auth-overlay">
     <div class="admin-container">
-      <div class="admin-title-main">AROMA BAKERY</div>
+      <div class="admin-title-main">Aroma Bakery</div>
       <div class="admin-subtitle-main">CENTRAL MANAGEMENT SYSTEM</div>
       <form id="admin-login-form">
-        <div class="form-group">
-          <label>管理員帳戶唯一名稱</label>
-          <input type="text" id="admin-username" required placeholder="請輸入管理帳號">
-        </div>
-        <div class="form-group">
-          <label>安全性密碼</label>
-          <input type="password" id="admin-password" required placeholder="請輸入密碼">
-        </div>
-        <button type="submit" class="btn-admin-login btn btn-primary btn-block">驗證並登入系統</button>
+        <div class="form-group"><label>管理員公務信箱</label><input type="email" id="admin-username" required placeholder="example@aroma.com"></div>
+        <div class="form-group"><label>安全存取密碼</label><input type="password" id="admin-password" required placeholder="••••••••"></div>
+        <button type="submit" class="btn btn-primary btn-block">驗證身分並登入</button>
       </form>
     </div>
   </div>
 
   <div id="admin-system">
     <nav>
-      <div class="menu-toggle" onclick="toggleSidebar()">主選單</div>
-      <div class="brand-name">AROMA BAKERY CENTRAL SYSTEM</div>
-      <button class="btn-nav-logout" onclick="handleAdminLogout()">登出控制台</button>
+      <div class="menu-toggle" onclick="toggleSidebar()">系統選單</div>
+      <div style="font-family: 'Noto Serif TC', serif; font-weight:700; letter-spacing:2px; font-size: 18px;">AROMA BAKERY CMS</div>
+      <button class="btn-nav-logout" onclick="handleAdminLogout()">安全登出</button>
     </nav>
 
     <div class="sidebar" id="sidebar">
       <div class="sidebar-header"><div class="close-btn" onclick="toggleSidebar()">×</div></div>
       <ul class="sidebar-menu">
-        <li onclick="switchAdminPage('page-products')">商品架設與維護管理</li>
-        <li onclick="switchAdminPage('page-members')">全系統會員檔案庫</li>
+        <li onclick="switchAdminPage('page-products')">商品上架與維護看板</li>
+        <li onclick="switchAdminPage('page-members')">全系統會員檔案總庫</li>
       </ul>
     </div>
 
     <div class="admin-main-view">
+      
       <div id="page-products" class="admin-page active">
         <div class="panel">
-          <div class="panel-title">建立全新精選商品項目</div>
+          <div class="panel-title">建立新精選商品</div>
           <form id="product-form">
-            <div class="form-group">
-              <label>商品名稱</label>
-              <input type="text" id="p-name" required placeholder="請輸入商品正式名稱">
-            </div>
-            <div class="form-group">
-              <label>正式定價 (HKD)</label>
-              <input type="number" id="p-price" required placeholder="請輸入定價整數金額">
-            </div>
-            <div class="form-group">
-              <label>商品群組分類</label>
-              <select id="p-category">
-                <option value="飲品">精選飲品類 / Drinks</option>
-                <option value="甜點">精緻甜點類 / Desserts</option>
-              </select>
+            <div class="edit-grid">
+              <div class="form-group"><label>商品名稱</label><input type="text" id="p-name" required placeholder="例如：焦糖瑪奇朵"></div>
+              <div class="form-group"><label>定價 (HKD)</label><input type="number" id="p-price" required placeholder="42"></div>
+              <div class="form-group"><label>可獲取積分數目</label><input type="number" id="p-points" required value="10" placeholder="例如：10"></div>
+              <div>
+                <label>核心分類</label>
+                <select id="p-category"><option value="飲品">飲品類 / Drinks</option><option value="甜點">甜點類 / Desserts</option></select>
+              </div>
             </div>
             
-            <div class="form-group">
-              <label>前台客製化規格選項配置（僅對飲品生效）</label>
-              <div style="display: flex; gap: 30px; padding: 5px 0;">
-                <label style="display: inline-flex; align-items: center; cursor: pointer; font-weight: 500;">
-                  <input type="checkbox" id="p-has-ice" style="width: auto; margin-right: 8px;" checked> 
-                  啟用冰量調節（正常冰/多冰/少冰）
-                </label>
-                <label style="display: inline-flex; align-items: center; cursor: pointer; font-weight: 500;">
-                  <input type="checkbox" id="p-has-sugar" style="width: auto; margin-right: 8px;" checked> 
-                  啟用甜度調節（正常糖/少糖/無糖）
-                </label>
+            <div class="edit-grid" style="border: 1px solid var(--sb-border); padding: 15px; border-radius: 6px; background-color: #faf9f6; margin-bottom: 20px;">
+              <div class="edit-full-row"><label style="margin-bottom:2px;">前台規格可選配置調整</label></div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>容量配置</label>
+                <select id="p-size-spec" disabled><option value="500 ml">固定 500 ml</option></select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>冰量規格配置</label>
+                <select id="p-ice-spec"><option value="正常冰,少冰,去冰">支援調整（正常冰, 少冰, 去冰）</option><option value="不套用">此商品不提供冰量選擇</option></select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>甜度規格配置</label>
+                <select id="p-sugar-spec"><option value="正常甜,少甜,無甜">支援調整（正常甜, 少甜, 無甜）</option><option value="不套用">此商品不提供甜度選擇</option></select>
               </div>
             </div>
 
-            <div class="form-group">
-              <label>商品映像網址 (URL)</label>
-              <input type="url" id="p-photo" placeholder="請輸入圖片連結位址">
-            </div>
-            <div class="form-group">
-              <label>商品詳細描述與配方說明</label>
-              <textarea id="p-detail" rows="3" placeholder="請輸入商品背景或配方簡介..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">確認商品發布上架</button>
+            <div class="form-group"><label>商品視覺圖片外鏈 URL</label><input type="url" id="p-photo" placeholder="https://images.unsplash.com/..."></div>
+            <div class="form-group"><label>詳情描述介紹</label><textarea id="p-detail" rows="3" placeholder="請輸入前台彈窗顯示的商品風味或成分敘述..."></textarea></div>
+            <button type="submit" class="btn btn-primary btn-block">確認發布並商品上架</button>
           </form>
         </div>
 
         <div class="panel">
-          <div class="panel-title">商品實時數據維護維修庫</div>
+          <div class="panel-title">現存商品營運維護庫</div>
           <ul class="data-list" id="admin-products-list"></ul>
         </div>
       </div>
 
       <div id="page-members" class="admin-page">
         <div class="panel">
-          <div class="panel-title">系統註冊會員核心檢索庫</div>
-          <div class="form-group">
-            <input type="text" id="member-search-input" placeholder="輸入會員姓名或電話號碼進行實時篩選過濾...">
+          <div class="panel-title">會員檢索與全權管理庫</div>
+          
+          <div class="search-group">
+            <label>輸入會員完整或部分手機號碼進行即時篩選</label>
+            <input type="text" id="member-search-input" class="search-input" placeholder="請輸入手機號碼搜尋...">
           </div>
+
           <ul class="data-list" id="admin-members-list"></ul>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div class="custom-modal" id="alert-modal">
-    <div class="modal-content">
-      <div id="alert-text" style="padding: 20px 0; font-size: 15px; font-weight: 500;"></div>
-      <button class="btn btn-primary" onclick="closeAlert()" style="padding: 10px 40px;">確認</button>
+      
     </div>
   </div>
 
@@ -197,29 +206,66 @@
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+    // 核心資料庫配置（保持原樣，便於後續與客戶端做對齊）
     const firebaseConfig = {
-      apiKey: "AlzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
+      apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
       authDomain: "aroma-bakery-492fa.firebaseapp.com",
       databaseURL: "https://aroma-bakery-492fa-default-rtdb.firebaseio.com",
       projectId: "aroma-bakery-492fa",
       storageBucket: "aroma-bakery-492fa.firebasestorage.app",
       messagingSenderId: "1060567946315",
-      appId: "1:1060567946315:web:9693ac0e3486ab52c5e9ce"
+      appId: "1:1060567946315:web:9693ac0e3486ab52c5e9ce",
+      measurementId: "G-D2C1M4SBPC"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
 
-    let allMembersData = {};
+    let globalMembersData = {};
 
-    // 登入驗證
+    // XSS 安全防護：轉義 HTML 字串防止注入式攻擊漏洞
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // 系統自訂 UI 提示彈窗
+    window.sysAlert = function(msg) {
+      document.getElementById('sys-modal-content').innerText = msg;
+      const footer = document.getElementById('sys-modal-actions');
+      footer.innerHTML = `<button class="btn btn-primary" onclick="closeSysModal()">確認</button>`;
+      document.getElementById('sys-modal-container').style.display = 'flex';
+    };
+
+    window.sysConfirm = function(msg, onConfirm) {
+      document.getElementById('sys-modal-content').innerText = msg;
+      const footer = document.getElementById('sys-modal-actions');
+      footer.innerHTML = `
+        <button class="btn btn-warning" onclick="closeSysModal()">取消變更</button>
+        <button class="btn btn-danger" id="sys-modal-confirm-btn">確定執行</button>
+      `;
+      document.getElementById('sys-modal-container').style.display = 'flex';
+      document.getElementById('sys-modal-confirm-btn').onclick = function() {
+        closeSysModal();
+        onConfirm();
+      };
+    };
+
+    window.closeSysModal = function() { document.getElementById('sys-modal-container').style.display = 'none'; };
+    window.toggleSidebar = function() { document.getElementById('sidebar').classList.toggle('active'); };
+    window.switchAdminPage = function(pageId) { 
+      document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active')); 
+      document.getElementById(pageId).classList.add('active'); 
+      document.getElementById('sidebar').classList.remove('active'); 
+    };
+
+    // 權限狀態監聽
     onAuthStateChanged(auth, (user) => {
       if(user && user.email === 'admin01@aroma.com') {
         document.getElementById('admin-auth-overlay').style.display = 'none';
         document.getElementById('admin-system').style.display = 'block';
-        loadProductsAdmin();
-        loadMembersAdmin();
+        loadProductsAdmin(); loadMembersAdmin();
       } else {
         document.getElementById('admin-system').style.display = 'none';
         document.getElementById('admin-auth-overlay').style.display = 'flex';
@@ -228,149 +274,192 @@
 
     document.getElementById('admin-login-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      const user = document.getElementById('admin-username').value.trim();
-      const pass = document.getElementById('admin-password').value;
-      if(user !== 'admin01@aroma.com') { alert('拒絕存取：非合規管理權限帳號。'); return; }
-      signInWithEmailAndPassword(auth, user, pass).catch(err => { alert('驗證失敗：密碼錯誤。'); });
+      const user = document.getElementById('admin-username').value;
+      if(user !== 'admin01@aroma.com') return sysAlert('核心錯誤：本介面僅供高階資深管理員存取。');
+      signInWithEmailAndPassword(auth, user, document.getElementById('admin-password').value).catch(() => sysAlert('安全驗證失敗：密碼不正確。'));
     });
 
-    window.handleAdminLogout = function() {
-      if(confirm("確定要終止工作階段並關閉安全主控台？")) {
-        signOut(auth).then(() => {
-          document.getElementById('admin-username').value = '';
-          document.getElementById('admin-password').value = '';
-        });
-      }
-    };
+    window.handleAdminLogout = function() { sysConfirm("安全性提示：確定要中斷連線並安全登出主控台？", () => { signOut(auth); }); };
 
-    // 商品上架：納入冰量與甜度布林變數控制
+    // 發布新商品
     document.getElementById('product-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const id = 'PROD_' + Date.now();
-      const name = document.getElementById('p-name').value.trim();
-      const price = parseInt(document.getElementById('p-price').value);
-      const category = document.getElementById('p-category').value;
-      const photoUrl = document.getElementById('p-photo').value.trim();
-      const detail = document.getElementById('p-detail').value.trim();
-      
-      // 獲取調節狀態
-      const hasIce = document.getElementById('p-has-ice').checked;
-      const hasSugar = document.getElementById('p-has-sugar').checked;
-
       set(ref(database, 'products/' + id), {
-        name, price, category, photoUrl, detail, hasIce, hasSugar
-      }).then(() => {
-        alert('商品發布上架成功！前台控制選項同步生效。');
-        document.getElementById('product-form').reset();
+        name: document.getElementById('p-name').value,
+        price: parseInt(document.getElementById('p-price').value),
+        points: parseInt(document.getElementById('p-points').value) || 0,
+        category: document.getElementById('p-category').value,
+        photoUrl: document.getElementById('p-photo').value,
+        detail: document.getElementById('p-detail').value,
+        sizeSpecification: "500 ml",
+        iceSpecification: document.getElementById('p-ice-spec').value,
+        sugarSpecification: document.getElementById('p-sugar-spec').value
+      }).then(() => { 
+        sysAlert('營運提示：新商品發布並部署上架成功！'); 
+        document.getElementById('product-form').reset(); 
       });
     });
 
-    // 載入商品庫與內嵌調節配置
+    // 讀取並渲染現存商品營運維護庫（整合圖片防護與安全轉義）
     function loadProductsAdmin() {
       onValue(ref(database, 'products'), (snapshot) => {
         const list = document.getElementById('admin-products-list');
-        if(!list) return;
         list.innerHTML = '';
         const data = snapshot.val() || {};
         for(let id in data) {
           const p = data[id];
-          const iceChecked = p.hasIce !== false ? 'checked' : '';
-          const sugarChecked = p.hasSugar !== false ? 'checked' : '';
+          const iceVal = p.iceSpecification || '正常冰,少冰,去冰';
+          const sugarVal = p.sugarSpecification || '正常甜,少甜,無甜';
+          const displayImg = p.photoUrl ? p.photoUrl : 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=150&q=80';
           
           list.insertAdjacentHTML('beforeend', `
-            <li class="data-item" id="item-prod-${id}">
+            <li class="data-item">
               <div class="data-row-main">
-                <div class="data-info-text">[${p.category}] ${p.name} <span class="data-sub-text">HKD ${p.price}</span></div>
-                <div class="data-actions">
-                  <button class="btn btn-warning" onclick="toggleProductEditZone('${id}')">修改規格</button>
-                  <button class="btn btn-danger" onclick="deleteProduct('${id}')">下架</button>
-                </div>
-              </div>
-              <div class="edit-zone" id="edit-zone-${id}">
-                <div class="edit-grid">
-                  <div><label>變更商品名稱</label><input type="text" id="edit-p-name-${id}" value="${p.name}"></div>
-                  <div><label>變更價格</label><input type="number" id="edit-p-price-${id}" value="${p.price}"></div>
-                  <div>
-                    <label>客製規格調節</label>
-                    <div style="padding-top:10px; display:flex; gap:15px; font-size:13px;">
-                      <label><input type="checkbox" id="edit-p-has-ice-${id}" ${iceChecked}> 啟用冰量</label>
-                      <label><input type="checkbox" id="edit-p-has-sugar-${id}" ${sugarChecked}> 啟用甜度</label>
-                    </div>
+                <div class="prod-info-wrapper">
+                  <img src="${escapeHtml(displayImg)}" class="prod-thumbnail" alt="商品預覽">
+                  <div class="data-info-text">
+                    [${escapeHtml(p.category || '未分類')}] ${escapeHtml(p.name)} 
+                    <span class="data-sub-text">標準定價：HK$ ${p.price} | 商品積分：${p.points || 0} 分 | 容量：500 ml | 描述：${escapeHtml(p.detail || '無')}</span>
                   </div>
                 </div>
-                <button class="btn btn-primary" onclick="saveProductUpdate('${id}')">儲存變更</button>
+                <div class="data-actions">
+                  <button class="btn btn-warning" onclick="document.getElementById('edit-${id}').classList.toggle('active')">修改商品</button>
+                  <button class="btn btn-danger" onclick="deleteProduct('${id}')">永久下架</button>
+                </div>
+              </div>
+              <div class="edit-zone" id="edit-${id}">
+                <div class="edit-grid">
+                  <div><label>核心商品名稱</label><input type="text" id="e-name-${id}" value="${escapeHtml(p.name || '')}"></div>
+                  <div><label>標準定價 (HKD)</label><input type="number" id="e-price-${id}" value="${p.price || 0}"></div>
+                  <div><label>設定商品積分</label><input type="number" id="e-points-${id}" value="${p.points || 0}"></div>
+                  <div>
+                    <label>容量配置</label>
+                    <input type="text" value="500 ml" disabled style="color: var(--sb-text-muted);">
+                  </div>
+                  <div>
+                    <label>修改冰量可選規格</label>
+                    <select id="e-ice-${id}">
+                      <option value="正常冰,少冰,去冰" ${iceVal==='正常冰,少冰,去冰'?'selected':''}>支援調整（正常冰, 少冰, 去冰）</option>
+                      <option value="不套用" ${iceVal==='不套用'?'selected':''}>此商品不提供冰量選擇</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label>修改甜度可選規格</label>
+                    <select id="e-sugar-${id}">
+                      <option value="正常甜,少甜,無甜" ${sugarVal==='正常甜,少甜,無甜'?'selected':''}>支援調整（正常甜, 少甜, 無甜）</option>
+                      <option value="不套用" ${sugarVal==='不套用'?'selected':''}>此商品不提供甜度選擇</option>
+                    </select>
+                  </div>
+                  <div class="edit-full-row">
+                    <label>商品視覺圖片外鏈 URL</label>
+                    <input type="url" id="e-photo-${id}" value="${escapeHtml(p.photoUrl || '')}">
+                  </div>
+                  <div class="edit-full-row">
+                    <label>詳情描述介紹 (動態修改)</label>
+                    <textarea id="e-detail-${id}" rows="2">${escapeHtml(p.detail || '')}</textarea>
+                  </div>
+                </div>
+                <div class="edit-zone-footer">
+                  <button class="btn btn-primary" onclick="saveUpdate('${id}')">確認並保存變更</button>
+                </div>
               </div>
             </li>`);
         }
       });
     }
 
-    window.toggleProductEditZone = function(id) {
-      document.getElementById(`edit-zone-${id}`).classList.toggle('active');
+    window.saveUpdate = function(id) {
+      update(ref(database, 'products/' + id), {
+        name: document.getElementById(`e-name-${id}`).value, 
+        price: parseInt(document.getElementById(`e-price-${id}`).value),
+        points: parseInt(document.getElementById(`e-points-${id}`).value) || 0,
+        photoUrl: document.getElementById(`e-photo-${id}`).value,
+        detail: document.getElementById(`e-detail-${id}`).value,
+        iceSpecification: document.getElementById(`e-ice-${id}`).value,
+        sugarSpecification: document.getElementById(`e-sugar-${id}`).value
+      }).then(() => sysAlert('營運提示：商品維護參數已成功同步至資料庫！'));
     };
 
-    window.saveProductUpdate = function(id) {
-      const name = document.getElementById(`edit-p-name-${id}`).value.trim();
-      const price = parseInt(document.getElementById(`edit-p-price-${id}`).value);
-      const hasIce = document.getElementById(`edit-p-has-ice-${id}`).checked;
-      const hasSugar = document.getElementById(`edit-p-has-sugar-${id}`).checked;
+    window.deleteProduct = function(id) { sysConfirm("安全性確認：確定要將此商品永久下架並銷毀檔案？", () => { remove(ref(database, 'products/' + id)); }); };
 
-      update(ref(database, 'products/' + id), { name, price, hasIce, hasSugar }).then(() => {
-        alert('規格欄位更新成功！');
-      });
-    };
+    // 搜尋列過濾監聽
+    document.getElementById('member-search-input').addEventListener('input', (e) => { renderMembersList(e.target.value.trim()); });
 
-    window.deleteProduct = function(id) {
-      if(confirm("確定要下架此商品項目？")) { remove(ref(database, 'products/' + id)); }
-    };
-
-    // 載入會員核心數據
     function loadMembersAdmin() {
       onValue(ref(database, 'users'), (snapshot) => {
-        allMembersData = snapshot.val() || {};
-        renderMembersList(allMembersData);
+        globalMembersData = snapshot.val() || {};
+        renderMembersList(document.getElementById('member-search-input').value.trim());
       });
     }
 
-    function renderMembersList(members) {
+    // 渲染會員管理介面
+    function renderMembersList(filterKeyword = '') {
       const container = document.getElementById('admin-members-list');
-      if(!container) return;
       container.innerHTML = '';
-      for(let uid in members) {
-        const m = members[uid];
+      
+      for(let uid in globalMembersData) {
+        const m = globalMembersData[uid];
+        const phoneNum = m.phone || '';
+        const currentPoints = m.points !== undefined ? m.points : 0;
+        
+        if(filterKeyword !== '' && !phoneNum.includes(filterKeyword)) continue;
+        
+        let monthOptions = '';
+        for(let i=1; i<=12; i++) {
+          let val = i.toString().padStart(2, '0');
+          monthOptions += `<option value="${val}" ${m.birthdayMonth === val ? 'selected' : ''}>${i}月</option>`;
+        }
+        let dayOptions = '';
+        for(let i=1; i<=31; i++) {
+          let val = i.toString().padStart(2, '0');
+          dayOptions += `<option value="${val}" ${m.birthdayDay === val ? 'selected' : ''}>${i}日</option>`;
+        }
+
         container.insertAdjacentHTML('beforeend', `
-          <li class="data-item">
-            <div class="data-info-text" style="font-size:15px; color:var(--sb-green-dark); font-weight:600;">
-              ${m.lastName || ''}${m.firstName || '未填名'}
-              <span class="data-sub-text" style="font-size:13px;">電話: +852 ${m.phone || '無'} | 生日: ${m.birthday || '無'} | 電郵: ${m.email || '無'}</span>
+          <li class="data-item" style="border-left: 4px solid var(--sb-green-dark);">
+            <div class="data-row-main">
+              <div class="data-info-text">
+                <span style="font-size:16px; color:var(--sb-green-dark); font-weight:700;">${escapeHtml(m.lastName || '')}${escapeHtml(m.firstName || '顧客')}</span>
+                <span class="data-sub-text" style="color:var(--sb-accent-gold); font-weight:600; margin-top:2px;">二維碼下累積積分：${currentPoints} Points</span>
+                <span class="data-sub-text">生日專利：${escapeHtml(m.birthdayMonth || '--')}月${escapeHtml(m.birthdayDay || '--')}日碼 | 聯絡電話：${escapeHtml(phoneNum || '無')} | 帳號信箱：${escapeHtml(m.email || '無')}</span>
+              </div>
+              <div class="data-actions">
+                <button class="btn btn-warning" onclick="document.getElementById('edit-mem-${uid}').classList.toggle('active')">修改檔案</button>
+                <button class="btn btn-danger" onclick="deleteMember('${uid}')">刪除帳戶</button>
+              </div>
             </div>
-            <div style="font-size:11px; color:var(--sb-accent-gold); margin-top:5px; letter-spacing:0.5px;">系統識別Uid: ${uid}</div>
+            <div class="edit-zone" id="edit-mem-${uid}">
+              <div class="edit-grid">
+                <div><label>中文姓氏</label><input type="text" id="em-lastname-${uid}" value="${escapeHtml(m.lastName || '')}"></div>
+                <div><label>專屬名字</label><input type="text" id="em-firstname-${uid}" value="${escapeHtml(m.firstName || '')}"></div>
+                <div><label>調整會員積分（前台同步更新）</label><input type="number" id="em-points-${uid}" value="${currentPoints}"></div>
+                <div><label>專屬出生月份</label><select id="em-month-${uid}">${monthOptions}</select></div>
+                <div><label>專屬出生日期</label><select id="em-day-${uid}">${dayOptions}</select></div>
+              </div>
+              <div class="edit-zone-footer">
+                <button class="btn btn-primary" onclick="saveMemberUpdate('${uid}')">同步覆蓋會員檔案</button>
+              </div>
+            </div>
           </li>`);
       }
     }
 
-    // 實時關鍵字篩選
-    document.getElementById('member-search-input').addEventListener('input', (e) => {
-      const k = e.target.value.trim().toLowerCase();
-      if(!k) { renderMembersList(allMembersData); return; }
-      const filtered = {};
-      for(let uid in allMembersData) {
-        const m = allMembersData[uid];
-        const name = ((m.lastName || '') + (m.firstName || '')).toLowerCase();
-        const phone = (m.phone || '').toLowerCase();
-        if(name.includes(k) || phone.includes(k)) { filtered[uid] = m; }
-      }
-      renderMembersList(filtered);
-    });
-  </script>
+    window.saveMemberUpdate = function(uid) {
+      update(ref(database, 'users/' + uid), {
+        lastName: document.getElementById(`em-lastname-${uid}`).value,
+        firstName: document.getElementById(`em-firstname-${uid}`).value,
+        points: parseInt(document.getElementById(`em-points-${uid}`).value) || 0,
+        birthdayMonth: document.getElementById(`em-month-${uid}`).value,
+        birthdayDay: document.getElementById(`em-day-${uid}`).value
+      }).then(() => sysAlert('權限提示：該會員基本檔案與核心積分/生日碼已同步更新成功！'));
+    };
 
-  <script>
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-    function switchAdminPage(pageId) {
-      document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
-      document.getElementById(pageId).classList.add('active');
-      document.getElementById('sidebar').classList.remove('active');
-    }
+    window.deleteMember = function(uid) {
+      sysConfirm("警告：您正在進行永久刪除會員帳戶的操作。這將導致該顧客無法登入，且所有消費權益、專屬號碼與積分均會被立即清除，確定執行？", () => {
+        remove(ref(database, 'users/' + uid)).then(() => sysAlert('權限提示：該會員帳戶已從資料庫安全抹除。'));
+      });
+    };
   </script>
 </body>
 </html>
