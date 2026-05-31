@@ -137,7 +137,8 @@
           <li class="menu-item active" id="menu-btn-products" onclick="switchManagementTab('section-product-mgr')">商品品項管理</li>
           <li class="menu-item" id="menu-btn-orders" onclick="switchManagementTab('section-order-mgr')">訂單管理</li>
           <li class="menu-item" id="menu-btn-users" onclick="switchManagementTab('section-user-mgr')">全體會員名冊</li>
-          <li class="menu-item" id="menu-btn-topup" onclick="switchManagementTab('section-topup-mgr')">增值與錢包設定</li>
+          <li class="menu-item" id="menu-btn-coupons" onclick="switchManagementTab('section-coupon-mgr')">客戶兌換設置</li>
+          <li class="menu-item" id="menu-btn-topup" onclick="switchManagementTab('section-topup-mgr')">增值通知</li>
         </ul>
       </aside>
 
@@ -244,7 +245,7 @@
               <thead>
                 <tr>
                   <th>訂單號</th>
-                  <th>客戶資訊 / 地址</th>
+                  <th>客戶資訊 / 地址 / 訂單明細</th>
                   <th>預計配送時間</th>
                   <th>訂單進度</th>
                   <th>快速操作</th>
@@ -272,7 +273,7 @@
                   <th>會員姓名</th>
                   <th>聯絡電話</th>
                   <th>電子郵件帳戶 (Gmail)</th>
-                  <th>星點 / 餘額</th>
+                  <th>星賞點數 / 錢包餘額</th>
                   <th>帳戶資料修改維護</th>
                 </tr>
               </thead>
@@ -283,32 +284,80 @@
           </div>
         </section>
 
-        <section id="section-topup-mgr" class="management-section">
+        <section id="section-coupon-mgr" class="management-section">
           <div class="section-title-area">
-            <h2>增值與錢包管理</h2>
+            <h2>客戶兌換設置</h2>
+            <button class="btn-action" onclick="document.getElementById('coupon-form-panel').style.display='block'">新增優惠券</button>
           </div>
-          <div class="card-panel">
-            <h3 style="font-size: 16px; margin-bottom: 16px;">支付寶收款二維碼設定</h3>
-            <div class="form-group">
-              <label>二維碼圖片網址 (URL)</label>
-              <input type="url" id="admin-alipay-url" placeholder="請輸入供消費者掃描之支付寶二維碼圖片連結">
-            </div>
-            <button class="btn-action" onclick="saveAlipayUrl()">儲存二維碼設定</button>
+          
+          <div id="coupon-form-panel" class="card-panel" style="display: none;">
+            <h3 style="font-size:16px; font-weight:700; margin-bottom:20px; border-bottom:1px solid var(--sb-border); padding-bottom:10px;">添加優惠券</h3>
+            <form onsubmit="saveCoupon(event); return false;">
+              <div class="form-group">
+                <label>優惠名稱</label>
+                <input type="text" id="coupon-name" required placeholder="例如：夏日特飲買一送一">
+              </div>
+              <div class="form-group">
+                <label>優惠細則</label>
+                <textarea id="coupon-detail" rows="2" required placeholder="例如：憑此券可免費換領指定飲品一杯..."></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group" style="flex:1;">
+                  <label>限期</label>
+                  <input type="date" id="coupon-expiry" required>
+                </div>
+                <div class="form-group" style="flex:1;">
+                  <label>兌換所需星賞</label>
+                  <input type="number" id="coupon-cost" required min="1" placeholder="例如：50">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>減免金額 (HK$)</label>
+                <input type="number" id="coupon-discount" required min="0" value="0" placeholder="結帳時扣減金額，不扣減請填0">
+              </div>
+              <div style="display:flex; justify-content:flex-end; gap:12px;">
+                <button type="button" class="btn-action" style="background-color:var(--sb-text-gray);" onclick="document.getElementById('coupon-form-panel').style.display='none'">取消</button>
+                <button type="submit" class="btn-action">儲存優惠券</button>
+              </div>
+            </form>
           </div>
-          <h3 style="font-size: 18px; margin-bottom: 16px; margin-top: 32px;">會員增值通知列表</h3>
+
           <div class="data-table-wrapper">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>會員 UID</th>
+                  <th>優惠名稱</th>
+                  <th>優惠細則</th>
+                  <th>限期</th>
+                  <th>所需星賞 / 減免金額</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="coupon-table-body">
+                <tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">讀取中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="section-topup-mgr" class="management-section">
+          <div class="section-title-area">
+            <h2>增值通知管理</h2>
+          </div>
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>會員 UID / 聯絡電話</th>
                   <th>支付姓名</th>
+                  <th>支付方式</th>
                   <th>日期</th>
                   <th>金額 (HK$)</th>
                   <th>操作</th>
                 </tr>
               </thead>
               <tbody id="topup-table-body">
-                <tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">載入中...</td></tr>
+                <tr><td colspan="6" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">載入中...</td></tr>
               </tbody>
             </table>
           </div>
@@ -321,7 +370,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDbRM8chwqn-MbVxdraBZ4EGUFCF0jtfkE",
@@ -400,15 +449,16 @@
           tbody.innerHTML = '';
           const keys = Object.keys(requests);
           if(keys.length === 0) {
-             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">目前無待處理的增值通知</td></tr>`;
+             tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">目前無待處理的增值通知</td></tr>`;
              return;
           }
           keys.forEach(id => {
              const req = requests[id];
              const row = document.createElement('tr');
              row.innerHTML = `
-               <td style="font-size:12px; color:var(--sb-text-gray);">${req.uid}</td>
+               <td style="font-size:12px; color:var(--sb-text-gray);">${req.uid}<br><span style="font-weight:600; color:var(--sb-text-black); font-size:14px;">${req.phone || ''}</span></td>
                <td style="font-weight:600;">${req.name}</td>
+               <td>${req.method || '未設定'}</td>
                <td>${req.date}</td>
                <td style="font-weight:700; color:var(--sb-dark-green);">HK$ ${req.amount}</td>
                <td><button class="btn-table-delete" onclick="deleteTopupRequest('${id}')">標記完成並移除</button></td>
@@ -417,16 +467,32 @@
           });
         });
 
-        onValue(ref(database, 'adminSettings/alipayQrUrl'), (snapshot) => {
-           const url = snapshot.val() || '';
-           const el = document.getElementById('admin-alipay-url');
-           if(el) el.value = url;
-        });
-
-        // 讀取訂單清單
         onValue(ref(database, 'orders'), (snapshot) => {
           cachedOrders = snapshot.val() || {};
           renderAdminOrdersTable(cachedOrders);
+        });
+
+        onValue(ref(database, 'coupons'), (snapshot) => {
+            const coupons = snapshot.val() || {};
+            const tbody = document.getElementById('coupon-table-body');
+            tbody.innerHTML = '';
+            const keys = Object.keys(coupons);
+            if (keys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">目前沒有優惠券</td></tr>`;
+                return;
+            }
+            keys.forEach(id => {
+                const c = coupons[id];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="font-weight:600;">${c.name}</td>
+                    <td style="font-size:13px;">${c.detail}</td>
+                    <td>${c.expiry}</td>
+                    <td>${c.cost} 星賞<br>減免: HK$ ${c.discountVal}</td>
+                    <td><button class="btn-table-delete" onclick="deleteCoupon('${id}')">刪除</button></td>
+                `;
+                tbody.appendChild(row);
+            });
         });
 
       } else {
@@ -436,7 +502,6 @@
       }
     });
 
-    // 自動排程：15分鐘後自動取消已到達之訂單
     setInterval(() => {
         if (!cachedOrders) return;
         const now = Date.now();
@@ -446,13 +511,12 @@
                 remove(ref(database, 'orders/' + id));
             }
         }
-    }, 60000); 
+    }, 60000);
 
     function renderAdminOrdersTable(orders) {
       const tbody = document.getElementById('order-table-body');
       if (!tbody) return;
       tbody.innerHTML = '';
-      
       const keys = Object.keys(orders).sort((a,b) => orders[b].timestamp - orders[a].timestamp);
       if (keys.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">目前無任何訂單紀錄</td></tr>`;
@@ -460,7 +524,6 @@
       }
 
       const statusOptions = ['已接單', '準備中', '製作中', '配送中', '已到達'];
-
       keys.forEach((id) => {
         const o = orders[id];
         const row = document.createElement('tr');
@@ -469,11 +532,21 @@
         statusOptions.forEach(s => { selectHtml += `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s}</option>`; });
         selectHtml += `</select>`;
 
+        let itemsText = (o.items || []).map(i => {
+            let spec = [];
+            if(i.ice && i.ice!=='標準') spec.push(i.ice);
+            if(i.sugar && i.sugar!=='標準') spec.push(i.sugar);
+            if(i.flavor && i.flavor!=='標準') spec.push(i.flavor);
+            let sTxt = spec.length > 0 ? ` (${spec.join('/')})` : '';
+            return `<div style="font-size:12px; color:var(--sb-primary-green); font-weight:600;">- ${i.name}${sTxt} x ${i.quantity}</div>`;
+        }).join('');
+
         row.innerHTML = `
           <td style="font-weight:700;">${o.orderNum}</td>
           <td style="font-size:13px; line-height:1.5;">
             <div><span style="font-weight:600;">${o.customerName}</span> (${o.customerPhone})</div>
-            <div style="color:var(--sb-text-gray); margin-top:4px;">${o.deliveryType}: ${o.address}</div>
+            <div style="color:var(--sb-text-gray); margin:4px 0;">${o.deliveryType}: ${o.address}</div>
+            <div style="background:var(--sb-light-green); padding:8px; border-radius:4px;">${itemsText}</div>
           </td>
           <td>
             <div style="display:flex; gap:4px; align-items:center;">
@@ -561,44 +634,32 @@
         const row = document.createElement('tr');
         const currentPoints = u.points !== undefined ? u.points : 0;
         const currentBalance = u.balance !== undefined ? u.balance : 0;
-        const currentMonth = u.birthdayMonth || "01";
-        const currentDay = u.birthdayDay || "01";
 
-        let mOptions = '';
-        for(let m=1; m<=12; m++) {
-          const mVal = m.toString().padStart(2, '0');
-          mOptions += `<option value="${mVal}" ${mVal === currentMonth ? 'selected' : ''}>${m}月</option>`;
-        }
-        let dOptions = '';
-        for(let d=1; d<=31; d++) {
-          const dVal = d.toString().padStart(2, '0');
-          dOptions += `<option value="${dVal}" ${dVal === currentDay ? 'selected' : ''}>${d}日</option>`;
-        }
         row.innerHTML = `
           <td style="font-weight:600;">${(u.lastName || '') + (u.firstName || '')}</td>
           <td>${userPhone}</td>
           <td>${u.email || '無資料'}</td>
-          <td style="font-weight:600; color:var(--sb-primary-green); font-size:15px;">
-            ${currentPoints} 星賞<br><span style="color:var(--sb-text-black);">HK$ ${currentBalance}</span>
+          <td>
+            <div style="margin-bottom:8px; font-weight:600; color:var(--sb-primary-green);">星賞: ${currentPoints}</div>
+            <div style="font-weight:600;">餘額: HK$ ${currentBalance}</div>
           </td>
           <td>
             <div class="birthday-inline-editor">
-              <span style="font-size:12px; font-weight:600; min-width:40px;">生日:</span>
-              <select class="sel-birth-m" data-uid="${uid}" id="inline-m-${uid}" onchange="syncInlineDays('${uid}')">${mOptions}</select>
-              <select class="sel-birth-d" data-uid="${uid}" id="inline-d-${uid}">${dOptions}</select>
-              <button class="btn-action btn-update-birth" style="padding:6px 14px; font-size:12px; border-radius:4px; margin-left:4px;">更新</button>
+              <span style="font-size:12px; font-weight:600; min-width:40px;">星賞:</span>
+              <input type="number" id="inline-points-${uid}" value="${currentPoints}" style="width: 85px; padding: 6px 10px; font-size: 13px; border-radius: 4px; border: 1px solid var(--sb-text-gray);">
+              <button class="btn-action" style="padding:6px 14px; font-size:12px; border-radius:4px; margin-left:4px;" onclick="updateUserPointsInline('${uid}')">更新</button>
             </div>
-            <div class="birthday-inline-editor" style="margin-top: 12px; border-top: 1px solid var(--sb-border); padding-top: 12px;">
+            <div class="birthday-inline-editor" style="margin-top: 8px;">
               <span style="font-size:12px; font-weight:600; min-width:40px;">餘額:</span>
               <input type="number" id="inline-balance-${uid}" value="${currentBalance}" style="width: 85px; padding: 6px 10px; font-size: 13px; border-radius: 4px; border: 1px solid var(--sb-text-gray);">
-              <button class="btn-action btn-update-balance" data-uid="${uid}" style="padding:6px 14px; font-size:12px; border-radius:4px; margin-left:4px;">更新</button>
+              <button class="btn-action" style="padding:6px 14px; font-size:12px; border-radius:4px; margin-left:4px;" onclick="updateUserBalanceInline('${uid}')">更新</button>
+            </div>
+            <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--sb-border); text-align:right;">
+                <button class="btn-table-delete" onclick="deleteUserAccount('${uid}')">取消會員 (刪除資料)</button>
             </div>
           </td>
         `;
-        row.querySelector('.btn-update-birth').onclick = () => window.updateUserBirthdayInline(uid);
-        row.querySelector('.btn-update-balance').onclick = () => window.updateUserBalanceInline(uid);
         tbody.appendChild(row);
-        syncInlineDays(uid, currentDay);
       }
       if (!hasMatchedCustomer) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--sb-text-gray); padding:32px 0;">未找到符合該條件的手機號碼會員項目</td></tr>`;
@@ -610,20 +671,23 @@
       window.renderAdminUsersTable(cachedUsers, keyword);
     };
 
-    window.updateUserBirthdayInline = function(uid) {
-      const newMonth = document.getElementById(`inline-m-${uid}`).value;
-      const newDay = document.getElementById(`inline-d-${uid}`).value;
-      update(ref(database, 'users/' + uid), { birthdayMonth: newMonth, birthdayDay: newDay })
-        .then(() => window.showSystemAlert('該會員的出生月日資料已成功變更同步。'))
-        .catch(() => window.showSystemAlert('更動失敗，請確認資料庫連線權限。'));
+    window.updateUserPointsInline = function(uid) {
+      const newPoints = parseInt(document.getElementById(`inline-points-${uid}`).value) || 0;
+      update(ref(database, 'users/' + uid), { points: newPoints })
+        .then(() => window.showSystemAlert('該會員的星賞點數已成功變更同步。'));
     };
 
     window.updateUserBalanceInline = function(uid) {
       const newBalance = parseInt(document.getElementById(`inline-balance-${uid}`).value) || 0;
       update(ref(database, 'users/' + uid), { balance: newBalance })
-        .then(() => window.showSystemAlert('該會員的錢包餘額已成功變更同步。'))
-        .catch(() => window.showSystemAlert('更動失敗，請確認資料庫連線。'));
+        .then(() => window.showSystemAlert('該會員的錢包餘額已成功變更同步。'));
     };
+
+    window.deleteUserAccount = function(uid) {
+        window.showSystemConfirm("您確定要取消並刪除該會員嗎？此動作無法復原。", () => {
+            remove(ref(database, 'users/' + uid)).then(() => window.showSystemAlert('會員資料已成功移除。'));
+        });
+    }
 
     window.saveProductData = function(e) {
       e.preventDefault();
@@ -682,6 +746,28 @@
       window.scrollTo({ top: panel.offsetTop - 20, behavior: 'smooth' });
     };
 
+    window.saveCoupon = function(e) {
+        e.preventDefault();
+        const name = document.getElementById('coupon-name').value.trim();
+        const detail = document.getElementById('coupon-detail').value.trim();
+        const expiry = document.getElementById('coupon-expiry').value;
+        const cost = parseInt(document.getElementById('coupon-cost').value) || 1;
+        const discountVal = parseInt(document.getElementById('coupon-discount').value) || 0;
+
+        push(ref(database, 'coupons'), {
+            name, detail, expiry, cost, discountVal, timestamp: Date.now()
+        }).then(() => {
+            window.showSystemAlert('優惠券已成功添加。');
+            document.getElementById('coupon-form-panel').style.display = 'none';
+        });
+    }
+
+    window.deleteCoupon = function(id) {
+        window.showSystemConfirm("您確定要刪除此優惠券嗎？", () => {
+            remove(ref(database, 'coupons/' + id)).then(() => window.showSystemAlert('已成功移除優惠券。'));
+        });
+    }
+
     window.handleAdminLogin = function(e) {
       e.preventDefault();
       const email = document.getElementById('login-email').value;
@@ -695,13 +781,6 @@
 
     window.handleAdminLogout = function() {
       window.showSystemConfirm("確定要安全登出中央管理控制台嗎？", () => { signOut(auth); });
-    };
-
-    window.saveAlipayUrl = function() {
-      const url = document.getElementById('admin-alipay-url').value.trim();
-      set(ref(database, 'adminSettings/alipayQrUrl'), url).then(() => {
-         window.showSystemAlert('支付寶二維碼已成功更新，客戶端將即時生效。');
-      });
     };
 
     window.deleteTopupRequest = function(id) {
@@ -720,6 +799,7 @@
       if (targetSectionId === 'section-product-mgr') document.getElementById('menu-btn-products').classList.add('active');
       else if (targetSectionId === 'section-order-mgr') document.getElementById('menu-btn-orders').classList.add('active');
       else if (targetSectionId === 'section-user-mgr') document.getElementById('menu-btn-users').classList.add('active');
+      else if (targetSectionId === 'section-coupon-mgr') document.getElementById('menu-btn-coupons').classList.add('active');
       else if (targetSectionId === 'section-topup-mgr') document.getElementById('menu-btn-topup').classList.add('active');
     }
 
@@ -739,27 +819,6 @@
       } else if (currentCategory === '甜點') {
         drinkBox.style.display = 'none';
         dessertBox.style.display = 'block';
-      }
-    }
-    function syncInlineDays(uid, targetDay = null) {
-      const mSel = document.getElementById(`inline-m-${uid}`);
-      const dSel = document.getElementById(`inline-d-${uid}`);
-      if(!mSel || !dSel) return;
-
-      const month = parseInt(mSel.value);
-      let days = 31;
-      if([4, 6, 9, 11].includes(month)) days = 30;
-      else if(month === 2) days = 29;
-
-      const savedSelected = targetDay || dSel.value;
-      dSel.innerHTML = '';
-      for(let i=1; i<=days; i++) {
-        const val = i.toString().padStart(2, '0');
-        const opt = document.createElement('option');
-        opt.value = val;
-        opt.textContent = `${i}日`;
-        if(val === savedSelected) opt.selected = true;
-        dSel.appendChild(opt);
       }
     }
   </script>
